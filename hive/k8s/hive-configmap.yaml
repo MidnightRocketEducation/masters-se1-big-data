@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hive-config
+data:
+  hive-site.xml: |
+    <?xml version="1.0"?>
+    <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+    <configuration>
+      <property>
+        <name>hive.metastore.warehouse.dir</name>
+        <value>/opt/hive/data/warehouse</value>
+      </property>
+      <property>
+        <name>javax.jdo.option.ConnectionURL</name>
+        <value>jdbc:derby:;databaseName=/opt/hive/metastore/metastore_db;create=true</value>
+      </property>
+      <property>
+        <name>javax.jdo.option.ConnectionDriverName</name>
+        <value>org.apache.derby.jdbc.EmbeddedDriver</value>
+      </property>
+      <property>
+        <name>hive.server2.thrift.port</name>
+        <value>10000</value>
+      </property>
+      <property>
+        <name>hive.server2.webui.port</name>
+        <value>10002</value>
+      </property>
+      <property>
+        <name>hive.server2.enable.doAs</name>
+        <value>false</value>
+      </property>
+      <property>
+        <name>hive.metastore.try.direct.sql</name>
+        <value>false</value>
+      </property>
+      <property>
+        <name>hive.metastore.try.direct.sql.ddl</name>
+        <value>false</value>
+      </property>
+      <property>
+        <name>datanucleus.schema.autoCreateAll</name>
+        <value>true</value>
+      </property>
+      <property>
+        <name>hive.metastore.schema.verification</name>
+        <value>false</value>
+      </property>
+      <property>
+        <name>hive.server2.metrics.enabled</name>
+        <value>true</value>
+      </property>
+      <property>
+        <name>hive.execution.engine</name>
+        <value>mr</value>
+      </property>
+      <property>
+        <name>hive.exec.mode.local.auto</name>
+        <value>true</value>
+      </property>
+      <property>
+        <name>hive.exec.mode.local.auto.inputbytes.max</name>
+        <value>134217728</value>
+      </property>
+      <property>
+        <name>mapreduce.framework.name</name>
+        <value>local</value>
+      </property>
+    </configuration>

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hiveserver2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hiveserver2
+  template:
+    metadata:
+      labels:
+        app: hiveserver2
+    spec:
+      containers:
+      - name: hiveserver2
+        image: apache/hive:4.1.0
+        env:
+        - name: SERVICE_NAME
+          value: "hiveserver2"
+        - name: IS_RESUME
+          value: "true"
+        ports:
+        - containerPort: 10000
+        - containerPort: 10002
+        volumeMounts:
+        - name: config-volume
+          mountPath: /opt/hive/conf/hive-site.xml
+          subPath: hive-site.xml
+        - name: warehouse-volume
+          mountPath: /opt/hive/data/warehouse
+        - name: metastore-volume
+          mountPath: /opt/hive/metastore
+      volumes:
+      - name: config-volume
+        configMap:
+          name: hive-config
+          items:
+          - key: hive-site.xml
+            path: hive-site.xml
+      - name: warehouse-volume
+        persistentVolumeClaim:
+          claimName: hive-warehouse-pvc
+      - name: metastore-volume
+        persistentVolumeClaim:
+          claimName: hive-metastore-pvc

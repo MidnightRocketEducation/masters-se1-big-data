@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlflow-config
+data:
+  MLFLOW_TRACKING_URI: "file:/app/models/mlruns"
+  HIVE_HOST: "hive-service"
+  HIVE_PORT: "10000"
+  HIVE_DATABASE: "default"
+  HIVE_TABLE: "training_data"

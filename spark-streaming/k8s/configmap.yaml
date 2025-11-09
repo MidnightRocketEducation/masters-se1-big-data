@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spark-streaming-config
+  labels:
+    app: spark-streaming
+data:
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  KAFKA_TOPIC: "streaming-events"
+  CHECKPOINT_LOCATION: "hdfs://namenode:9000/spark/checkpoints/streaming-events"
+  STARTING_OFFSETS: "latest"
+  OUTPUT_MODE: "complete"
+  TRIGGER_INTERVAL: "10 seconds"
+  SPARK_MASTER_URL: "spark://spark-master:7077"

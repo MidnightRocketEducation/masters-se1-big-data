@@ -1,0 +1,591 @@
+---
+# Big Data Ecosystem - Complete Kubernetes Deployment
+# This manifest deploys: HDFS, Kafka, MLflow, Spark Cluster, and Hive
+
+---
+# All resources will be deployed in the bd-bd-gr-04 namespace
+# HDFS NameNode Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: namenode
+spec:
+  selector:
+    app: namenode
+  ports:
+    - name: web
+      protocol: TCP
+      port: 9870
+      targetPort: 9870
+    - name: rpc
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
+
+---
+# HDFS DataNode Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: datanode
+spec:
+  selector:
+    app: datanode
+  ports:
+    - name: datanode
+      protocol: TCP
+      port: 9864
+      targetPort: 9864
+
+---
+# HDFS NameNode StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: namenode
+spec:
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Delete
+  serviceName: "namenode"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: namenode
+  template:
+    metadata:
+      labels:
+        app: namenode
+    spec:
+      containers:
+        - name: namenode
+          image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+          ports:
+            - containerPort: 9870
+            - containerPort: 9000
+          env:
+            - name: CLUSTER_NAME
+              value: "test"
+          envFrom:
+            - configMapRef:
+                name: hadoop-config
+          volumeMounts:
+            - name: hadoop-namenode-storage
+              mountPath: /hadoop/dfs/name
+  volumeClaimTemplates:
+    - metadata:
+        name: hadoop-namenode-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+
+---
+# HDFS DataNode StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: datanode
+spec:
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Delete
+  serviceName: "datanode"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: datanode
+  template:
+    metadata:
+      labels:
+        app: datanode
+    spec:
+      containers:
+        - name: datanode
+          image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+          ports:
+            - containerPort: 9864
+          env:
+            - name: SERVICE_PRECONDITION
+              value: "namenode:9870"
+          envFrom:
+            - configMapRef:
+                name: hadoop-config
+          volumeMounts:
+            - name: hadoop-datanode-storage
+              mountPath: /hadoop/dfs/data
+  volumeClaimTemplates:
+    - metadata:
+        name: hadoop-datanode-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 200Gi
+
+---
+# HDFS ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hadoop-config
+data:
+  CORE_CONF_fs_defaultFS: "hdfs://namenode:9000"
+  CORE_CONF_hadoop_http_staticuser_user: "root"
+  CORE_CONF_hadoop_proxyuser_hue_hosts: "*"
+  CORE_CONF_hadoop_proxyuser_hue_groups: "*"
+  CORE_CONF_io_compression_codecs: "org.apache.hadoop.io.compress.SnappyCodec"
+
+  HDFS_CONF_dfs_webhdfs_enabled: "true"
+  HDFS_CONF_dfs_permissions_enabled: "false"
+  HDFS_CONF_dfs_permissions: "false"
+  HDFS_CONF_dfs_namenode_datanode_registration_ip___hostname___check: "false"
+
+  YARN_CONF_yarn_log___aggregation___enable: "true"
+  YARN_CONF_yarn_log_server_url: "http://historyserver:8188/applicationhistory/logs/"
+  YARN_CONF_yarn_resourcemanager_recovery_enabled: "true"
+  YARN_CONF_yarn_resourcemanager_store_class: "org.apache.hadoop.yarn.server.resourcemanager.recovery.FileSystemRMStateStore"
+  YARN_CONF_yarn_resourcemanager_scheduler_class: "org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler"
+  YARN_CONF_yarn_scheduler_capacity_root_default_maximum___allocation___mb: "8192"
+  YARN_CONF_yarn_scheduler_capacity_root_default_maximum___allocation___vcores: "4"
+  YARN_CONF_yarn_resourcemanager_fs_state___store_uri: "/rmstate"
+  YARN_CONF_yarn_resourcemanager_system___metrics___publisher_enabled: "true"
+  YARN_CONF_yarn_resourcemanager_hostname: "resourcemanager"
+  YARN_CONF_yarn_resourcemanager_address: "resourcemanager:8032"
+  YARN_CONF_yarn_resourcemanager_scheduler_address: "resourcemanager:8030"
+  YARN_CONF_yarn_resourcemanager_resource__tracker_address: "resourcemanager:8031"
+  YARN_CONF_yarn_timeline___service_enabled: "true"
+  YARN_CONF_yarn_timeline___service_generic___application___history_enabled: "true"
+  YARN_CONF_yarn_timeline___service_hostname: "historyserver"
+  YARN_CONF_mapreduce_map_output_compress: "true"
+  YARN_CONF_mapred_map_output_compress_codec: "org.apache.hadoop.io.compress.SnappyCodec"
+  YARN_CONF_yarn_nodemanager_resource_memory___mb: "16384"
+  YARN_CONF_yarn_nodemanager_resource_cpu___vcores: "8"
+  YARN_CONF_yarn_nodemanager_disk___health___checker_max___disk___utilization___per___disk___percentage: "98.5"
+  YARN_CONF_yarn_nodemanager_remote___app___log___dir: "/app-logs"
+  YARN_CONF_yarn_nodemanager_aux___services: "mapreduce_shuffle"
+
+  MAPRED_CONF_mapreduce_framework_name: "yarn"
+  MAPRED_CONF_mapred_child_java_opts: "-Xmx4096m"
+  MAPRED_CONF_mapreduce_map_memory_mb: "4096"
+  MAPRED_CONF_mapreduce_reduce_memory_mb: "8192"
+  MAPRED_CONF_mapreduce_map_java_opts: "-Xmx3072m"
+  MAPRED_CONF_mapreduce_reduce_java_opts: "-Xmx6144m"
+  MAPRED_CONF_yarn_app_mapreduce_am_env: "HADOOP_MAPRED_HOME=/opt/hadoop-3.1.2/"
+  MAPRED_CONF_mapreduce_map_env: "HADOOP_MAPRED_HOME=/opt/hadoop-3.1.2/"
+  MAPRED_CONF_mapreduce_reduce_env: "HADOOP_MAPRED_HOME=/opt/hadoop-3.1.2/"
+
+---
+# Zookeeper Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+spec:
+  selector:
+    app: zookeeper
+  ports:
+  - port: 2181
+    targetPort: 2181
+
+---
+# Zookeeper Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      containers:
+      - name: zookeeper
+        image: confluentinc/cp-zookeeper:7.4.0
+        ports:
+        - containerPort: 2181
+        env:
+        - name: ZOOKEEPER_CLIENT_PORT
+          value: "2181"
+        - name: ZOOKEEPER_TICK_TIME
+          value: "2000"
+
+---
+# Kafka Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+spec:
+  selector:
+    app: kafka
+  ports:
+  - port: 9092
+    targetPort: 9092
+
+---
+# Kafka Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+      - name: kafka
+        image: apache/kafka:3.7.0
+        ports:
+        - containerPort: 9092
+        env:
+        - name: KAFKA_NODE_ID
+          value: "1"
+        - name: KAFKA_PROCESS_ROLES
+          value: "broker,controller"
+        - name: KAFKA_LISTENERS
+          value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+        - name: KAFKA_ADVERTISED_LISTENERS
+          value: "PLAINTEXT://kafka:9092"
+        - name: KAFKA_CONTROLLER_QUORUM_VOTERS
+          value: "1@localhost:9093"
+        - name: KAFKA_CONTROLLER_LISTENER_NAMES
+          value: "CONTROLLER"
+        - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+          value: "1"
+        - name: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
+          value: "1"
+        - name: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
+          value: "1"
+        - name: KAFKA_DELETE_TOPIC_ENABLE
+          value: "true"
+
+---
+# MLflow Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow
+spec:
+  selector:
+    app: mlflow
+  ports:
+  - port: 5000
+    targetPort: 5000
+  type: LoadBalancer
+
+---
+# MLflow PersistentVolumeClaim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mlflow-models-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+# MLflow Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlflow
+  template:
+    metadata:
+      labels:
+        app: mlflow
+    spec:
+      containers:
+      - name: mlflow
+        image: oliverxll/sdu-masters-se1-big-data:mlflow-server
+        ports:
+        - containerPort: 5000
+        env:
+        - name: MLFLOW_TRACKING_URI
+          value: "file:/app/mlruns"
+        volumeMounts:
+        - name: models-storage
+          mountPath: /app/mlruns
+      volumes:
+      - name: models-storage
+        persistentVolumeClaim:
+          claimName: mlflow-models-pvc
+
+---
+# Spark Master Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-master
+spec:
+  selector:
+    app: spark-master
+  ports:
+  - name: master
+    port: 7077
+    targetPort: 7077
+  - name: webui
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP
+
+---
+# Spark Master Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-master
+  template:
+    metadata:
+      labels:
+        app: spark-master
+    spec:
+      containers:
+      - name: spark-master
+        image: apache/spark:3.5.0
+        command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master"]
+        ports:
+        - containerPort: 7077
+        - containerPort: 8080
+        env:
+        - name: SPARK_MASTER_HOST
+          value: "0.0.0.0"
+        - name: SPARK_MASTER_PORT
+          value: "7077"
+        - name: SPARK_MASTER_WEBUI_PORT
+          value: "8080"
+
+---
+# Spark Worker Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: spark-worker
+  template:
+    metadata:
+      labels:
+        app: spark-worker
+    spec:
+      containers:
+      - name: spark-worker
+        image: apache/spark:3.5.0
+        command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077"]
+        ports:
+        - containerPort: 8081
+        env:
+        - name: SPARK_WORKER_WEBUI_PORT
+          value: "8081"
+
+---
+# Hive Metastore PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hive-metastore-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+# Hive Warehouse PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hive-warehouse-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+# Hive ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hive-config
+data:
+  hive-site.xml: |
+    <?xml version="1.0"?>
+    <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+    <configuration>
+      <property>
+        <name>hive.metastore.warehouse.dir</name>
+        <value>/opt/hive/data/warehouse</value>
+      </property>
+      <property>
+        <name>javax.jdo.option.ConnectionURL</name>
+        <value>jdbc:derby:;databaseName=/opt/hive/metastore/metastore_db;create=true</value>
+      </property>
+      <property>
+        <name>javax.jdo.option.ConnectionDriverName</name>
+        <value>org.apache.derby.jdbc.EmbeddedDriver</value>
+      </property>
+      <property>
+        <name>hive.server2.thrift.port</name>
+        <value>10000</value>
+      </property>
+      <property>
+        <name>hive.server2.webui.port</name>
+        <value>10002</value>
+      </property>
+      <property>
+        <name>hive.server2.enable.doAs</name>
+        <value>false</value>
+      </property>
+      <property>
+        <name>hive.metastore.try.direct.sql</name>
+        <value>false</value>
+      </property>
+      <property>
+        <name>hive.metastore.try.direct.sql.ddl</name>
+        <value>false</value>
+      </property>
+      <property>
+        <name>datanucleus.schema.autoCreateAll</name>
+        <value>true</value>
+      </property>
+      <property>
+        <name>hive.metastore.schema.verification</name>
+        <value>false</value>
+      </property>
+      <property>
+        <name>hive.server2.metrics.enabled</name>
+        <value>true</value>
+      </property>
+      <property>
+        <name>hive.execution.engine</name>
+        <value>spark</value>
+      </property>
+      <property>
+        <name>spark.master</name>
+        <value>spark://spark-master:7077</value>
+      </property>
+      <property>
+        <name>spark.sql.adaptive.enabled</name>
+        <value>false</value>
+      </property>
+      <property>
+        <name>spark.dynamicAllocation.enabled</name>
+        <value>false</value>
+      </property>
+      <property>
+        <name>spark.serializer</name>
+        <value>org.apache.spark.serializer.KryoSerializer</value>
+      </property>
+      <property>
+        <name>hive.spark.client.connect.timeout</name>
+        <value>10000ms</value>
+      </property>
+    </configuration>
+
+---
+# HiveServer2 Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: hiveserver2-service
+spec:
+  selector:
+    app: hiveserver2
+  ports:
+  - name: thrift
+    port: 10000
+    targetPort: 10000
+  - name: webui
+    port: 10002
+    targetPort: 10002
+  type: ClusterIP
+
+---
+# HiveServer2 Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hiveserver2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hiveserver2
+  template:
+    metadata:
+      labels:
+        app: hiveserver2
+    spec:
+      containers:
+      - name: hiveserver2
+        image: apache/hive:4.1.0
+        env:
+        - name: SERVICE_NAME
+          value: "hiveserver2"
+        - name: IS_RESUME
+          value: "true"
+        ports:
+        - containerPort: 10000
+        - containerPort: 10002
+        volumeMounts:
+        - name: config-volume
+          mountPath: /opt/hive/conf/hive-site.xml
+          subPath: hive-site.xml
+        - name: warehouse-volume
+          mountPath: /opt/hive/data/warehouse
+        - name: metastore-volume
+          mountPath: /opt/hive/metastore
+      volumes:
+      - name: config-volume
+        configMap:
+          name: hive-config
+          items:
+          - key: hive-site.xml
+            path: hive-site.xml
+      - name: warehouse-volume
+        persistentVolumeClaim:
+          claimName: hive-warehouse-pvc
+      - name: metastore-volume
+        persistentVolumeClaim:
+          claimName: hive-metastore-pvc
+
+---
+# ConfigMap for shared configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bigdata-config
+data:
+  HADOOP_NAMENODE_URI: "hdfs://namenode.bd-bd-gr-04.svc.cluster.local:9000"
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  MLFLOW_TRACKING_URI: "http://mlflow.bd-bd-gr-04.svc.cluster.local:5000"
+  HIVE_THRIFT_URI: "jdbc:hive2://hiveserver2-service:10000"
