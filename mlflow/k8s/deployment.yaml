@@ -1,31 +1,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mlflow-app
+  name: mlflow
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mlflow-app
+      app: mlflow
   template:
     metadata:
       labels:
-        app: mlflow-app
+        app: mlflow
     spec:
       containers:
-      - name: mlflow-container
-        image: your-registry/mlflow-app:latest
+      - name: mlflow
+        image: oliverxll/sdu-masters-se1-big-data:mlflow-server
         ports:
         - containerPort: 5000
-        envFrom:
-        - configMapRef:
-            name: mlflow-config
-        - secretRef:
-            name: mlflow-secret
+        env:
+        - name: MLFLOW_TRACKING_URI
+          value: "file:/app/mlruns"
         volumeMounts:
-        - name: models-volume
-          mountPath: /app/models
+        - name: models-storage
+          mountPath: /app/mlruns
       volumes:
-      - name: models-volume
+      - name: models-storage
         persistentVolumeClaim:
-          claimName: models-pvc
+          claimName: mlflow-models-pvc

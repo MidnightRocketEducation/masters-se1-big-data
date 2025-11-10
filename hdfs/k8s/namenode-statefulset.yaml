@@ -38,20 +38,3 @@ spec:
         resources:
           requests:
             storage: 1Gi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: namenode
-spec:
-  selector:
-    app: namenode
-  ports:
-    - name: web
-      protocol: TCP
-      port: 9870
-      targetPort: 9870
-    - name: rpc
-      protocol: TCP
-      port: 9000
-      targetPort: 9000

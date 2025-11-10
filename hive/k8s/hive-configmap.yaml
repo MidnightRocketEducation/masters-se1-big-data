@@ -53,18 +53,26 @@ data:
       </property>
       <property>
         <name>hive.execution.engine</name>
-        <value>mr</value>
+        <value>spark</value>
       </property>
       <property>
-        <name>hive.exec.mode.local.auto</name>
-        <value>true</value>
+        <name>spark.master</name>
+        <value>spark://spark-master:7077</value>
       </property>
       <property>
-        <name>hive.exec.mode.local.auto.inputbytes.max</name>
-        <value>134217728</value>
+        <name>spark.sql.adaptive.enabled</name>
+        <value>false</value>
       </property>
       <property>
-        <name>mapreduce.framework.name</name>
-        <value>local</value>
+        <name>spark.dynamicAllocation.enabled</name>
+        <value>false</value>
+      </property>
+      <property>
+        <name>spark.serializer</name>
+        <value>org.apache.spark.serializer.KryoSerializer</value>
+      </property>
+      <property>
+        <name>hive.spark.client.connect.timeout</name>
+        <value>10000ms</value>
       </property>
     </configuration>

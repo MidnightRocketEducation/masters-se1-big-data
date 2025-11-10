@@ -36,17 +36,4 @@ spec:
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
-            storage: 1Gi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: datanode
-spec:
-  selector:
-    app: datanode
-  ports:
-    - name: datanode
-      protocol: TCP
-      port: 9864
-      targetPort: 9864
+            storage: 200Gi

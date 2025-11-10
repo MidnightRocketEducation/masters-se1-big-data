@@ -6,8 +6,5 @@ spec:
   selector:
     app: kafka
   ports:
-    - name: kafka
-      protocol: TCP
-      port: 9092
-      targetPort: 9092
-  type: ClusterIP
+  - port: 9092
+    targetPort: 9092
