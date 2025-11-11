@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -146,56 +147,59 @@ type WeatherStationData struct {
 	relevantToYelpData bool
 }
 
+var csvDir string
+
 func main() {
-	weatherStationsMap := make(map[string]WeatherStationData)
-	// Loads any weather station data from a potential existing CSV
-	file, err := os.Stat("weather_stations.csv")
-	if err != nil || file.IsDir() {
-		if err == nil {
-			fmt.Println("Error reading file: ", err)
-			return
-		}
-		fmt.Println("Cannot read weather_stations.csv: ", err)
-	} else { // There exists some weather-station data already.
-		file, err := os.Open("weather_stations.csv")
-		if err != nil {
-			return
-		}
+	if len(os.Args) < 2 {
+		fmt.Println("Please provide a command.")
+		return
+	}
 
-		defer file.Close()
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	exPath := filepath.Dir(ex)
+	csvDir = exPath + "/../csv/"
 
-		reader := csv.NewReader(file)
-		records, err := reader.ReadAll()
-		if err != nil {
-			return
+	cmd := os.Args[1]
+
+	switch cmd {
+	case "analyze":
+		if err := analyze(); err != nil {
+			fmt.Println("Error during analysis:", err)
+			os.Exit(1)
 		}
 
-		for _, record := range records[1:] { // Skip header
-			relevant, e := strconv.ParseBool(record[5])
-			if e != nil {
-				return
-			}
-
-			data := WeatherStationData{
-				stationID:          record[0],
-				name:               record[1],
-				latitude:           record[3],
-				longitude:          record[4],
-				elevation:          record[5],
-				relevantToYelpData: relevant,
-			}
-
-			weatherStationsMap[data.stationID] = data
+	case "purge":
+		if err := purge(); err != nil {
+			fmt.Println("Error during purge:", err)
+			os.Exit(1)
 		}
+
+	default:
+		fmt.Println("Unknown command:", cmd)
+
+		if err := analyze(); err != nil {
+			fmt.Println("Error during analysis:", err)
+			os.Exit(1)
+		}
+	}
+}
+
+func analyze() error {
+	weatherStationsMap, err := readWeatherStationCSV()
+	if err != nil {
+		fmt.Println("Error reading or creating weather station CSV:", err)
+		return err
 	}
 
 	// Reads particular weather data CSV.
 	// Reads CSV dir relevant to project file:
-	csvDir := "../test-data/csv/"
 	entries, err := os.ReadDir(csvDir)
 	if err != nil {
 		fmt.Println("Error reading directory", csvDir, ":", err)
-		return
+		return err
 	}
 
 	for _, entry := range entries {
@@ -208,7 +212,7 @@ func main() {
 			_, err = readWeatherDataCSV(csvDir+name, &weatherStationsMap) // Assumes weatherStationsMap is transformed by this method.
 			if err != nil {
 				fmt.Println("Error while reading from file: ", err)
-				return
+				return err
 			}
 		}
 	}
@@ -225,20 +229,20 @@ func main() {
 	if err == nil {
 		if stat.IsDir() {
 			fmt.Println("`weather_stations.csv` exists but is a directory.")
-			return
+			return err
 		}
 		fmt.Println("`weather_stations.csv` exists and will be overwritten.")
 	} else if !os.IsNotExist(err) {
 		// Some other error while stat'ing the file
 		fmt.Println("Error checking `weather_stations.csv`:", err)
-		return
+		return err
 	}
 
 	// Open (create/truncate) the file for writing. Use a *os.File from here on.
 	f, err := os.Create("weather_stations.csv")
 	if err != nil {
 		fmt.Println("Error creating/opening `weather_stations.csv`:", err)
-		return
+		return err
 	}
 	defer f.Close()
 
@@ -248,21 +252,98 @@ func main() {
 	// Write header
 	if err := writer.Write([]string{"StationID", "Name", "Latitude", "Longitude", "Elevation", "RelevantToYelpData"}); err != nil {
 		fmt.Println("Error writing header:", err)
-		return
+		return err
 	}
 
 	// Write lines
 	for _, station := range weatherStationsMap {
 		if err := writer.Write([]string{station.stationID, station.name, station.latitude, station.longitude, station.elevation, strconv.FormatBool(station.relevantToYelpData)}); err != nil {
 			fmt.Println("Error writing record:", err)
-			return
+			return err
 		}
 	}
 
 	writer.Flush()
 	if err := writer.Error(); err != nil {
 		fmt.Println("Error writing to file:", err)
+		return err
 	}
+
+	return nil
+}
+
+func readWeatherStationCSV() (map[string]WeatherStationData, error) {
+	weatherStationsMap := make(map[string]WeatherStationData)
+	// Loads any weather station data from a potential existing CSV
+	file, err := os.Stat("weather_stations.csv")
+	if err != nil || file.IsDir() {
+		if err == nil {
+			fmt.Println("Error reading file: ", err)
+			return nil, err
+		}
+		fmt.Println("Cannot read weather_stations.csv: ", err)
+	} else { // There exists some weather-station data already.
+		file, err := os.Open("weather_stations.csv")
+		if err != nil {
+			return nil, err
+		}
+
+		defer file.Close()
+
+		reader := csv.NewReader(file)
+		records, err := reader.ReadAll()
+		if err != nil {
+			return nil, err
+		}
+
+		for _, record := range records[1:] { // Skip header
+			relevant, e := strconv.ParseBool(record[5])
+			if e != nil {
+				return nil, e
+			}
+
+			data := WeatherStationData{
+				stationID:          record[0],
+				name:               record[1],
+				latitude:           record[3],
+				longitude:          record[4],
+				elevation:          record[5],
+				relevantToYelpData: relevant,
+			}
+
+			weatherStationsMap[data.stationID] = data
+		}
+	}
+
+	return weatherStationsMap, nil
+}
+
+func purge() error {
+	// Purge non-relevant weather data CSV files
+	weatherStationsMap, err := readWeatherStationCSV()
+	if err != nil {
+		fmt.Println("Error reading weather station CSV:", err)
+		return err
+	}
+
+	// Deletes all non-relevant file-names
+	for key, station := range weatherStationsMap {
+		if isStationRelevantToYelpData(&station) != true {
+			err = os.Remove(csvDir + key + ".csv")
+			if err != nil {
+				if !errors.Is(err, os.ErrNotExist) {
+					fmt.Println("Error deleting", key+".csv:", err)
+					return err
+				}
+			}
+
+			if !errors.Is(err, os.ErrNotExist) {
+				fmt.Println("Deleted", key+".csv")
+			}
+		}
+	}
+
+	return nil
 }
 
 // func filterDataByCity(data []WeatherData, cityName string) []WeatherData {
