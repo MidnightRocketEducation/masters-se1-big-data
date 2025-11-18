@@ -145,6 +145,7 @@ type WeatherStationData struct {
 	longitude          string
 	elevation          string
 	relevantToYelpData bool
+	errors             bool
 }
 
 var csvDir string
@@ -160,7 +161,7 @@ func main() {
 		panic(err)
 	}
 	exPath := filepath.Dir(ex)
-	csvDir = exPath + "/../csv/"
+	csvDir = exPath + "/csv/"
 
 	cmd := os.Args[1]
 
@@ -250,14 +251,14 @@ func analyze() error {
 	defer writer.Flush()
 
 	// Write header
-	if err := writer.Write([]string{"StationID", "Name", "Latitude", "Longitude", "Elevation", "RelevantToYelpData"}); err != nil {
+	if err := writer.Write([]string{"StationID", "Name", "Latitude", "Longitude", "Elevation", "RelevantToYelpData", "Errors"}); err != nil {
 		fmt.Println("Error writing header:", err)
 		return err
 	}
 
 	// Write lines
 	for _, station := range weatherStationsMap {
-		if err := writer.Write([]string{station.stationID, station.name, station.latitude, station.longitude, station.elevation, strconv.FormatBool(station.relevantToYelpData)}); err != nil {
+		if err := writer.Write([]string{station.stationID, station.name, station.latitude, station.longitude, station.elevation, strconv.FormatBool(station.relevantToYelpData), strconv.FormatBool(station.errors)}); err != nil {
 			fmt.Println("Error writing record:", err)
 			return err
 		}
@@ -328,7 +329,12 @@ func purge() error {
 
 	// Deletes all non-relevant file-names
 	for key, station := range weatherStationsMap {
-		if isStationRelevantToYelpData(&station) != true {
+		if station.relevantToYelpData != true {
+			if station.errors == true {
+				fmt.Println("Skipping deletion of", key+".csv due to errors in station data.")
+				continue
+			}
+
 			err = os.Remove(csvDir + key + ".csv")
 			if err != nil {
 				if !errors.Is(err, os.ErrNotExist) {
@@ -338,7 +344,7 @@ func purge() error {
 			}
 
 			if !errors.Is(err, os.ErrNotExist) {
-				fmt.Println("Deleted", key+".csv")
+				//fmt.Println("Deleted", key+".csv")
 			}
 		}
 	}
@@ -405,10 +411,12 @@ func readWeatherDataCSV(filePath string, weatherStationsMap *map[string]WeatherS
 
 	first := records[firstIdx]
 	last := records[lastIdx]
+	e := false
 
 	// basic consistency check between first and last data row
 	if !(first[0] == last[0] && first[2] == last[2] && first[5] == last[5] && first[3] == last[3] && first[4] == last[4]) {
-		return nil, fmt.Errorf("conflicting station data between first (line %d) and last (line %d) of file: %s", firstIdx+1, lastIdx+1, filePath)
+		fmt.Printf("conflicting station data between first (line %d) and last (line %d) of file: %s", firstIdx+1, lastIdx+1, filePath)
+		e = true
 	}
 
 	// update the provided map in-place (do NOT make a local copy)
@@ -426,9 +434,10 @@ func readWeatherDataCSV(filePath string, weatherStationsMap *map[string]WeatherS
 			longitude:          lon,
 			elevation:          elev,
 			relevantToYelpData: isStationRelevantToYelpData(&WeatherStationData{name: name, latitude: lat, longitude: lon}),
+			errors:             e,
 		}
 	} else if (*weatherStationsMap)[id].name != name {
-		return nil, fmt.Errorf("conflicting station names for ID %s: %s and %s", id, (*weatherStationsMap)[id].name, name)
+		fmt.Printf("conflicting station names for ID %s: %s and %s", id, (*weatherStationsMap)[id].name, name)
 	}
 
 	return weatherStationsMap, nil

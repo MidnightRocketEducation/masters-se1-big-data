@@ -5,8 +5,8 @@ metadata:
 spec:
   containers:
     - name: go-producer
-      image: golang:1.25.3-trixie
-      command: [ "sleep", "infinity" ] # Keeps it running. Inspired by E24L3
+      image: the1s/big-data:latest
+      imagePullPolicy: Always
       volumeMounts:
         - name: data
           mountPath: /data
