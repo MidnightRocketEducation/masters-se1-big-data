@@ -17,7 +17,16 @@ if [[ ! -x "$BIN_DIR/${BIN_NAME}" ]]; then
     exit 1
 fi
 
-for year in {2009..2022}; do
+# ensure a cleanup-saver runs on any error/exit
+save_on_fail() {
+  if [[ -d "${csv_dir}" ]]; then
+    mkdir -p "${TARGET_DIR}/filtered_${year}_partial"
+    cp -a "${csv_dir}/." "${TARGET_DIR}/filtered_${year}_partial/" || true
+  fi
+}
+trap save_on_fail ERR EXIT
+
+for year in {2009..2019}; do
     tarfile="$TARGET_DIR/${year}.tar.gz"
     url="$BASE_URL/${year}.tar.gz"
 
@@ -34,6 +43,11 @@ for year in {2009..2022}; do
 
     echo "Extracting $tarfile -> $csv_dir"
     tar -xzf "${tarfile}" -C "${csv_dir}" > /dev/null
+    mkdir -p "${TARGET_DIR}/filtered_${year}"
+    cp -a -- "${csv_dir}" "${TARGET_DIR}/filtered_${year}/"
+
+    rm -f "${year_dir}/${BIN_NAME}"
+    rm -rf "${year_dir}/csv"ll
     
     # copy binary to year directory
     cp -f -- "${BIN_DIR}/${BIN_NAME}" "${year_dir}/${BIN_NAME}"
@@ -43,6 +57,19 @@ for year in {2009..2022}; do
     ( cd "$year_dir" && "./${BIN_NAME}" analyze && "./${BIN_NAME}" purge )
 
     echo "Finished processing csvs for year $year..."
+
+    echo "Cleaning up $tarfile and extracted data..."
+    
+    mkdir -p "${TARGET_DIR}/filtered_${year}"
+    if cp -a "${csv_dir}/." "${TARGET_DIR}/filtered_${year}/"; then
+        echo "Copied processed CSVs to ${TARGET_DIR}/filtered_${year}/"
+        rm -f "${tarfile}"
+        rm -f "${year_dir}/${BIN_NAME}"
+        rm -rf "${year_dir}/csv"
+    else
+        echo "Warning: failed to copy processed CSVs for ${year}. Leaving originals in ${year_dir} for inspection." >&2
+    fi
+
 done
 
 echo "All files downloaded and processed in $TARGET_DIR"
