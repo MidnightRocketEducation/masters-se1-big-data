@@ -1,4 +1,5 @@
 FROM docker.io/debian:trixie
+LABEL org.opencontainers.image.description "This image serves as an init container which fetches and extracts the yelp dataset."
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	--mount=type=cache,target=/var/lib/apt,sharing=locked \
