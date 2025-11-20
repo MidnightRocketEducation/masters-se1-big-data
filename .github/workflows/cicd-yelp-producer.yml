@@ -62,6 +62,7 @@ jobs:
         env:
           TAGS: |
             ghcr.io/${{ github.repository }}/${{ env.YELP_FETCHER_IMAGE_NAME }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}/${{ env.YELP_FETCHER_IMAGE_NAME }}:latest
             ${{ github.ref == 'refs/heads/main' && format('ghcr.io/{0}/{1}:latest', github.repository, env.YELP_FETCHER_IMAGE_NAME)  || '' }}
         run: |
           printenv TAGS | awk 'BEGIN { print "TAGS<<EOF" } NF > 0 { print tolower($0) } END { print "EOF" }' | tee -a "$GITHUB_OUTPUT"
