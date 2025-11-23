@@ -1,0 +1,30 @@
+# Example docker-compose file
+# Provided for build specification and
+# to demo yelp-producer setup.
+
+services:
+  yelp-producer:
+    image: "ghcr.io/midnightrocketeducation/masters-se1-big-data/yelp-producer/yp-daemon:latest"
+    depends_on:
+      fetcher:
+        condition: services_successfully_exited
+    build:
+      context: .
+      args:
+        APP_NAME: yp-daemon
+      labels:
+        org.opencontainers.image.source: "https://github.com/MidnightRocketEducation/masters-se1-big-data/"
+    environment:
+      YT_SOURCE: "/mnt/data"
+    volumes:
+      - data:/mnt/data:ro
+      - state:/mnt/state
+
+  fetcher:
+    image: "ghcr.io/midnightrocketeducation/masters-se1-big-data/yelp-producer/fetcher:latest"
+    volumes:
+      - data:/output
+
+volumes:
+	data:
+	state:
