@@ -3,7 +3,7 @@ import Foundation;
 struct ResumeableAsyncFileReading: AsyncSequence {
 	typealias Element = (state: FileReadingState, line: String);
 
-	let fileHandle: FileHandle;
+	private let fileHandle: FileHandle;
 
 	init(fileHandle: FileHandle) {
 		self.fileHandle = fileHandle;
@@ -49,7 +49,7 @@ struct ResumeableAsyncFileReading: AsyncSequence {
 		Self.AsyncIterator(fileHandle: self.fileHandle);
 	}
 
-	mutating func resume(state: FileReadingState) throws -> AsyncDropFirstSequence<Self> {
+	func resume(from state: FileReadingState) throws -> AsyncDropFirstSequence<Self> {
 		try self.fileHandle.seek(toOffset: state.byteOffset);
 		return self.dropFirst(state.lineOffset);
 	}
@@ -57,6 +57,8 @@ struct ResumeableAsyncFileReading: AsyncSequence {
 
 
 struct FileReadingState: Codable {
+	static let beginning: FileReadingState = .init(byteOffset: 0, lineOffset: 0);
+
 	let byteOffset: UInt64;
 	let lineOffset: Int;
 }
