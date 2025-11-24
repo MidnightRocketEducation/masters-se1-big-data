@@ -1,6 +1,15 @@
 {
-  "originHash" : "451d0440aacc7e9ccd09161f7ecf7e4c37004ae18f805225f82a9290b0b5332a",
+  "originHash" : "380dc3aa3af203555920dba3a8dc2b2e50ef8e89c091482952c03f1d1d8dd6c1",
   "pins" : [
+    {
+      "identity" : "codingkeysgenerator",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/zijievv/CodingKeysGenerator",
+      "state" : {
+        "revision" : "05961e35ada46926322a584f351832fd15969fd9",
+        "version" : "0.3.1"
+      }
+    },
     {
       "identity" : "swift-argument-parser",
       "kind" : "remoteSourceControl",
@@ -8,6 +17,15 @@
       "state" : {
         "revision" : "cdd0ef3755280949551dc26dee5de9ddeda89f54",
         "version" : "1.6.2"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax.git",
+      "state" : {
+        "revision" : "f99ae8aa18f0cf0d53481901f88a0991dc3bd4a2",
+        "version" : "601.0.1"
       }
     }
   ],

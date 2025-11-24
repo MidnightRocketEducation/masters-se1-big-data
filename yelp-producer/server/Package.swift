@@ -10,6 +10,7 @@ let package = Package(
 	],
 	dependencies: [
 		.package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0"),
+		.package(url: "https://github.com/zijievv/CodingKeysGenerator", from: "0.3.1"),
 	],
 	targets: [
 		// Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -18,6 +19,7 @@ let package = Package(
 			name: "yp-daemon",
 			dependencies: [
 				.product(name: "ArgumentParser", package: "swift-argument-parser"),
+				.product(name: "CodingKeysGenerator", package: "CodingKeysGenerator"),
 			]
 		),
 	]

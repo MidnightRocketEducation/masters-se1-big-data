@@ -18,9 +18,15 @@ struct yelp_producer: AsyncParsableCommand {
 	var file: FileHandle;
 
 	mutating func run() async throws {
-		var rafr = ResumeableAsyncFileReading(fileHandle: file);
-		for try await s in try rafr.resume(state: .init(byteOffset: 5336397528, lineOffset: 1)) {
+		SignalHandler.register(.INT, .TERM) { sig in
+			print("Got signal: \(sig)\nExiting...");
+			return .ok;
+		}
+		print(getpid());
+		try await Task.sleep(for: .seconds(10))
 
+		var rafr = ResumeableAsyncFileReading(fileHandle: file);
+		for try await s in try rafr.resume(state: .init(byteOffset: 0, lineOffset: 20)) {
 			print("\(try file.offset()):  \(s)");
 		}
 	}
