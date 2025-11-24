@@ -11,7 +11,7 @@ struct ResumeableAsyncFileReading: AsyncSequence {
 
 	struct AsyncIterator: AsyncIteratorProtocol {
 		let filehandle: FileHandle;
-		var linesIterator: AsyncLineSequence<FileHandle.AsyncBytes>.AsyncIterator;
+		var linesIterator: AsyncLineSequenceFromFile.AsyncIterator;
 		var lineOffset: Int = 0;
 		var previousByteOffset: UInt64;
 		var currentByteOffset: UInt64;
@@ -19,7 +19,7 @@ struct ResumeableAsyncFileReading: AsyncSequence {
 		init(fileHandle: FileHandle) {
 			self.filehandle = fileHandle;
 			self.previousByteOffset = (try? fileHandle.offset()) ?? 0;
-			self.linesIterator = fileHandle.bytes.lines.makeAsyncIterator();
+			self.linesIterator = AsyncLineSequenceFromFile(from: fileHandle).makeAsyncIterator();
 			self.currentByteOffset = self.previousByteOffset;
 		}
 
