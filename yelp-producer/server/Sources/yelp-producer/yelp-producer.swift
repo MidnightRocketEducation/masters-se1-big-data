@@ -18,17 +18,27 @@ struct yelp_producer: AsyncParsableCommand {
 	var file: FileHandle;
 
 	mutating func run() async throws {
-		SignalHandler.register(.INT, .TERM) { sig in
-			print("Got signal: \(sig)\nExiting...");
+		let file = self.file;
+		let task = Task {
+			let rafr = ResumeableAsyncFileReading(fileHandle: file);
+			for try await s in try rafr.resume(from: fetchState() ?? .beginning) {
+				print("\(try file.offset()):  \(s)");
+				if Task.isCancelled {
+					print("Saving state");
+					try saveState(s.state);
+					return;
+				}
+			}
+		}
+
+		SignalHandler.register(.INT, .TERM, .PIPE) { sig in
+			stderr("Got signal: \(sig)\nExiting...");
+			task.cancel();
+			let _ = await task.result;
 			return .ok;
 		}
-		print(getpid());
-		try await Task.sleep(for: .seconds(10))
 
-		var rafr = ResumeableAsyncFileReading(fileHandle: file);
-		for try await s in try rafr.resume(state: .init(byteOffset: 0, lineOffset: 20)) {
-			print("\(try file.offset()):  \(s)");
-		}
+		let _ = await task.result;
 	}
 
 
@@ -41,4 +51,20 @@ func parseFileHandle(_ string: String) throws -> FileHandle {
 		throw ValidationError("Invalid file handle: \(string)")
 	}
 	return fileHandle
+}
+
+func saveState(_ state: FileReadingState) throws {
+	let url: URL = URL(fileURLWithPath: "state.json");
+	let encoder = JSONEncoder();
+	let data = try encoder.encode(state);
+	try data.write(to: url);
+}
+
+func fetchState() -> FileReadingState? {
+	let url: URL = URL(fileURLWithPath: "state.json");
+	guard let data = try? Data(contentsOf: url) else {
+		return nil;
+	}
+	let decoder = JSONDecoder();
+	return try? decoder.decode(FileReadingState.self, from: data);
 }
