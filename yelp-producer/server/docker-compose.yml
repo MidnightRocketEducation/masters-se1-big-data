@@ -7,7 +7,7 @@ services:
     image: "ghcr.io/midnightrocketeducation/masters-se1-big-data/yelp-producer/yp-daemon:latest"
     depends_on:
       fetcher:
-        condition: services_successfully_exited
+        condition: service_completed_successfully
     build:
       context: .
       args:
@@ -26,5 +26,5 @@ services:
       - data:/output
 
 volumes:
-	data:
-	state:
+  data:
+  state:

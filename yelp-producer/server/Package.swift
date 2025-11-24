@@ -11,6 +11,8 @@ let package = Package(
 	dependencies: [
 		.package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0"),
 		.package(url: "https://github.com/zijievv/CodingKeysGenerator", from: "0.3.1"),
+		.package(url: "https://github.com/swift-server/swift-kafka-client", branch: "main"),
+		.package(url: "https://github.com/swift-server/swift-service-lifecycle.git", from: "2.0.0"),
 	],
 	targets: [
 		// Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -20,6 +22,8 @@ let package = Package(
 			dependencies: [
 				.product(name: "ArgumentParser", package: "swift-argument-parser"),
 				.product(name: "CodingKeysGenerator", package: "CodingKeysGenerator"),
+				.product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
+				.product(name: "Kafka", package: "swift-kafka-client"),
 			]
 		),
 	]

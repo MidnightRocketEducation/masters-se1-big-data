@@ -11,7 +11,7 @@ ifeq ($(OS),Darwin)                 # macOS
 else ifeq ($(OS),Linux)             # Linux
 	ARCH := $(shell uname -m)
 	ifneq ($(filter $(ARCH), aarch64 x86_64),)
-	SWIFT_BUILD_CMD := swift build -c release --swift-sdk $(ARCH)-swift-linux-musl
+	SWIFT_BUILD_CMD := swift build -c release # --swift-sdk $(ARCH)-swift-linux-musl
 else
 	SWIFT_BUILD_CMD := $(error Unsupported architecture: $(ARCH))
 endif
