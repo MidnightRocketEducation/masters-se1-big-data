@@ -6,6 +6,7 @@ extension Signal {
 	static let INT: Signal = SIGINT;
 	static let QUIT: Signal = SIGQUIT;
 	static let TERM: Signal = SIGTERM;
+	static let PIPE: Signal = SIGPIPE;
 }
 
 struct SignalHandler {
@@ -20,7 +21,7 @@ struct SignalHandler {
 	private static func trigger(_ sig: Signal) {
 		// Detached with high priority to process signal as fast a possible
 		Task.detached(priority: .high) {
-			await Self.handlers[sig]?.resume(returning: sig);
+			await Self.handlers.removeValue(forKey: sig)?.resume(returning: sig);
 		}
 	}
 

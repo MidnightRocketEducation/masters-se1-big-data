@@ -38,4 +38,8 @@ actor AsyncDictionary<Key: Hashable, Value> {
 	func get(_ key: Key) -> Value? {
 		self[key]
 	}
+
+	func removeValue(forKey key: Key) -> Value? {
+		self.dictionary.removeValue(forKey: key);
+	}
 }
