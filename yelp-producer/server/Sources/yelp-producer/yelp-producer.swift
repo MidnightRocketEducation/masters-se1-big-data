@@ -21,14 +21,20 @@ struct yelp_producer: AsyncParsableCommand {
 		let file = self.file;
 		let task = Task {
 			let rafr = ResumeableAsyncFileReading(fileHandle: file);
+			var finalState: FileReadingState? = nil;
 			for try await s in try rafr.resume(from: fetchState() ?? .beginning) {
+				finalState = s.state;
 				print("\(try file.offset()):  \(s)");
 				if Task.isCancelled {
-					print("Saving state");
+					stderr("Saving state: \(s.state)");
 					try saveState(s.state);
 					return;
 				}
 			}
+			guard let finalState else {
+				return
+			}
+			try saveState(finalState);
 		}
 
 		SignalHandler.register(.INT, .TERM, .PIPE) { sig in
