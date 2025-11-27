@@ -21,7 +21,7 @@ struct yelp_producer: AsyncParsableCommand {
 		let file = self.file;
 		let task = Task {
 			let rafr = ResumeableAsyncFileReading(fileHandle: file);
-			var finalState: FileReadingState? = nil;
+			var finalState: ResumeableAsyncFileReading.State? = nil;
 			for try await s in try rafr.resume(from: fetchState() ?? .beginning) {
 				finalState = s.state;
 				print("\(try file.offset()):  \(s)");
@@ -59,18 +59,18 @@ func parseFileHandle(_ string: String) throws -> FileHandle {
 	return fileHandle
 }
 
-func saveState(_ state: FileReadingState) throws {
+func saveState(_ state: ResumeableAsyncFileReading.State) throws {
 	let url: URL = URL(fileURLWithPath: "state.json");
 	let encoder = JSONEncoder();
 	let data = try encoder.encode(state);
 	try data.write(to: url);
 }
 
-func fetchState() -> FileReadingState? {
+func fetchState() -> ResumeableAsyncFileReading.State? {
 	let url: URL = URL(fileURLWithPath: "state.json");
 	guard let data = try? Data(contentsOf: url) else {
 		return nil;
 	}
 	let decoder = JSONDecoder();
-	return try? decoder.decode(FileReadingState.self, from: data);
+	return try? decoder.decode(ResumeableAsyncFileReading.State.self, from: data);
 }
