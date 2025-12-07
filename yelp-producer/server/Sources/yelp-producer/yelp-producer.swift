@@ -19,32 +19,28 @@ struct yelp_producer: AsyncParsableCommand {
 
 	mutating func run() async throws {
 		let file = self.file;
-		let task = Task {
-			let rafr = ResumeableAsyncFileReading(fileHandle: file);
-			var finalState: ResumeableAsyncFileReading.State? = nil;
-			for try await s in try rafr.resume(from: fetchState() ?? .beginning) {
-				finalState = s.state;
-				print("\(try file.offset()):  \(s)");
-				if Task.isCancelled {
-					stderr("Saving state: \(s.state)");
-					try saveState(s.state);
-					return;
-				}
-			}
-			guard let finalState else {
-				return
-			}
-			try saveState(finalState);
-		}
+		let cancelableReader = CancelableFileReading(file: file, state: fetchState() ?? .new);
 
 		SignalHandler.register(.INT, .TERM, .PIPE) { sig in
 			stderr("Got signal: \(sig)\nExiting...");
-			task.cancel();
-			let _ = await task.result;
+			await cancelableReader.cancel();
 			return .ok;
 		}
 
-		let _ = await task.result;
+		do {
+			let state = try await cancelableReader.read() { line in
+				print(line);
+			}
+			try saveState(state);
+		} catch let e as CancelableFileReading.Error {
+			switch e {
+			case .readerError(_, let state):
+				try saveState(state);
+				fallthrough;
+			default:
+				throw e;
+			}
+		}
 	}
 
 
@@ -59,18 +55,18 @@ func parseFileHandle(_ string: String) throws -> FileHandle {
 	return fileHandle
 }
 
-func saveState(_ state: ResumeableAsyncFileReading.State) throws {
+func saveState(_ state: CancelableFileReading.State) throws {
 	let url: URL = URL(fileURLWithPath: "state.json");
 	let encoder = JSONEncoder();
 	let data = try encoder.encode(state);
 	try data.write(to: url);
 }
 
-func fetchState() -> ResumeableAsyncFileReading.State? {
+func fetchState() -> CancelableFileReading.State? {
 	let url: URL = URL(fileURLWithPath: "state.json");
 	guard let data = try? Data(contentsOf: url) else {
 		return nil;
 	}
 	let decoder = JSONDecoder();
-	return try? decoder.decode(ResumeableAsyncFileReading.State.self, from: data);
+	return try? decoder.decode(CancelableFileReading.State.self, from: data);
 }
