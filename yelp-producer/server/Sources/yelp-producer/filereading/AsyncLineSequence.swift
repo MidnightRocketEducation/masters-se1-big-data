@@ -40,10 +40,7 @@ struct AsyncLineSequenceFromFile: AsyncSequence {
 				return;
 			}
 
-			guard let newString = String(data: data, encoding: .utf8) else {
-				throw Error.encodeError;
-			}
-
+			let newString = String(decoding: data, as: UTF8.self);
 			/*
 			 Combine current lines into string.
 			 Then add the new string and again split by lines.
@@ -51,10 +48,6 @@ struct AsyncLineSequenceFromFile: AsyncSequence {
 			 */
 			let currentStr = self.lines.joined(separator: AsyncLineSequenceFromFile.lineSeperator);
 			self.lines = (currentStr + newString).split(separator: AsyncLineSequenceFromFile.lineSeperator);
-		}
-
-		enum Error: Swift.Error {
-			case encodeError;
 		}
 	}
 
