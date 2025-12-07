@@ -6,6 +6,7 @@
 
 import ArgumentParser;
 import Foundation;
+import ServiceLifecycle;
 
 @main
 struct yelp_producer: AsyncParsableCommand {
@@ -19,28 +20,14 @@ struct yelp_producer: AsyncParsableCommand {
 
 	mutating func run() async throws {
 		let file = self.file;
-		let cancelableReader = CancelableFileReading(file: file, state: fetchState() ?? .new);
 
-		SignalHandler.register(.INT, .TERM, .PIPE) { sig in
-			stderr("Got signal: \(sig)\nExiting...");
-			await cancelableReader.cancel();
-			return .ok;
-		}
-
-		do {
-			let state = try await cancelableReader.read() { line in
-				print(line);
-			}
-			try saveState(state);
-		} catch let e as CancelableFileReading.Error {
-			switch e {
-			case .readerError(_, let state):
-				try saveState(state);
-				fallthrough;
-			default:
-				throw e;
-			}
-		}
+		let service = FileReadingService(file: file);
+		let group = ServiceGroup(
+			services: [service],
+			gracefulShutdownSignals: [.sigint, .sigterm, .sigpipe],
+			logger: .init(label: "yelp_producer")
+		)
+		try await group.run();
 	}
 
 

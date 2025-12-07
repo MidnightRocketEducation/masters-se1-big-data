@@ -1,4 +1,5 @@
 import Foundation;
+import ServiceLifecycle;
 
 actor CancelableFileReading {
 	private let file: ResumeableAsyncFileReading;
@@ -59,5 +60,42 @@ extension CancelableFileReading {
 	enum Error: Swift.Error {
 		case cancelled(State);
 		case readerError(Swift.Error, State);
+	}
+}
+
+
+actor FileReadingService: Service {
+	let file: FileHandle;
+
+	init(file: FileHandle) {
+		self.file = file;
+	}
+
+	func run() async throws {
+		let cancelableReader = CancelableFileReading(file: self.file, state: fetchState() ?? .new);
+		async let _ = onCancel {
+			await cancelableReader.cancel();
+		}
+
+		do {
+			let state = try await cancelableReader.read() { line in
+				print(line);
+			}
+			try saveState(state);
+		} catch let e as CancelableFileReading.Error {
+			switch e {
+			case .readerError(_, let state):
+				try saveState(state);
+				fallthrough;
+			default:
+				throw e;
+			}
+		}
+
+	}
+
+	func onCancel(_ f: () async -> Void) async {
+		try? await gracefulShutdown();
+		await f();
 	}
 }
