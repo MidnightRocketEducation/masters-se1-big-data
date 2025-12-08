@@ -43,7 +43,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.CACHE_PATH }}
-          key: ${{ runner.os }}-${{ hashFiles(format('{0}/**/Package.resolved', env.SUBPROJECT_PATH)) }}
+          key: ${{ github.job }}-${{ runner.os }}
           restore-keys: |
             ${{ runner.os }}-
 
@@ -93,7 +93,7 @@ jobs:
 
       # The base name of the docker image. e.g. ghcr.io/<REPO_NAME>/<DOCKER_IMAGE_NAME>:<VERSION_TAG>
       DOCKER_IMAGE_NAME: yelp-producer/server
-      APP_NAME: yelp-producer
+      APP_NAME: yp-daemon
 
     # Required permissions: push to packages
     permissions:
@@ -112,9 +112,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.CACHE_PATH }}
-          key: ${{ runner.os }}-${{ hashFiles(format('{0}/**/Package.resolved', env.SUBPROJECT_PATH)) }}
+          key: ${{ github.job }}-${{ runner.os }}
           restore-keys: |
-            ${{ runner.os }}-
+            ${{ runner.os }}-${{ hashFiles(format('{0}/**/Package.resolved', env.SUBPROJECT_PATH)) }}
 
       # 2️⃣ Log in to GitHub Container Registry (ghcr.io)
       #    GITHUB_TOKEN is automatically injected into the runner.

@@ -63,6 +63,6 @@ WORKDIR /app
 # Replace “MyApp” with the name of your binary
 COPY --from=builder /$APP_NAME /usr/local/bin/$APP_NAME
 
-ENV APP_NAME $APP_NAME
+ENV APP_NAME=$APP_NAME
 # Set the entrypoint to run the binary
 ENTRYPOINT exec "$APP_NAME"
