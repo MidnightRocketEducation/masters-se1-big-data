@@ -23,8 +23,8 @@ jobs:
       SUBPROJECT_PATH: yelp-producer/content-fetcher
       CACHE_PATH: yelp-producer/content-fetcher/cache
 
-      # The base name of the docker image. e.g. ghcr.io/<REPO_NAME>/<YELP_FETCHER_IMAGE_NAME>:<VERSION_TAG>
-      YELP_FETCHER_IMAGE_NAME: yelp-producer/fetcher
+      # The base name of the docker image. e.g. ghcr.io/<REPO_NAME>/<DOCKER_IMAGE_NAME>:<VERSION_TAG>
+      DOCKER_IMAGE_NAME: yelp-producer/fetcher
 
     # Required permissions: push to packages
     permissions:
@@ -61,9 +61,78 @@ jobs:
         id: converted_tags
         env:
           TAGS: |
-            ghcr.io/${{ github.repository }}/${{ env.YELP_FETCHER_IMAGE_NAME }}:${{ github.sha }}
-            # ghcr.io/${{ github.repository }}/${{ env.YELP_FETCHER_IMAGE_NAME }}:latest
-            ${{ github.ref == 'refs/heads/main' && format('ghcr.io/{0}/{1}:latest', github.repository, env.YELP_FETCHER_IMAGE_NAME)  || '' }}
+            ghcr.io/${{ github.repository }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+            # ghcr.io/${{ github.repository }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+            ${{ github.ref == 'refs/heads/main' && format('ghcr.io/{0}/{1}:latest', github.repository, env.DOCKER_IMAGE_NAME)  || '' }}
+        run: |
+          printenv TAGS | awk 'BEGIN { print "TAGS<<EOF" } NF > 0 && !/^[[:space:]]*#/ { print tolower($0) } END { print "EOF" }' | tee -a "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 5️⃣ Build the Docker image and push it to ghcr.io
+      - name: Build & push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ env.SUBPROJECT_PATH }}
+          push: true
+          tags: |
+            ${{ steps.converted_tags.outputs.TAGS }}
+
+          labels: |
+            org.opencontainers.image.source=${{ github.repositoryUrl }}
+            org.opencontainers.image.version=${{ github.sha }}
+
+          cache-from: type=local,src=${{ env.CACHE_PATH }}
+          cache-to: type=local,dest=${{ env.CACHE_PATH }}
+  build-yelp-dataset-server:
+    runs-on: ubuntu-latest
+    env:
+      SUBPROJECT_PATH: yelp-producer/server
+      CACHE_PATH: yelp-producer/server/cache
+
+      # The base name of the docker image. e.g. ghcr.io/<REPO_NAME>/<DOCKER_IMAGE_NAME>:<VERSION_TAG>
+      DOCKER_IMAGE_NAME: yelp-producer/server
+      APP_NAME: yelp-producer
+
+    # Required permissions: push to packages
+    permissions:
+      contents: read        # for actions/checkout
+      packages: write       # to push to ghcr.io
+
+    steps:
+      # 1️⃣ Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            ${{ env.SUBPROJECT_PATH }}
+
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CACHE_PATH }}
+          key: ${{ runner.os }}-${{ hashFiles(format('{0}/**/Package.resolved', env.SUBPROJECT_PATH)) }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      # 2️⃣ Log in to GitHub Container Registry (ghcr.io)
+      #    GITHUB_TOKEN is automatically injected into the runner.
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}          # usually your GitHub username
+          password: ${{ secrets.GITHUB_TOKEN }}  # the token is automatically available
+
+      # See https://github.com/orgs/community/discussions/25768
+      - name: Convert tags to lowercase
+        id: converted_tags
+        env:
+          TAGS: |
+            ghcr.io/${{ github.repository }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+            # ghcr.io/${{ github.repository }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+            ${{ github.ref == 'refs/heads/main' && format('ghcr.io/{0}/{1}:latest', github.repository, env.DOCKER_IMAGE_NAME)  || '' }}
         run: |
           printenv TAGS | awk 'BEGIN { print "TAGS<<EOF" } NF > 0 && !/^[[:space:]]*#/ { print tolower($0) } END { print "EOF" }' | tee -a "$GITHUB_OUTPUT"
 
