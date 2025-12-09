@@ -1,0 +1,21 @@
+{
+  "type": "record",
+  "name": "WeatherObservation",
+  "namespace": "com.loosemole.weatherobservation",
+  "fields": [
+    { "name": "Station", "type": "long" },
+    { "name": "Date", "type": "string" },
+    { "name": "Latitude", "type": "double" },
+    { "name": "Longitude", "type": "double" },
+    { "name": "Elevation", "type": "double" },
+    { "name": "Name", "type": "string" },
+    { "name": "ReportType", "type": "string" },
+    { "name": "Source", "type": "int" },
+
+    { "name": "HourlyDryBulbTemperature", "type": ["null", "double"] },
+    { "name": "HourlySeaLevelPressure", "type": ["null", "double"] },
+    { "name": "HourlyVisibility", "type": ["null", "double"] },
+    { "name":  "HourlyWindDirection", "type": ["null", "double"] },
+    { "name": "HourlyWindSpeed", "type": ["null", "double"] }
+  ]
+}
