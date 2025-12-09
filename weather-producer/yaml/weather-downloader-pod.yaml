@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: go-producer
+  name: weather-downloader
 spec:
   containers:
-    - name: go-producer
+    - name: weather-downloader
       image: the1s/big-data:latest
       imagePullPolicy: Always
       volumeMounts:
