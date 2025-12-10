@@ -15,19 +15,19 @@ struct yelp_producer: AsyncParsableCommand {
 		abstract: "Simple temeprature sensor deamon",
 	);
 
-	@Argument(transform: parseFileHandle)
-	var file: FileHandle;
+	@Option(transform: transformToFileHandle)
+	var categoryFile: FileHandle;
+
+	@Option(transform: transformToURL)
+	var stateDirectory: URL;
 
 	mutating func run() async throws {
-		let file = self.file;
-
-		let service = FileReadingService(file: file);
-		let group = ServiceGroup(
-			services: [service],
-			gracefulShutdownSignals: [.sigint, .sigterm, .sigpipe],
-			logger: .init(label: "yelp_producer")
-		)
-		try await group.run();
+		let asyncReader = CancelableFileReading(file: categoryFile);
+		let set: AsyncSet<String> = .init();
+		let _ = try await asyncReader.read {
+			await set.insert($0);
+		}
+		print(await set.description);
 	}
 
 
@@ -35,12 +35,9 @@ struct yelp_producer: AsyncParsableCommand {
 	}
 }
 
-func parseFileHandle(_ string: String) throws -> FileHandle {
-	guard let url = URL(string: string), let fileHandle = try? FileHandle(forReadingFrom: url) else {
-		throw ValidationError("Invalid file handle: \(string)")
-	}
-	return fileHandle
-}
+
+
+
 
 func saveState(_ state: CancelableFileReading.State) throws {
 	let url: URL = URL(fileURLWithPath: "state.json");
