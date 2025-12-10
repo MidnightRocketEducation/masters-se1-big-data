@@ -1,4 +1,8 @@
 actor AsyncSet<Element: Hashable & Sendable> {
+	var description: String {
+		return self.container.description;
+	}
+
 	typealias Container = Set<Element>;
 
 	private var container: Container;
