@@ -22,12 +22,7 @@ struct yelp_producer: AsyncParsableCommand {
 	var stateDirectory: URL;
 
 	mutating func run() async throws {
-		let asyncReader = CancelableFileReading(file: categoryFile);
-		let set: AsyncSet<String> = .init();
-		let _ = try await asyncReader.read {
-			await set.insert($0);
-		}
-		print(await set.description);
+		let categoryFilter = try await CategoryFilter.load(from: categoryFile);
 	}
 
 
