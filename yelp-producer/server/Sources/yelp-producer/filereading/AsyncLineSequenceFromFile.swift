@@ -26,8 +26,9 @@ struct AsyncLineSequenceFromFile: AsyncSequence {
 				try self.readMore();
 			}
 
-			if self.lines.isEmpty {
+			if self.lines.isEmpty || (self.lines.count == 1 && self.lines.first!.isEmpty) {
 				// return nil if still empty
+				// Of if on trailing newline.
 				return nil;
 			}
 
@@ -47,7 +48,7 @@ struct AsyncLineSequenceFromFile: AsyncSequence {
 			 This prevents broken lines across buffer berriers.
 			 */
 			let currentStr = self.lines.joined(separator: AsyncLineSequenceFromFile.lineSeperator);
-			self.lines = (currentStr + newString).split(separator: AsyncLineSequenceFromFile.lineSeperator);
+			self.lines = (currentStr + newString).split(separator: AsyncLineSequenceFromFile.lineSeperator, omittingEmptySubsequences: false);
 		}
 	}
 
