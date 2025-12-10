@@ -3,17 +3,21 @@ import Foundation;
 struct CategoryFilter {
 	private let set: Set<String>;
 
-	func matches(categoryString: String, threshold: Int = 3, separator: String = ", ") -> Bool {
+	func matches(categoryArray: [any StringProtocol], threshold: Int = 3) -> Bool {
 		var count = 0;
-		for category in categoryString.split(separator: separator) {
+		for category in categoryArray {
 			if count >= threshold {
 				return true;
 			}
-			if set.contains(String(category)) {
+			if self.set.contains(String(category)) {
 				count += 1;
 			}
 		}
 		return false;
+	}
+
+	func matches(categoryString: String, threshold: Int = 3, separator: String = ", ") -> Bool {
+		return self.matches(categoryArray: categoryString.split(separator: separator), threshold: threshold);
 	}
 }
 
