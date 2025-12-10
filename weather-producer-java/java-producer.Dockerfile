@@ -8,8 +8,8 @@ COPY . /src
 
 # build an uber/fat jar using the maven-shade-plugin (invoked on the command line)
 RUN mvn -f untitled/pom.xml \
-    -DskipTests -e \
-    package org.apache.maven.plugins:maven-shade-plugin:3.2.4:shade
+    -U -DskipTests -e \
+    package
 
 RUN ls -la /src/untitled/target
 

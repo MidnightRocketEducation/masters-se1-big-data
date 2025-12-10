@@ -1,6 +1,6 @@
 package com.loosemole.weatherproducer;
 
-import com.loosemole.weatherobservation.WeatherObservation;
+import com.loosemole.weatherevent.WeatherEvent;
 import com.opencsv.CSVReader;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -13,6 +13,48 @@ import java.util.Properties;
 import java.util.stream.Stream;
 
 public class Main {
+    private static String safeGet(String[] arr, int idx) {
+        return (idx >= 0 && idx < arr.length) ? arr[idx] : "";
+    }
+
+    private static boolean notEmpty(String s) {
+        return s != null && !s.isBlank();
+    }
+
+    private static void setStringIfPresent(String[] arr, int idx, java.util.function.Consumer<String> setter) {
+        String v = safeGet(arr, idx);
+        if (notEmpty(v)) setter.accept(v);
+    }
+
+    private static void setLongIfPresent(String[] arr, int idx, java.util.function.Consumer<Long> setter) {
+        String v = safeGet(arr, idx);
+        if (!notEmpty(v)) return;
+        try {
+            setter.accept(Long.parseLong(v));
+        } catch (NumberFormatException e) {
+            System.err.printf("Invalid long at index %d: '%s'%n", idx, v);
+        }
+    }
+
+    private static void setIntIfPresent(String[] arr, int idx, java.util.function.Consumer<Integer> setter) {
+        String v = safeGet(arr, idx);
+        if (!notEmpty(v)) return;
+        try {
+            setter.accept(Integer.parseInt(v));
+        } catch (NumberFormatException e) {
+            System.err.printf("Invalid int at index %d: '%s'%n", idx, v);
+        }
+    }
+
+    private static void setDoubleIfPresent(String[] arr, int idx, java.util.function.Consumer<Double> setter) {
+        String v = safeGet(arr, idx);
+        if (!notEmpty(v)) return;
+        try {
+            setter.accept(Double.parseDouble(v));
+        } catch (NumberFormatException e) {
+            System.err.printf("Invalid double at index %d: '%s'%n", idx, v);
+        }
+    }
 
     public static void main(String[] args) {
         Properties props = new Properties();
@@ -21,9 +63,9 @@ public class Main {
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaAvroSerializer");
         props.put("schema.registry.url", "http://kafka-schema-registry:8081");
 
-        Producer<String, WeatherObservation> producer = new KafkaProducer<>(props);
+        Producer<String, WeatherEvent> producer = new KafkaProducer<>(props);
 
-        String topic = "weather_observations";
+        String topic = "weather_event";
 
         Path dataRoot = Path.of("/data");
 
@@ -48,35 +90,37 @@ public class Main {
         producer.close();
     }
 
-    private static void processCsvFile(Path csvPath, Producer<String, WeatherObservation> producer, String topic) {
+    private static void processCsvFile(Path csvPath, Producer<String, WeatherEvent> producer, String topic) {
         try (CSVReader reader = new CSVReader(new FileReader(csvPath.toFile()))) {
             String[] nextLine;
             // Skip header
             reader.readNext();
             while ((nextLine = reader.readNext()) != null) {
-                // Create a WeatherObservation object (Avro-generated class)
-                if (nextLine.length < 13) {
+                // Create a WeatherEvent object (Avro-generated class)
+                if (nextLine.length == 0) {
                     continue; // Skip malformed lines
                 }
 
-                WeatherObservation weatherObservation = WeatherObservation.newBuilder()
-                        .setStation(Long.parseLong(nextLine[0]))
-                        .setDate(nextLine[1])
-                        .setLatitude(Double.parseDouble(nextLine[2]))
-                        .setLongitude(Double.parseDouble(nextLine[3]))
-                        .setElevation(Double.parseDouble(nextLine[4]))
-                        .setName(nextLine[5])
-                        .setReportType(nextLine[6])
-                        .setSource(Integer.parseInt(nextLine[7]))
-                        .setHourlyDryBulbTemperature(Double.parseDouble(nextLine[10]))
-                        .setHourlySeaLevelPressure(Double.parseDouble(nextLine[17]))
-                        .setHourlyVisibility(Double.parseDouble(nextLine[19]))
-                        .setHourlyWindDirection(Double.parseDouble(nextLine[21]))
-                        .setHourlyWindSpeed(Double.parseDouble(nextLine[23]))
-                        .build();
+                WeatherEvent.Builder b = WeatherEvent.newBuilder();
 
+                // helper accessor and conditional setters
+                setLongIfPresent(nextLine, 0, b::setStation);
+                setStringIfPresent(nextLine, 1, b::setDate);
+                setDoubleIfPresent(nextLine, 2, b::setLatitude);
+                setDoubleIfPresent(nextLine, 3, b::setLongitude);
+                setDoubleIfPresent(nextLine, 4, b::setElevation);
+                setStringIfPresent(nextLine, 5, b::setName);
+                setStringIfPresent(nextLine, 6, b::setReportType);
+                setIntIfPresent(nextLine, 7, b::setSource);
+                setDoubleIfPresent(nextLine, 10, b::setHourlyDryBulbTemperature);
+                setDoubleIfPresent(nextLine, 17, b::setHourlySeaLevelPressure);
+                setDoubleIfPresent(nextLine, 19, b::setHourlyVisibility);
+                setDoubleIfPresent(nextLine, 21, b::setHourlyWindDirection);
+                setDoubleIfPresent(nextLine, 23, b::setHourlyWindSpeed);
 
-                ProducerRecord<String, WeatherObservation> weatherRecord = new ProducerRecord<>(topic, Long.toString(weatherObservation.getStation()), weatherObservation);
+                WeatherEvent weatherObservation = b.build();
+                
+                ProducerRecord<String, WeatherEvent> weatherRecord = new ProducerRecord<>(topic, Long.toString(weatherObservation.getStation()), weatherObservation);
 
                 producer.send(weatherRecord, (metadata, exception) -> {
                     if (exception == null) {

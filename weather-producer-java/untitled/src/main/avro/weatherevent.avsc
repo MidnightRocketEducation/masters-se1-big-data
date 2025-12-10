@@ -1,7 +1,7 @@
 {
   "type": "record",
-  "name": "WeatherObservation",
-  "namespace": "com.loosemole.weatherobservation",
+  "name": "WeatherEvent",
+  "namespace": "com.loosemole.weatherevent",
   "fields": [
     { "name": "Station", "type": "long" },
     { "name": "Date", "type": "string" },
