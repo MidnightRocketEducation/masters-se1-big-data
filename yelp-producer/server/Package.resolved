@@ -1,13 +1,20 @@
 {
-  "originHash" : "5d5ad46ebcf49a8d8c4c4814432ffe48b9c836d6d1b5d90b4ac2d8a7cc6cba0f",
+  "originHash" : "b94c63390831163cdcb0d8d99bf34b2ba9d4d20a5822a08bf06dd3897a68000c",
   "pins" : [
+    {
+      "identity" : "avro-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/flexlixrup/avro-swift",
+      "state" : {
+        "revision" : "2f3fe318f5ea440be475a2a255a564322c849fe6"
+      }
+    },
     {
       "identity" : "codingkeysgenerator",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/zijievv/CodingKeysGenerator",
       "state" : {
-        "revision" : "05961e35ada46926322a584f351832fd15969fd9",
-        "version" : "0.3.1"
+        "revision" : "0a963c41d6d19f9e1521d2badc3f613b2bb92217"
       }
     },
     {
@@ -96,8 +103,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-syntax.git",
       "state" : {
-        "revision" : "f99ae8aa18f0cf0d53481901f88a0991dc3bd4a2",
-        "version" : "601.0.1"
+        "revision" : "4799286537280063c85a32f09884cfbca301b1a1",
+        "version" : "602.0.0"
       }
     },
     {
