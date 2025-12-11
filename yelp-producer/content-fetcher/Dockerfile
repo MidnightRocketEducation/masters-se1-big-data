@@ -8,6 +8,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	&& apt-get -q full-upgrade -y \
 	&& apt-get -q --no-install-recommends install -y \
 		unzip \
+		jq \
 		ca-certificates \
 		curl
 
