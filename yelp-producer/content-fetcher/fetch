@@ -27,6 +27,14 @@ checkIntegrity() {
 }
 
 
+sortReviewFile() {
+	REVIEW_FILE="yelp_academic_dataset_review.json"
+	SORTED_DIR="$OUTPUT_DIR/sorted"
+	mkdir "$SORTED_DIR"
+	TZ="UTC" jq --raw-input --raw-output --compact-output '"\(. | fromjson | .date | strptime("%Y-%m-%d %H:%M:%S") | mktime) \(.)"' "$REVIEW_FILE" | sort -n -k 1 | cut -d " " -f 2- > "$SORTED_DIR/$REVIEW_FILE"
+}
+
+
 
 if test -f "$STATUS_FILE"; then
 	stderr "Found downloaded files.\nDoing integrity test..."
@@ -64,6 +72,10 @@ tar -xvf "$TAR_FILE"  -C "$OUTPUT_DIR" \
 	yelp_academic_dataset_review.json \
 	yelp_academic_dataset_tip.json \
 	yelp_academic_dataset_user.json
+
+stderr "Generating sorted review file"
+
+sortReviewFile
 
 stderr "Generating status file."
 
