@@ -29,14 +29,12 @@ actor CancelableFileReading {
 					throw Error.cancelled(State(completed: false, offset: currentOffset));
 				}
 
-				do {
-					try await reader(line.line);
-				} catch {
-					throw Error.readerError(error, State(completed: false, offset: currentOffset));
-				}
+				try await reader(line.line);
 
 				currentOffset = line.offset;
 			}
+		} catch let error as Error {
+			throw error;
 		} catch {
 			throw Error.readerError(error, State(completed: false, offset: currentOffset));
 		}
