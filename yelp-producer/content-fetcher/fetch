@@ -21,14 +21,17 @@ hashFiles() {
 	(cd "$OUTPUT_DIR" && find . -type f \! -name completed.status -exec sha256sum {} \+ ;) | sort -k 2
 }
 
+checkIntegrity() {
+	_STATUS_FILE="$1"
+	awk 'NF > 0 && !/^[[:space:]]*#/' "$_STATUS_FILE" | { cd "$OUTPUT_DIR" && sha256sum -c --strict; }
+}
+
 
 
 if test -f "$STATUS_FILE"; then
 	stderr "Found downloaded files.\nDoing integrity test..."
 
-	ORIG_HASH="$(awk 'NF > 0 && !/^[[:space:]]*#/' "$STATUS_FILE" | sha256sum | cut -d ' ' -f 1)"
-	CURRENT_HASH="$(hashFiles | sha256sum | cut -d ' ' -f 1)"
-	test "$ORIG_HASH" = "$CURRENT_HASH" || reportError 1 "File integrity test failed. Hash mismatch. Original hash '$ORIG_HASH', but current hash '$CURRENT_HASH'."
+	checkIntegrity "$STATUS_FILE"
 
 	stderr "Passed integrity check."
 	exit
