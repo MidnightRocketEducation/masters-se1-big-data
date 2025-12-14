@@ -18,10 +18,10 @@ struct yelp_producer: AsyncParsableCommand {
 	@Option(transform: transformToFileHandle)
 	var categoryFile: FileHandle;
 
-	@Option(transform: transformToURL)
+	@Option(transform: transformToFileURL)
 	var stateDirectory: URL;
 
-	@Option(transform: transformToURL)
+	@Option(transform: transformToFileURL)
 	var sourceDirectory: URL;
 
 	mutating func run() async throws {

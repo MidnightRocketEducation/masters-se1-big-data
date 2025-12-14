@@ -8,9 +8,6 @@ func transformToFileHandle(_ string: String) throws -> FileHandle {
 	return fileHandle;
 }
 
-func transformToURL(_ string: String) throws -> URL {
-	guard let url = URL(string: string) else {
-		throw ValidationError("Invalid URL: \(string)");
-	}
-	return url;
+func transformToFileURL(_ string: String) throws -> URL {
+	URL(filePath: string);
 }
