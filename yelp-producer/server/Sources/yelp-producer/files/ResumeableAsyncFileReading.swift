@@ -1,7 +1,7 @@
 import Foundation;
 
 struct ResumeableAsyncFileReading: AsyncSequence {
-	typealias Element = (offset: Offset, line: String);
+	typealias Element = (line: String, offset: Offset);
 
 	private let fileHandle: FileHandle;
 
@@ -28,10 +28,10 @@ struct ResumeableAsyncFileReading: AsyncSequence {
 				return nil;
 			}
 
-			let offset = (Offset(
+			let offset = Offset(
 				byteOffset: self.previousByteOffset,
 				lineOffset: self.lineOffset,
-			), line);
+			);
 
 			let nextByteOffset = try filehandle.offset();
 			if self.currentByteOffset != nextByteOffset {
@@ -41,7 +41,7 @@ struct ResumeableAsyncFileReading: AsyncSequence {
 			}
 
 			self.lineOffset+=1;
-			return offset;
+			return (line, offset);
 		}
 	}
 

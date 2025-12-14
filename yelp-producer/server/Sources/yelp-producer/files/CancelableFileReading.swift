@@ -16,29 +16,28 @@ actor CancelableFileReading {
 	 Only atmost line is processed at a time.
 	 The returned ``State`` represent the line which has last been succesfully processed by the `reader` closure.
 	 */
-	func read(using reader: (String) async throws -> Void) async throws(Error) -> State {
+	func read(using reader: (String) async throws -> Void) async -> ReaderReturn {
 		guard !state.completed else {
-			return self.state;
+			return (self.state, .completed);
 		}
 
-		var currentOffset: ResumeableAsyncFileReading.Offset = self.state.offset;
+		var currentState: State = self.state;
 
 		do {
-			for try await line in try file.resume(from: self.state.offset) {
+			for try await (line, offset) in try file.resume(from: self.state.offset) {
 				guard !self.cancelled else {
-					throw Error.cancelled(State(completed: false, offset: currentOffset));
+					return (currentState, .cancelled);
 				}
 
-				try await reader(line.line);
+				try await reader(line);
 
-				currentOffset = line.offset;
+				currentState.offset = offset;
 			}
-		} catch let error as Error {
-			throw error;
 		} catch {
-			throw Error.readerError(error, State(completed: false, offset: currentOffset));
+			return (currentState, .error(error));
 		}
-		return State(completed: true, offset: currentOffset);
+		currentState.completed = true;
+		return (currentState, .completed);
 	}
 
 	func cancel() async {
@@ -51,13 +50,28 @@ extension CancelableFileReading {
 	struct State: Codable {
 		static let new: Self = .init(completed: false, offset: .zero);
 
-		let completed: Bool;
-		let offset: ResumeableAsyncFileReading.Offset;
+		var completed: Bool;
+		var offset: ResumeableAsyncFileReading.Offset;
 	}
 
-	enum Error: Swift.Error {
-		case cancelled(State);
-		case readerError(Swift.Error, State);
+	typealias ReaderReturn = (state: State, reason: TerminationReason);
+
+	enum TerminationReason {
+		case completed;
+		case cancelled;
+		case error(Swift.Error);
+
+		/**
+		 Throws the contained ``Error`` if the reason is ``.error``.
+		 Otherwise returns `self`.
+		 */
+		@discardableResult
+		func resolve() throws -> Self {
+			switch self {
+			case .error(let error): throw error;
+			default: return self;
+			}
+		}
 	}
 }
 
@@ -75,21 +89,10 @@ actor FileReadingService: Service {
 			await cancelableReader.cancel();
 		}
 
-		do {
-			let state = try await cancelableReader.read() { line in
-				print(line);
-			}
-			try saveState(state);
-		} catch let e as CancelableFileReading.Error {
-			switch e {
-			case .readerError(_, let state):
-				try saveState(state);
-				fallthrough;
-			default:
-				throw e;
-			}
+		let (state, reason) = await cancelableReader.read() { line in
+			print(line);
 		}
-
+		try saveState(state);
 	}
 
 	func onCancel(_ f: () async -> Void) async {
