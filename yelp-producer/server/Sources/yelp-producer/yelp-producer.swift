@@ -84,13 +84,8 @@ struct yelp_producer: AsyncParsableCommand {
 		 */
 
 
-		let stateManager = ProducerStateManager.empty;
+		let stateManager = try ProducerStateManager(file: self.stateDirectory.appending(path: "test.state"));
 		try await stateManager.update(key: \.reviewsFileState, to: .new);
-
-		try await AtomicFileWriter.write(to: self.stateDirectory.appending(path: "test.state"), mode: .append) { writer in
-			try writer.write(string: "hello");
-			// try await Task.sleep(for: .seconds(1))
-		}
 	}
 
 
