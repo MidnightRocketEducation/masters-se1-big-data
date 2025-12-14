@@ -30,6 +30,7 @@ struct yelp_producer: AsyncParsableCommand {
 		jsonDecoder.dateDecodingStrategy = .formatted(ReviewModel.dateFormatter);
 		// let jsonEncoder = JSONEncoder();
 
+		/*
 		var businessDictionary: [String: BusinessModel] = [:];
 		let businessFile = sourceDirectory.appending(path: "yelp_academic_dataset_business.json");
 		for try await line in AsyncLineSequenceFromFile(from: try .init(forReadingFrom: businessFile)) {
@@ -45,27 +46,51 @@ struct yelp_producer: AsyncParsableCommand {
 				throw error;
 			}
 		}
-		print("Done import businesses");
-		let reviewsFile = self.sourceDirectory.appending(path: "yelp_academic_dataset_review.json");
+		print("Done import businesses: \(businessDictionary.count)");
+		let reviewsFile = self.sourceDirectory.appending(path: "sorted/yelp_academic_dataset_review.json");
 		var reviews: [ReviewModel] = [];
-		for try await line in AsyncLineSequenceFromFile(from: try .init(forReadingFrom: reviewsFile)) {
-			do {
+		let reader = CancelableFileReading(file: try .init(forReadingFrom: reviewsFile), state: fetchState() ?? .new);
+		SignalHandler.register(.INT, .TERM, .PIPE) { _ in
+			await reader.cancel();
+			try? await Task.sleep(for: .seconds(5));
+			return .intrrupted;
+		}
+
+		do {
+			let state = try await reader.read { line in
 				let obj = try jsonDecoder.decode(ReviewModel.self, from: Data(line.utf8));
 				if businessDictionary[obj.businessId] != nil {
-					//print(ReviewModel.dateFormatter.string(from: obj.date));
+					if let prevDate = reviews.last?.date, prevDate > obj.date {
+						print("Wrong date order")
+						await reader.cancel();
+					}
 					reviews.append(obj);
 				}
-			} catch {
-				print();
-				print("Failed to decode:\n\(line)");
-				print();
-				throw error;
+			}
+		} catch {
+			switch error {
+			case .cancelled(let state):
+				try saveState(state);
+			case .readerError(let e, let state):
+				try saveState(state);
+				throw e;
 			}
 		}
 
-		print(businessDictionary.count);
-		print(reviews.count);
+		print("Done import reviews: \(reviews.count)");
+		print("Done sort");
+
 		try await Task.sleep(for: .seconds(3));
+		 */
+
+
+		let stateManager = ProducerStateManager.empty;
+		try await stateManager.update(key: \.reviewsFileState, to: .new);
+
+		try await AtomicFileWriter.write(to: self.stateDirectory.appending(path: "test.state"), mode: .append) { writer in
+			try writer.write(string: "hello");
+			// try await Task.sleep(for: .seconds(1))
+		}
 	}
 
 
