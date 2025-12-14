@@ -6,11 +6,11 @@ struct CategoryFilter {
 	func matches(categoryArray: [any StringProtocol], threshold: Int = 3) -> Bool {
 		var count = 0;
 		for category in categoryArray {
-			if count >= threshold {
-				return true;
-			}
 			if self.set.contains(String(category)) {
 				count += 1;
+				if count >= threshold {
+					return true;
+				}
 			}
 		}
 		return false;
