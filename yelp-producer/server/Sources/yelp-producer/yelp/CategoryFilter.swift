@@ -7,8 +7,7 @@ struct CategoryFilter {
 		var count = 0;
 		for category in categoryArray {
 			if self.set.contains(String(category)) {
-				count += 1;
-				if count >= threshold {
+				if ++count >= threshold {
 					return true;
 				}
 			}
