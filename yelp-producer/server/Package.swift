@@ -28,6 +28,9 @@ let package = Package(
 				.product(name: "Kafka", package: "swift-kafka-client"),
 				.product(name: "Avro", package: "avro-swift"),
 				.product(name: "SwiftAvroCore", package: "SwiftAvroCore"),
+			],
+			swiftSettings: [
+				.define("KAFKA_DEBUG_TOPIC", .when(configuration: .debug))
 			]
 		),
 	]

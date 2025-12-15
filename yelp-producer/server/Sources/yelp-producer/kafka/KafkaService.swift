@@ -1,4 +1,5 @@
 import Kafka;
+import Foundation;
 import ServiceLifecycle;
 import Logging;
 
@@ -23,8 +24,8 @@ actor KafkaService: Service {
 		}
 	}
 
-	func postTo(topic: String, message: String) async throws -> Void {
-		let messageId: KafkaProducerMessageID = try producer.send(KafkaProducerMessage(topic: topic, value: message));
+	func postTo(topic: KafkaTopic, message: Data) async throws -> Void {
+		let messageId: KafkaProducerMessageID = try producer.send(KafkaProducerMessage(topic: topic.value, value: message));
 		await withCheckedContinuation { continuation in
 			self.continuations[messageId] = continuation;
 		}
@@ -40,13 +41,21 @@ actor KafkaService: Service {
 					}
 				}
 			default:
-				break
+				assert(false, "Unhandled event: \(event)");
 			}
 		}
 	}
 }
 
-enum KafkaTopics: String {
+enum KafkaTopic: String {
 	case BusinessEvents = "business-events";
 	case ReviewsEvent = "reviews-event";
+
+	var value: RawValue {
+		#if KAFKA_DEBUG_TOPIC
+		"debug/" + rawValue
+		#else
+		rawValue
+		#endif
+	}
 }
