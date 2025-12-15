@@ -8,6 +8,7 @@ import ArgumentParser;
 import Foundation;
 import ServiceLifecycle;
 import Logging;
+import Kafka;
 
 @main
 struct yelp_producer: AsyncParsableCommand {
@@ -97,7 +98,9 @@ struct yelp_producer: AsyncParsableCommand {
 			cacheFileURL: self.stateDirectory + StateFileNames.processedBusinesses,
 			categoryFilterURL: self.categoryFile
 		);
-		let kafkaService = try KafkaService(config: .init(bootstrapBrokerAddresses: [self.kafkaHost.value]), logger: .init(label: "kafka"));
+		var config: KafkaProducerConfiguration = .init(bootstrapBrokerAddresses: [self.kafkaHost.value])
+		config.topicConfiguration.messageTimeout = .timeout(.seconds(3));
+		let kafkaService = try KafkaService(config: config, logger: .init(label: "kafka"));
 
 		async let kafkaTask: Void = kafkaService.run();
 

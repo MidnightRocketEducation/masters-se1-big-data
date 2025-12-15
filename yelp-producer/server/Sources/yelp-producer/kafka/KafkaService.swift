@@ -6,7 +6,7 @@ import Logging;
 actor KafkaService: Service {
 	let producer: KafkaProducer;
 	let events: KafkaProducerEvents;
-	var continuations: [KafkaProducerMessageID: CheckedContinuation<Void, Never>] = [:];
+	var continuations: [KafkaProducerMessageID: CheckedContinuation<Void, any Error>] = [:];
 
 	init(config: KafkaProducerConfiguration, logger: Logger) throws {
 		(self.producer, self.events) = try KafkaProducer.makeProducerWithEvents(configuration: config, logger: logger);
@@ -26,7 +26,7 @@ actor KafkaService: Service {
 
 	func postTo(topic: KafkaTopic, message: Data) async throws -> Void {
 		let messageId: KafkaProducerMessageID = try producer.send(KafkaProducerMessage(topic: topic.value, value: message));
-		await withCheckedContinuation { continuation in
+		try await withCheckedThrowingContinuation { continuation in
 			self.continuations[messageId] = continuation;
 		}
 	}
@@ -37,7 +37,11 @@ actor KafkaService: Service {
 			case .deliveryReports(let deliveryReports):
 				for deliveryReport in deliveryReports {
 					if let continuation = self.continuations.removeValue(forKey: deliveryReport.id) {
-						continuation.resume();
+						if case .failure(let error) = deliveryReport.status {
+							continuation.resume(throwing: error);
+						} else {
+							continuation.resume();
+						}
 					}
 				}
 			default:
