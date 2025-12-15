@@ -1,5 +1,5 @@
 {
-  "originHash" : "343affd75f61ff4d518c931ad224b2894abe8f736e48e81e5bd5efcbee1a5f15",
+  "originHash" : "ef93b74f17d706b6719e75ee7eb7e2becaf7d1e931da129a444fcc141595b6d0",
   "pins" : [
     {
       "identity" : "avro-swift",
@@ -15,6 +15,15 @@
       "location" : "https://github.com/zijievv/CodingKeysGenerator",
       "state" : {
         "revision" : "0a963c41d6d19f9e1521d2badc3f613b2bb92217"
+      }
+    },
+    {
+      "identity" : "runtime",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/wickwirew/Runtime.git",
+      "state" : {
+        "revision" : "b90e9ab1c66a964a9edf32fe38ea2774c0e5821b",
+        "version" : "2.2.7"
       }
     },
     {
@@ -114,6 +123,15 @@
       "state" : {
         "revision" : "395a77f0aa927f0ff73941d7ac35f2b46d47c9db",
         "version" : "1.6.3"
+      }
+    },
+    {
+      "identity" : "swiftavrocore",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/lynixliu/SwiftAvroCore",
+      "state" : {
+        "revision" : "c0eb9da7cfa861b07da3b29508b50dbdf2a26fe7",
+        "version" : "0.5.0"
       }
     },
     {
