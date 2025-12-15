@@ -15,8 +15,8 @@ struct yelp_producer: AsyncParsableCommand {
 		abstract: "Simple temeprature sensor deamon",
 	);
 
-	@Option(transform: transformToFileHandle)
-	var categoryFile: FileHandle;
+	@Option(transform: transformToFileURL)
+	var categoryFile: URL;
 
 	@Option(transform: transformToFileURL)
 	var stateDirectory: URL;
@@ -25,7 +25,6 @@ struct yelp_producer: AsyncParsableCommand {
 	var sourceDirectory: URL;
 
 	mutating func run() async throws {
-		let categoryFilter = try await CategoryFilter.load(from: categoryFile);
 		let jsonDecoder = JSONDecoder();
 		jsonDecoder.dateDecodingStrategy = .formatted(ReviewModel.dateFormatter);
 		// let jsonEncoder = JSONEncoder();
@@ -84,8 +83,17 @@ struct yelp_producer: AsyncParsableCommand {
 		 */
 
 
-		let stateManager = try ProducerStateManager(file: self.stateDirectory.appending(path: "test.state"));
-		try await stateManager.update(key: \.reviewsFileState, to: .new);
+		let stateManager = try ProducerStateManager(file: self.stateDirectory + StateFileNames.main);
+		let processor = try BusinessProcessor(
+			stateManager: stateManager,
+			sourceFile: self.sourceDirectory + YelpFilenames.businesses,
+			cacheFileURL: self.stateDirectory + StateFileNames.processedBusinesses,
+			categoryFilterURL: self.categoryFile
+		);
+
+		try await processor.loadCacheFile();
+		try await processor.processFile();
+		print("Businesses \(await processor.dictionary.count)")
 	}
 
 

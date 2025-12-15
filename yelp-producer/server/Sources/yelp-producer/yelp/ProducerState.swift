@@ -43,7 +43,17 @@ actor ProducerStateManager {
 		try self.writeToDisk();
 	}
 
+	func get(key: KeyPath<ProducerState, CancelableFileReading.State>) -> CancelableFileReading.State {
+		self.state[keyPath: key];
+	}
+
 	func writeToDisk() throws {
 		try state.write(to: url);
 	}
+}
+
+
+enum StateFileNames: String {
+	case main = "state.json";
+	case processedBusinesses = "processed-businesses.jsonl";
 }
