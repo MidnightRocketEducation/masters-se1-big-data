@@ -1,12 +1,12 @@
 {
-  "originHash" : "b94c63390831163cdcb0d8d99bf34b2ba9d4d20a5822a08bf06dd3897a68000c",
+  "originHash" : "343affd75f61ff4d518c931ad224b2894abe8f736e48e81e5bd5efcbee1a5f15",
   "pins" : [
     {
       "identity" : "avro-swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/flexlixrup/avro-swift",
       "state" : {
-        "revision" : "2f3fe318f5ea440be475a2a255a564322c849fe6"
+        "revision" : "035628e09b7842623dfe1733d4aa0934581d2ec0"
       }
     },
     {
