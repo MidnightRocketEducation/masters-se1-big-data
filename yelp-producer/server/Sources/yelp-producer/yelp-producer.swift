@@ -33,62 +33,8 @@ struct yelp_producer: AsyncParsableCommand {
 	) var kafkaHost: HostSpec;
 
 	mutating func run() async throws {
-		let jsonDecoder = JSONDecoder();
-		jsonDecoder.dateDecodingStrategy = .formatted(ReviewModel.dateFormatter);
-		// let jsonEncoder = JSONEncoder();
-
-		/*
-		var businessDictionary: [String: BusinessModel] = [:];
-		let businessFile = sourceDirectory.appending(path: "yelp_academic_dataset_business.json");
-		for try await line in AsyncLineSequenceFromFile(from: try .init(forReadingFrom: businessFile)) {
-			do {
-				let obj = try jsonDecoder.decode(BusinessModel.self, from: Data(line.utf8));
-				if categoryFilter.matches(categoryArray: obj.categories) {
-					businessDictionary[obj.id] = obj;
-				}
-			} catch {
-				print();
-				print("Failed to decode:\n\(line)");
-				print();
-				throw error;
-			}
-		}
-		print("Done import businesses: \(businessDictionary.count)");
-		let reviewsFile = self.sourceDirectory.appending(path: "sorted/yelp_academic_dataset_review.json");
-		var reviews: [ReviewModel] = [];
-		let reader = CancelableFileReading(file: try .init(forReadingFrom: reviewsFile), state: fetchState() ?? .new);
-		SignalHandler.register(.INT, .TERM, .PIPE) { _ in
-			await reader.cancel();
-			try? await Task.sleep(for: .seconds(5));
-			return .intrrupted;
-		}
-
-		do {
-			let state = try await reader.read { line in
-				let obj = try jsonDecoder.decode(ReviewModel.self, from: Data(line.utf8));
-				if businessDictionary[obj.businessId] != nil {
-					if let prevDate = reviews.last?.date, prevDate > obj.date {
-						print("Wrong date order")
-						await reader.cancel();
-					}
-					reviews.append(obj);
-				}
-			}
-		} catch {
-			switch error {
-			case .cancelled(let state):
-				try saveState(state);
-			case .readerError(let e, let state):
-				try saveState(state);
-				throw e;
-			}
-		}
-
-		print("Done import reviews: \(reviews.count)");
-		print("Done sort");
-
-		try await Task.sleep(for: .seconds(3));
-		 */
+		try AvroSchemaManager.write(to: stateDirectory, from: BusinessModel.self);
+		try AvroSchemaManager.write(to: stateDirectory, from: ReviewModel.self);
 
 
 		let stateManager = try ProducerStateManager(file: self.stateDirectory + StateFileNames.main);
@@ -117,6 +63,9 @@ struct yelp_producer: AsyncParsableCommand {
 
 
 	mutating func validate() throws {
+		guard self.stateDirectory.isDirectory else {
+			throw ValidationError("--state-directory must be an existing directory");
+		}
 	}
 }
 
