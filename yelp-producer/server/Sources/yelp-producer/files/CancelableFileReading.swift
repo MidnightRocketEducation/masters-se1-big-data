@@ -3,45 +3,76 @@ import ServiceLifecycle;
 
 actor CancelableFileReading {
 	private let file: ResumeableAsyncFileReading;
-	private let state: State;
+	private var state: State;
 	private var cancelled: Bool = false;
+
+	let saveQueue = AsyncQueueProcessor<Void>();
+	private var saveStateCallback: (@Sendable (State) async -> Void)? = nil;
+	private var saveInterval: UInt = 50;
 
 	init(file: FileHandle, state: State = State.new) {
 		self.file = ResumeableAsyncFileReading(fileHandle: file);
 		self.state = state;
 	}
 
+	func setSaveStateCallback(interval: UInt? = nil, _ callback: @escaping (@Sendable (State) async -> Void)) {
+		if let interval = interval {
+			self.saveInterval = interval;
+		}
+
+		self.saveStateCallback = callback;
+	}
+
+	func cancel() async {
+		self.cancelled = true;
+	}
+}
+
+extension CancelableFileReading {
 	/**
 	 Read file line by line. The provided closure is called with each line as its argument.
 	 Only atmost line is processed at a time.
 	 The returned ``State`` represent the line which has last been succesfully processed by the `reader` closure.
 	 */
-	func read(using reader: (String) async throws -> Void) async -> ReaderReturn {
-		guard !state.completed else {
-			return (self.state, .completed);
+	func read(using reader: @Sendable (String) async throws -> Void) async -> ReaderReturn {
+		let result = await self._read(using: reader);
+		await saveQueue.add {
+			await self.saveStateCallback?(result.state);
 		}
-
-		var currentState: State = self.state;
-
-		do {
-			for try await (line, offset) in try file.resume(from: self.state.offset) {
-				guard !self.cancelled else {
-					return (currentState, .cancelled);
-				}
-
-				try await reader(line);
-
-				currentState.offset = offset;
-			}
-		} catch {
-			return (currentState, .error(error));
-		}
-		currentState.completed = true;
-		return (currentState, .completed);
+		_ = await saveQueue.finish();
+		return result;
 	}
 
-	func cancel() async {
-		self.cancelled = true;
+	private func _read(using reader: @Sendable (String) async throws -> Void) async -> ReaderReturn {
+		do {
+			return try await self.processLines(using: reader);
+		} catch {
+			return (self.state, .error(error));
+		}
+	}
+
+	private func processLines(using reader: @Sendable (String) async throws -> Void) async throws -> ReaderReturn {
+		guard !self.state.completed else {
+			return (self.state, .completed);
+		}
+		var count: UInt = 1;
+		for try await (line, offset) in try file.resume(from: self.state.offset) {
+			guard !self.cancelled else {
+				return (self.state, .cancelled);
+			}
+			try await reader(line);
+
+			self.state.offset = offset;
+
+			if let saveStateCallback, ++count >= self.saveInterval {
+				count = 0;
+				await self.saveQueue.add {
+					await saveStateCallback(self.state);
+				}
+			}
+		}
+		self.state.completed = true;
+		return (state, .completed);
 	}
 }
 
@@ -89,7 +120,7 @@ actor FileReadingService: Service {
 			await cancelableReader.cancel();
 		}
 
-		let (state, reason) = await cancelableReader.read() { line in
+		let (state, _) = await cancelableReader.read() { line in
 			print(line);
 		}
 		try saveState(state);
