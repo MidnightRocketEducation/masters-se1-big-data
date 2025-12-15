@@ -27,13 +27,25 @@ checkIntegrity() {
 }
 
 
+splitReviewFile() {
+	CUTOFF_DATE="$(TZ="UTC" date -d "${CUTOFF_DATE}" +%s)"
+	SORTED_DIR="$1"
+	BASENAME="$2"
+	PAST="$SORTED_DIR/$BASENAME.past"
+	FUTURE="$SORTED_DIR/$BASENAME.future"
+	# truncate -s 0 "$PAST"
+	# truncate -s 0 "$FUTURE"
+	awk -F '[ ]' -v CUTOFF_DATE="$CUTOFF_DATE" -v OUT1="$PAST" -v OUT2="$FUTURE" '{if ($1 < CUTOFF_DATE) { outfile=OUT1 } else { outfile=OUT2 } $1=""; sub(/^ /, ""); print > outfile}'
+}
+
+
 sortReviewFile() {
 	REVIEW_FILE="yelp_academic_dataset_review.json"
 	SORTED_DIR="$OUTPUT_DIR/sorted"
 	{
 		cd "$OUTPUT_DIR"
 		mkdir "$SORTED_DIR"
-		TZ="UTC" jq --raw-input --raw-output --compact-output '"\(. | fromjson | .date | strptime("%Y-%m-%d %H:%M:%S") | mktime) \(.)"' "$REVIEW_FILE" | sort -n -k 1 | cut -d " " -f 2- > "$SORTED_DIR/$REVIEW_FILE"
+		TZ="UTC" jq --raw-input --raw-output --compact-output '"\(. | fromjson | .date | strptime("%Y-%m-%d %H:%M:%S") | mktime) \(.)"' "$REVIEW_FILE" | sort -n -k 1 | splitReviewFile "$SORTED_DIR" "$REVIEW_FILE"
 	}
 }
 

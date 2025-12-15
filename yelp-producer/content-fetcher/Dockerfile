@@ -17,5 +17,6 @@ COPY fetch /fetch
 VOLUME ["/output", "/tmp"]
 
 ENV OUTPUT_DIR="/output"
+ENV CUTOFF_DATE="2013/01/01 00:00:00"
 
 ENTRYPOINT ["/fetch"]
