@@ -1,6 +1,6 @@
 import Foundation;
 
-public struct AtomicFileWriter {
+public struct AtomicFileWriter: Sendable {
 	private let fileHandle: FileHandle;
 	private let targetPath: URL;
 	private let tempFileURL: URL;
@@ -15,7 +15,11 @@ public struct AtomicFileWriter {
 	private init(forAppendingTo path: URL) throws {
 		self.targetPath = path;
 		self.tempFileURL = Self.getTempFileURL(for: path);
-		try FileManager.default.copyItem(at: path, to: tempFileURL);
+		if FileManager.default.fileExists(atPath: path.path()) {
+			try FileManager.default.copyItem(at: path, to: tempFileURL);
+		} else {
+			FileManager.default.createFile(atPath: tempFileURL.path(), contents: nil);
+		}
 		self.fileHandle = try FileHandle(forWritingTo: tempFileURL);
 		try self.fileHandle.seekToEnd();
 	}
@@ -39,7 +43,7 @@ public struct AtomicFileWriter {
 }
 
 extension AtomicFileWriter {
-	public static func write(to path: URL, mode: Mode = .overwrite, dataProvider: (AtomicFileWriter) async throws -> Void) async throws {
+	public static func write(to path: URL, mode: Mode = .overwrite, dataProvider: @Sendable (AtomicFileWriter) async throws -> Void) async throws {
 		let writer = switch(mode) {
 			case .overwrite: try AtomicFileWriter(path: path);
 			case .append: try AtomicFileWriter(forAppendingTo: path);
