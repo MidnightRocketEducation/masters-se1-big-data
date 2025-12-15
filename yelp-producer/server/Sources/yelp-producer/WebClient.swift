@@ -7,26 +7,37 @@ import FoundationNetworking;
 struct WebClient {
 	static private let session = URLSession.shared;
 
-	static func run(url: URL, method: Method, body: Data? = nil, accept: AcceptType = .json, token: String? = nil) async -> Data? {
+	static func run(
+		url: URL,
+		method: Method,
+		body: Data? = nil,
+		accept: MimeType = .json,
+		contentType: MimeType? = nil,
+		token: String? = nil
+	) async throws -> Data {
 		var request = URLRequest(url: url);
 		request.httpMethod = method.rawValue;
 		if let token = token {
 			request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization");
 		}
 		request.setValue(accept.rawValue, forHTTPHeaderField: "accept");
-		request.httpBody = body;
-		do {
-			let (data, _) = try await Self.session.data(for: request)
-			return data;
-		} catch(let e) {
-			stderr(e);
-			return nil;
+		if let contentType = contentType {
+			request.setValue(contentType.rawValue, forHTTPHeaderField: "Content-Type");
 		}
+		request.httpBody = body;
+		let (data, _) = try await Self.session.data(for: request)
+		return data;
 	}
 
 	@discardableResult
-	static func post(url: URL, body: Data? = nil, accept: AcceptType = .json, token: String? = nil) async -> Data? {
-		return await Self.run(url: url, method: .post, body: body, accept: accept, token: token);
+	static func post(
+		url: URL,
+		body: Data? = nil,
+		accept: MimeType = .json,
+		contentType: MimeType? = nil,
+		token: String? = nil
+	) async throws -> Data {
+		return try await Self.run(url: url, method: .post, body: body, accept: accept, contentType: contentType, token: token);
 	}
 }
 
@@ -39,7 +50,8 @@ extension WebClient {
 		case delete = "DELETE";
 	}
 
-	enum AcceptType: String {
+	enum MimeType: String {
 		case json = "application/json";
+		case confluentSchema = "application/vnd.schemaregistry.v1+json";
 	}
 }
