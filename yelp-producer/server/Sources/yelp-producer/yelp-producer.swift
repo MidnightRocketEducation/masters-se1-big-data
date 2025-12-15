@@ -7,6 +7,7 @@
 import ArgumentParser;
 import Foundation;
 import ServiceLifecycle;
+import Logging;
 
 @main
 struct yelp_producer: AsyncParsableCommand {
@@ -23,6 +24,12 @@ struct yelp_producer: AsyncParsableCommand {
 
 	@Option(transform: transformToFileURL)
 	var sourceDirectory: URL;
+
+	@Option(
+		name: .customLong("kafka-host"),
+		help: "Kafka host to push to. Optionally use host:port to specify the port. Port defaults to 9092.",
+		transform: { try transformHostOption($0, defaultPort: 9092) }
+	) var kafkaHost: HostSpec;
 
 	mutating func run() async throws {
 		let jsonDecoder = JSONDecoder();
@@ -90,11 +97,19 @@ struct yelp_producer: AsyncParsableCommand {
 			cacheFileURL: self.stateDirectory + StateFileNames.processedBusinesses,
 			categoryFilterURL: self.categoryFile
 		);
+		let kafkaService = try KafkaService(config: .init(bootstrapBrokerAddresses: [self.kafkaHost.value]), logger: .init(label: "kafka"));
+
+		async let kafkaTask: Void = kafkaService.run();
 
 		try await processor.loadCacheFile();
 		try await processor.processFile() { model, data in
+			print("hello")
+			try await kafkaService.postTo(topic: .BusinessEvents, message: data)
+			print("hello")
 		}
 		print("Businesses \(await processor.dictionary.count)")
+
+		try await kafkaTask;
 	}
 
 
