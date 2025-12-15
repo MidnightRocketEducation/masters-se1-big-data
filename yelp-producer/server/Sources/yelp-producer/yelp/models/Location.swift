@@ -1,8 +1,12 @@
+import Avro;
+
+@AvroSchema
 struct Location: Codable {
 	let coordinates: Coordinates;
 }
 
 extension Location {
+	@AvroSchema
 	struct Coordinates: Codable {
 		let latitude: Double;
 		let longitude: Double;

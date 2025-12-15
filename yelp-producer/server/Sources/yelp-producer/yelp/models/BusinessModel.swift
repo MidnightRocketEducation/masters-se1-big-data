@@ -1,5 +1,6 @@
-import CodingKeysGenerator;
+import Avro;
 
+@AvroSchema
 struct BusinessModel: Codable {
 	let id: String;
 	let name: String;

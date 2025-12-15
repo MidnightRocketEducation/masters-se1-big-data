@@ -1,8 +1,11 @@
 import Foundation;
+import SwiftAvroCore;
 
 actor BusinessProcessor {
-	static let decoder: JSONDecoder = JSONDecoder();
-	static let encoder: JSONEncoder = JSONEncoder();
+	static let jsonDecoder: JSONDecoder = JSONDecoder();
+	static let jsonEncoder: JSONEncoder = JSONEncoder();
+
+	let avro = Avro();
 
 	let stateManager: ProducerStateManager;
 	let sourceFile: FileHandle;
@@ -18,10 +21,11 @@ actor BusinessProcessor {
 		self.categoryFilterURL = categoryFilterURL;
 	}
 
-	func processFile() async throws {
+	func processFile(kafkaProducer: @Sendable (BusinessModel, Data) async throws -> Void) async throws {
 		if await self.stateManager.get(key: \.businessesFileState).completed {
 			return;
 		}
+		_ = avro.decodeSchema(schema: try BusinessModel.avroSchemaString)
 
 		let categoryFilter = try await CategoryFilter.load(from: try .init(forReadingFrom: self.categoryFilterURL));
 
@@ -33,13 +37,15 @@ actor BusinessProcessor {
 		try await AtomicFileWriter.write(to: self.cacheFileURL, mode: .append) { writer in
 			let newline = Data("\n".utf8);
 			let (state, reason) = await reader.read() { line in
-				let model = try await self.decode(line) { m in
-					categoryFilter.matches(categoryArray: m.categories)
+				let model = try await self.jsonDecode(line) { m in
+					return categoryFilter.matches(categoryArray: m.categories)
 				}
 				guard let model else {
 					return;
 				}
-				let data = try Self.encoder.encode(model) + newline;
+				let data = try Self.jsonEncoder.encode(model) + newline;
+				let avroData = try await self.avroEncode(model);
+				try await kafkaProducer(model, avroData);
 				try writer.write(data: data);
 			}
 			try await self.stateManager.update(key: \.businessesFileState, to: state);
@@ -53,12 +59,22 @@ actor BusinessProcessor {
 		}
 
 		for try await line in AsyncLineSequenceFromFile(from: try .init(forReadingFrom: self.cacheFileURL)) {
-			_ = try self.decode(line);
+			_ = try self.jsonDecode(line);
 		}
 	}
 
-	func decode(_ line: String, filter: ((BusinessModel) -> Bool)? = nil) throws -> BusinessModel? {
-		let model = try Self.decoder.decode(BusinessModel.self, from: Data(line.utf8));
+	func avroEncode(_ value: BusinessModel) throws -> Data {
+		return try self.avro.encode(value);
+	}
+
+	func avroDecode(_ line: String) throws -> BusinessModel {
+		let model: BusinessModel = try self.avro.decode(from: Data(line.utf8));
+		self.dictionary[model.id] = model;
+		return model;
+	}
+
+	func jsonDecode(_ line: String, filter: ((BusinessModel) -> Bool)? = nil) throws -> BusinessModel? {
+		let model = try Self.jsonDecoder.decode(BusinessModel.self, from: Data(line.utf8));
 		if let filter, !filter(model) {
 			return nil;
 		}

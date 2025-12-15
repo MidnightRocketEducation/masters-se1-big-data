@@ -92,7 +92,8 @@ struct yelp_producer: AsyncParsableCommand {
 		);
 
 		try await processor.loadCacheFile();
-		try await processor.processFile();
+		try await processor.processFile() { model, data in
+		}
 		print("Businesses \(await processor.dictionary.count)")
 	}
 
