@@ -9,7 +9,7 @@ struct ReviewModel: Codable {
 	let id: String;
 	let businessId: String;
 	let stars: Double;
-	@LogicalType(.date)
+	@LogicalType(.timestampMillis)
 	let date: Date;
 }
 
