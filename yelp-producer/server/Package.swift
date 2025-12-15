@@ -12,7 +12,7 @@ let package = Package(
 		.package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0"),
 		.package(url: "https://github.com/swift-server/swift-kafka-client", branch: "main"),
 		.package(url: "https://github.com/swift-server/swift-service-lifecycle.git", from: "2.0.0"),
-		.package(url: "https://github.com/zijievv/CodingKeysGenerator", revision: "0a963c41d6d19f9e1521d2badc3f613b2bb92217"),
+		.package(url: "https://github.com/zijievv/CodingKeysGenerator", revision: "51da1cd6f613c4329f880ad872790f9b7af46427"),
 		.package(url: "https://github.com/MidnightRocket/avro-swift", revision: "4567634c49f8f4114fbe352b221836d132e7b885"),
 		.package(url: "https://github.com/lynixliu/SwiftAvroCore", from: "0.5.0"),
 	],

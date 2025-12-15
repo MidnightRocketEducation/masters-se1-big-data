@@ -1,5 +1,5 @@
 {
-  "originHash" : "5c071823732cbc920b679c0f8d7fb602b6f40fc736eb1e637f41bdfef0199c8c",
+  "originHash" : "e95b540c08951fba48c611cedbc25d0b7d6d0b94a6e4ec81b812cb703fc79f5f",
   "pins" : [
     {
       "identity" : "avro-swift",
@@ -14,7 +14,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/zijievv/CodingKeysGenerator",
       "state" : {
-        "revision" : "0a963c41d6d19f9e1521d2badc3f613b2bb92217"
+        "revision" : "51da1cd6f613c4329f880ad872790f9b7af46427"
       }
     },
     {
