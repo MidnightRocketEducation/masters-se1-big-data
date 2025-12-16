@@ -46,7 +46,7 @@ actor BusinessProcessor {
 				let data = try Self.jsonEncoder.encode(model) + newline;
 				let avroData = try await self.avroEncode(model);
 				try await kafkaProducer(model, avroData);
-				try writer.write(data: data);
+				try await writer.write(data: data);
 			}
 			try await self.stateManager.update(key: \.businessesFileState, to: state);
 			try reason.resolve();

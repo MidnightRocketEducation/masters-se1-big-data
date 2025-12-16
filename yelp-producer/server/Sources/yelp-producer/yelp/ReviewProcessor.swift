@@ -13,6 +13,7 @@ actor ReviewProcessor {
 		self.sourceFile = try FileHandle(forReadingFrom: sourceFile);
 		self.stateManager = stateManager;
 		self.businesses = businesses;
+		_ = self.avro.decodeSchema(schema: try ReviewModel.avroSchemaString);
 	}
 
 	func processFile(kafkaProducer: @Sendable (ReviewModel, Data) async throws -> Void) async throws {
@@ -20,15 +21,13 @@ actor ReviewProcessor {
 			return;
 		}
 
-		_ = self.avro.decodeSchema(schema: try ReviewModel.avroSchemaString);
-
 		let reader = CancelableFileReading(file: sourceFile, state: await self.stateManager.get(key: \.businessesFileState));
 		await reader.setSaveStateCallback() { state in
 			try? await self.stateManager.update(key: \.businessesFileState, to: state);
 		}
 
 		let newline = Data("\n".utf8);
-		let (state, reason) = await reader.read() { line in
+		let (state, reason) = await reader.read { line in
 			let model = try await self.decode(line) { m in
 				self.businesses[m.id] != nil;
 			}

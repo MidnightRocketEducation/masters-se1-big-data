@@ -1,6 +1,6 @@
 import Foundation;
 
-public struct AtomicFileWriter: Sendable {
+public actor AtomicFileWriter {
 	private let fileHandle: FileHandle;
 	private let targetPath: URL;
 	private let tempFileURL: URL;
@@ -32,12 +32,20 @@ public struct AtomicFileWriter: Sendable {
 		try self.write(data: Data(string.utf8));
 	}
 
+	public func flush() throws {
+		try self.fileHandle.synchronize();
+		let newTmpPath = Self.getTempFileURL(for: self.targetPath);
+		try FileManager.default.copyItem(at: self.tempFileURL, to: newTmpPath);
+		_ = try FileManager.default.replaceItemAt(self.targetPath, withItemAt: newTmpPath);
+	}
+
 	private func commit() throws {
+		try self.fileHandle.synchronize();
 		try self.fileHandle.close();
 		let _ = try FileManager.default.replaceItemAt(self.targetPath, withItemAt: self.tempFileURL);
 	}
 
-	private func cleanup() {
+	private nonisolated func cleanup() {
 		try? FileManager.default.removeItem(at: self.tempFileURL);
 	}
 }
@@ -52,7 +60,7 @@ extension AtomicFileWriter {
 			writer.cleanup();
 		}
 		try await dataProvider(writer);
-		try writer.commit();
+		try await writer.commit();
 	}
 }
 extension AtomicFileWriter {

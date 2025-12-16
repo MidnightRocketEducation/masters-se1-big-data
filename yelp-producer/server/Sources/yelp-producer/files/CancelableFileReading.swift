@@ -43,7 +43,7 @@ extension CancelableFileReading {
 		return result;
 	}
 
-	private func _read(using reader: @Sendable (String) async throws -> Void) async -> ReaderReturn {
+	private func _read(using reader: (String) async throws -> Void) async -> ReaderReturn {
 		do {
 			return try await self.processLines(using: reader);
 		} catch {
@@ -51,7 +51,7 @@ extension CancelableFileReading {
 		}
 	}
 
-	private func processLines(using reader: @Sendable (String) async throws -> Void) async throws -> ReaderReturn {
+	private func processLines(using reader: (String) async throws -> Void) async throws -> ReaderReturn {
 		guard !self.state.completed else {
 			return (self.state, .completed);
 		}
