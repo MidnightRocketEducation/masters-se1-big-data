@@ -2,13 +2,15 @@ import Foundation;
 struct ProducerState: Codable {
 	var businessesFileState: CancelableFileReading.State;
 	var reviewsFileState: CancelableFileReading.State;
+	var hasUploadedSchema: Bool;
 }
 
 extension ProducerState {
 	static var empty: ProducerState {
 		.init(
 			businessesFileState: .new,
-			reviewsFileState: .new
+			reviewsFileState: .new,
+			hasUploadedSchema: false
 		);
 	}
 }
@@ -38,12 +40,12 @@ actor ProducerStateManager {
 		self.url = url;
 	}
 
-	func update(key: WritableKeyPath<ProducerState, CancelableFileReading.State>, to newValue: CancelableFileReading.State) async throws {
+	func update<Value>(key: WritableKeyPath<ProducerState, Value>, to newValue: Value) async throws {
 		self.state[keyPath: key] = newValue;
 		try self.writeToDisk();
 	}
 
-	func get(key: KeyPath<ProducerState, CancelableFileReading.State>) -> CancelableFileReading.State {
+	func get<Value>(key: KeyPath<ProducerState, Value>) -> Value {
 		self.state[keyPath: key];
 	}
 

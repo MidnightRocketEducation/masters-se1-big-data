@@ -30,19 +30,22 @@ struct yelp_producer: AsyncParsableCommand {
 	var schemaRegistry: URL;
 
 	@Option(
-		name: .customLong("kafka-host"),
 		help: "Kafka host to push to. Optionally use host:port to specify the port. Port defaults to 9092.",
 		transform: { try transformHostOption($0, defaultPort: 9092) }
 	) var kafkaHost: HostSpec;
 
 	mutating func run() async throws {
-		try AvroSchemaManager.write(to: stateDirectory, from: BusinessModel.self);
-		try AvroSchemaManager.write(to: stateDirectory, from: ReviewModel.self);
-		try await AvroSchemaManager.push(to: schemaRegistry, model: ReviewModel.self)
-		try await AvroSchemaManager.push(to: schemaRegistry, model: BusinessModel.self)
-
-
 		let stateManager = try ProducerStateManager(file: self.stateDirectory + StateFileNames.main);
+		let globalLogger = Logger(label: "yelp-producer");
+		if !(await stateManager.get(key: \.hasUploadedSchema)) {
+			try AvroSchemaManager.write(to: stateDirectory, from: BusinessModel.self);
+			try AvroSchemaManager.write(to: stateDirectory, from: ReviewModel.self);
+			try await AvroSchemaManager.push(to: schemaRegistry, model: ReviewModel.self)
+			try await AvroSchemaManager.push(to: schemaRegistry, model: BusinessModel.self)
+			try await stateManager.update(key: \.hasUploadedSchema, to: true)
+		}
+
+
 		let processor = try BusinessProcessor(
 			stateManager: stateManager,
 			sourceFile: self.sourceDirectory + YelpFilenames.businesses,
@@ -51,7 +54,7 @@ struct yelp_producer: AsyncParsableCommand {
 		);
 		var config: KafkaProducerConfiguration = .init(bootstrapBrokerAddresses: [self.kafkaHost.value])
 		config.topicConfiguration.messageTimeout = .timeout(.seconds(3));
-		let kafkaService = try KafkaService(config: config, logger: .init(label: "kafka"));
+		let kafkaService = try KafkaService(config: config, logger: globalLogger);
 
 		async let kafkaTask: Void = kafkaService.run();
 
