@@ -33,19 +33,17 @@ actor KafkaService: Service {
 
 	private func handleEvents() async {
 		for await event in events {
-			switch event {
-			case .deliveryReports(let deliveryReports):
-				for deliveryReport in deliveryReports {
-					if let continuation = self.continuations.removeValue(forKey: deliveryReport.id) {
-						if case .failure(let error) = deliveryReport.status {
-							continuation.resume(throwing: error);
-						} else {
-							continuation.resume();
-						}
+			guard case let .deliveryReports(deliveryReports) = event else {
+				assert(false, "Unhandled event: \(event)");
+			}
+			for deliveryReport in deliveryReports {
+				if let continuation = self.continuations.removeValue(forKey: deliveryReport.id) {
+					if case .failure(let error) = deliveryReport.status {
+						continuation.resume(throwing: error);
+					} else {
+						continuation.resume();
 					}
 				}
-			default:
-				assert(false, "Unhandled event: \(event)");
 			}
 		}
 	}
