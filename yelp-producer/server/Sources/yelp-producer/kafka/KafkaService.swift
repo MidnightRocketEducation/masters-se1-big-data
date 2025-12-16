@@ -35,6 +35,7 @@ actor KafkaService: Service {
 		for await event in events {
 			guard case let .deliveryReports(deliveryReports) = event else {
 				assert(false, "Unhandled event: \(event)");
+				continue;
 			}
 			for deliveryReport in deliveryReports {
 				if let continuation = self.continuations.removeValue(forKey: deliveryReport.id) {
