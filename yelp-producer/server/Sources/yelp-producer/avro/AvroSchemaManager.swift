@@ -15,7 +15,8 @@ struct AvroSchemaManager {
 }
 
 extension AvroSchemaManager {
-	static func push(to url: URL, model: AvroProtocol.Type) async throws {
+	static func push(to baseUrl: URL, model: AvroProtocol.Type, subject: String? = nil) async throws {
+		let url = baseUrl.appending(components: "subjects", subject ?? "\(model)-avsc", "versions");
 		try await WebClient.post(
 			url: url,
 			body: try RegistrySchema(from: model).toJSON(),
@@ -24,18 +25,25 @@ extension AvroSchemaManager {
 	}
 
 	struct RegistrySchema: Codable {
-		let schema: AvroSchemaDefinition;
+		let schema: String;
 
-		init(schema: AvroSchemaDefinition) {
+		init(schema: AvroSchemaDefinition) throws {
+			guard let schema = String(data: try jsonEncoder.encode(schema), encoding: .utf8) else {
+				throw Error.invalidEncoding;
+			}
 			self.schema = schema;
 		}
 
 		init(from model: AvroProtocol.Type) throws {
-			self.init(schema: model.avroSchema);
+			try self.init(schema: model.avroSchema);
 		}
 
 		func toJSON() throws -> Data {
 			try jsonEncoder.encode(self);
 		}
+	}
+
+	enum Error: Swift.Error {
+		case invalidEncoding;
 	}
 }
