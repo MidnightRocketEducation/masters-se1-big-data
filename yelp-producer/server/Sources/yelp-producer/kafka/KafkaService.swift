@@ -6,7 +6,7 @@ import Logging;
 actor KafkaService: Service {
 	let producer: KafkaProducer;
 	let events: KafkaProducerEvents;
-	var continuations: [KafkaProducerMessageID: CheckedContinuation<Void, any Error>] = [:];
+	var continuations: [KafkaProducerMessageID: CheckedContinuation<Void, any Swift.Error>] = [:];
 
 	init(config: KafkaProducerConfiguration, logger: Logger) throws {
 		(self.producer, self.events) = try KafkaProducer.makeProducerWithEvents(configuration: config, logger: logger);
@@ -32,7 +32,7 @@ actor KafkaService: Service {
 	}
 
 	private func handleEvents() async {
-		for await event in events {
+		for await event in events.cancelOnGracefulShutdown() {
 			guard case let .deliveryReports(deliveryReports) = event else {
 				assert(false, "Unhandled event: \(event)");
 				continue;
@@ -47,6 +47,14 @@ actor KafkaService: Service {
 				}
 			}
 		}
+		self.continuations.forEach {$0.value.resume(throwing: Error.kafkaServiceStopped)}
+		self.continuations.removeAll();
+	}
+}
+
+extension KafkaService {
+	enum Error: Swift.Error {
+		case kafkaServiceStopped;
 	}
 }
 

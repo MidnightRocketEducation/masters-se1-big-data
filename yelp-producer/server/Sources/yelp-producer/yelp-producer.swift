@@ -46,18 +46,26 @@ struct yelp_producer: AsyncParsableCommand {
 		}
 
 
+		var config: KafkaProducerConfiguration = .init(bootstrapBrokerAddresses: [self.kafkaHost.value])
+		config.topicConfiguration.messageTimeout = .timeout(.seconds(3));
+		let kafkaService = try KafkaService(config: config, logger: globalLogger);
+
+
+		let serviceGroup = ServiceGroup(
+			services: [kafkaService],
+			gracefulShutdownSignals: [.sighup, .sigterm, .sigint, .sigpipe],
+			logger: globalLogger
+		);
+
+
+		async let serviceTask: Void = serviceGroup.run();
+
 		let processor = try BusinessProcessor(
 			stateManager: stateManager,
 			sourceFile: self.sourceDirectory + YelpFilenames.businesses,
 			cacheFileURL: self.stateDirectory + StateFileNames.processedBusinesses,
 			categoryFilterURL: self.categoryFile
 		);
-		var config: KafkaProducerConfiguration = .init(bootstrapBrokerAddresses: [self.kafkaHost.value])
-		config.topicConfiguration.messageTimeout = .timeout(.seconds(3));
-		let kafkaService = try KafkaService(config: config, logger: globalLogger);
-
-		async let kafkaTask: Void = kafkaService.run();
-
 		try await processor.loadCacheFile();
 		try await processor.processFile() { model, data in
 			print("hello")
@@ -66,7 +74,7 @@ struct yelp_producer: AsyncParsableCommand {
 		}
 		print("Businesses \(await processor.dictionary.count)")
 
-		try await kafkaTask;
+		try await serviceTask;
 	}
 
 
