@@ -9,7 +9,7 @@ struct WebClient {
 
 	static func run(
 		url: URL,
-		method: Method,
+		method: Method = .get,
 		body: Data? = nil,
 		accept: MimeType = .json,
 		contentType: MimeType? = nil,

@@ -1,8 +1,15 @@
 import Avro;
 import Foundation;
+import CodingKeysGenerator;
 
 struct AvroSchemaManager {
-	static let jsonEncoder = JSONEncoder();
+	static let jsonEncoder: JSONEncoder = {
+		var jsonEncoder = JSONEncoder();
+		jsonEncoder.outputFormatting = .sortedKeys;
+		return jsonEncoder;
+	}();
+	static let jsonDecoder: JSONDecoder = JSONDecoder();
+
 	static func generate(from model: AvroProtocol.Type) throws -> Data {
 		return try jsonEncoder.encode(model.avroSchema);
 	}
@@ -15,13 +22,34 @@ struct AvroSchemaManager {
 }
 
 extension AvroSchemaManager {
-	static func push(to baseUrl: URL, model: AvroProtocol.Type, subject: String? = nil) async throws {
-		let url = baseUrl.appending(components: "subjects", subject ?? "\(model)-avsc", "versions");
+	/**
+	 Returns a boolean indicating whether or not the schema was updated
+	 */
+	@discardableResult
+	static func push(to baseURL: URL, model: AvroProtocol.Type, subject: String? = nil) async throws -> Bool {
+		let subjectURL = baseURL.appending(components: "subjects", subject ?? "\(model)-avsc", "versions");
+
 		try await WebClient.post(
-			url: url,
+			url: subjectURL,
 			body: try RegistrySchema(from: model).toJSON(),
 			contentType: .confluentSchema
 		);
+		return true;
+	}
+
+	static func get(from baseURL: URL, model: AvroProtocol.Type, subject: String? = nil) async throws -> AvroSchemaDefinition? {
+		let subjectURL = baseURL.appending(components: "subjects", subject ?? "\(model)-avsc", "versions", "latest");
+		let data = try await WebClient.run(url: subjectURL);
+		do {
+			let rs = try jsonDecoder.decode(RegistrySchema.self, from: data);
+			return try jsonDecoder.decode(AvroSchemaDefinition.self, from: Data(rs.schema.utf8));
+		} catch _ as DecodingError {
+			let err = try jsonDecoder.decode(RegistryErrorMessage.self, from: data);
+			if err.errorCode == 40401 {
+				return nil
+			}
+			throw err;
+		}
 	}
 
 	struct RegistrySchema: Codable {
@@ -41,6 +69,12 @@ extension AvroSchemaManager {
 		func toJSON() throws -> Data {
 			try jsonEncoder.encode(self);
 		}
+	}
+
+	@CodingKeys
+	struct RegistryErrorMessage: Codable, Swift.Error {
+		let message: String;
+		let errorCode: Int;
 	}
 
 	enum Error: Swift.Error {

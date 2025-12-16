@@ -13,6 +13,13 @@ func transformToFileURL(_ string: String) throws -> URL {
 	URL(filePath: string);
 }
 
+func transformToOrdinaryURL(_ string: String) throws -> URL {
+	guard let url = URL(string: string) else {
+		throw ValidationError("Invalid URL: \(string)");
+	}
+	return url;
+}
+
 
 func transformHostOption(_ string: String, defaultPort: Int) throws -> HostSpec {
 	guard let host = string.prefixMatch(of: /^[^:\/\s]*(?=$|:\d*$)/) else {

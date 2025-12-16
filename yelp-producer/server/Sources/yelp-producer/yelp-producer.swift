@@ -26,6 +26,9 @@ struct yelp_producer: AsyncParsableCommand {
 	@Option(transform: transformToFileURL)
 	var sourceDirectory: URL;
 
+	@Option(transform: transformToOrdinaryURL)
+	var schemaRegistry: URL;
+
 	@Option(
 		name: .customLong("kafka-host"),
 		help: "Kafka host to push to. Optionally use host:port to specify the port. Port defaults to 9092.",
@@ -35,6 +38,8 @@ struct yelp_producer: AsyncParsableCommand {
 	mutating func run() async throws {
 		try AvroSchemaManager.write(to: stateDirectory, from: BusinessModel.self);
 		try AvroSchemaManager.write(to: stateDirectory, from: ReviewModel.self);
+		try await AvroSchemaManager.push(to: schemaRegistry, model: ReviewModel.self)
+		try await AvroSchemaManager.push(to: schemaRegistry, model: BusinessModel.self)
 
 
 		let stateManager = try ProducerStateManager(file: self.stateDirectory + StateFileNames.main);
