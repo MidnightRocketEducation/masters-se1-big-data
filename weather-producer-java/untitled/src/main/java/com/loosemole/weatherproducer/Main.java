@@ -46,14 +46,12 @@ public class Main {
         }
     }
 
-    private static void setDoubleIfPresent(String[] arr, int idx, java.util.function.Consumer<Double> setter) {
+    private static void setDoubleIfPresent(String[] arr, int idx, java.util.function.Consumer<Double> setter) throws NumberFormatException {
         String v = safeGet(arr, idx);
         if (!notEmpty(v)) return;
-        try {
-            setter.accept(Double.parseDouble(v));
-        } catch (NumberFormatException e) {
-            System.err.printf("Invalid double at index %d: '%s'%n", idx, v);
-        }
+
+        setter.accept(Double.parseDouble(v));
+
     }
 
     public static void main(String[] args) {
@@ -65,14 +63,14 @@ public class Main {
 
         Producer<String, WeatherEvent> producer = new KafkaProducer<>(props);
 
-        String topic = "weather_event";
+        String topic = "weather";
 
         Path dataRoot = Path.of("/data");
 
         try (Stream<Path> yearDirs = Files.list(dataRoot)) {
             yearDirs.filter(Files::isDirectory).filter(dir -> dir.getFileName().toString().startsWith("filtered_")).forEach(dir -> {
-                // Break condition: If name of dir is filtered_2015, stop processing
-                if (dir.getFileName().toString().compareTo("filtered_2015") >= 0) {
+                // Break condition: If name of dir is filtered_2013, stop processing
+                if (dir.getFileName().toString().compareTo("filtered_2013") >= 0) {
                     return;
                 }
 
@@ -106,17 +104,59 @@ public class Main {
                 // helper accessor and conditional setters
                 setLongIfPresent(nextLine, 0, b::setStation);
                 setStringIfPresent(nextLine, 1, b::setDate);
-                setDoubleIfPresent(nextLine, 2, b::setLatitude);
-                setDoubleIfPresent(nextLine, 3, b::setLongitude);
-                setDoubleIfPresent(nextLine, 4, b::setElevation);
+                try {
+                    setDoubleIfPresent(nextLine, 2, b::setLatitude);
+                } catch (NumberFormatException e) {
+                    System.err.printf("Invalid double at index %d: '%s'%n", 2, safeGet(nextLine, 2));
+                }
+                try {
+                    setDoubleIfPresent(nextLine, 3, b::setLongitude);
+                } catch (NumberFormatException e) {
+                    System.err.printf("Invalid double at index %d: '%s'%n", 3, safeGet(nextLine, 3));
+                }
+                try {
+                    setDoubleIfPresent(nextLine, 4, b::setElevation);
+                } catch (NumberFormatException e) {
+                    System.err.printf("Invalid double at index %d: '%s'%n", 4, safeGet(nextLine, 4));
+                }
                 setStringIfPresent(nextLine, 5, b::setName);
                 setStringIfPresent(nextLine, 6, b::setReportType);
                 setIntIfPresent(nextLine, 7, b::setSource);
-                setDoubleIfPresent(nextLine, 10, b::setHourlyDryBulbTemperature);
-                setDoubleIfPresent(nextLine, 17, b::setHourlySeaLevelPressure);
-                setDoubleIfPresent(nextLine, 19, b::setHourlyVisibility);
-                setDoubleIfPresent(nextLine, 21, b::setHourlyWindDirection);
-                setDoubleIfPresent(nextLine, 23, b::setHourlyWindSpeed);
+                try {
+                    setDoubleIfPresent(nextLine, 10, b::setHourlyDryBulbTemperature);
+                } catch (NumberFormatException e) {
+                    System.err.printf("Invalid double at index %d: '%s'%n", 10, safeGet(nextLine, 10));
+                }
+                try {
+                    setDoubleIfPresent(nextLine, 11, b::setHourlyPrecipitation);
+                } catch (NumberFormatException e) {
+                    setStringIfPresent(nextLine, 11, b::setHourlyPrecipitation);
+                }
+                try {
+                    setDoubleIfPresent(nextLine, 15, b::setHourlyRelativeHumidity);
+                } catch (NumberFormatException e) {
+                    System.err.printf("Invalid double at index %d: '%s'%n", 15, safeGet(nextLine, 15));
+                }
+                try {
+                    setDoubleIfPresent(nextLine, 17, b::setHourlySeaLevelPressure);
+                } catch (NumberFormatException e) {
+                    System.err.printf("Invalid double at index %d: '%s'%n", 17, safeGet(nextLine, 17));
+                }
+                try {
+                    setDoubleIfPresent(nextLine, 19, b::setHourlyVisibility);
+                } catch (NumberFormatException e) {
+                    System.err.printf("Invalid double at index %d: '%s'%n", 19, safeGet(nextLine, 19));
+                }
+                try {
+                    setDoubleIfPresent(nextLine, 21, b::setHourlyWindDirection);
+                } catch (NumberFormatException e) {
+                    System.err.printf("Invalid double at index %d: '%s'%n", 21, safeGet(nextLine, 21));
+                }
+                try {
+                    setDoubleIfPresent(nextLine, 23, b::setHourlyWindSpeed);
+                } catch (NumberFormatException e) {
+                    System.err.printf("Invalid double at index %d: '%s'%n", 23, safeGet(nextLine, 23));
+                }
 
                 WeatherEvent weatherObservation = b.build();
                 
