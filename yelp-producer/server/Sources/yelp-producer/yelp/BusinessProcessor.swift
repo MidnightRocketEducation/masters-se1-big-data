@@ -30,11 +30,13 @@ actor BusinessProcessor {
 		let categoryFilter = try await CategoryFilter.load(from: try .init(forReadingFrom: self.categoryFilterURL));
 
 		let reader = CancelableFileReading(file: sourceFile, state: await self.stateManager.get(key: \.businessesFileState));
-		await reader.setSaveStateCallback() { state in
-			try? await self.stateManager.update(key: \.businessesFileState, to: state);
-		}
 
 		try await AtomicFileWriter.write(to: self.cacheFileURL, mode: .append) { writer in
+			await reader.setSaveStateCallback() { state in
+				try? await writer.flush();
+				try? await self.stateManager.update(key: \.businessesFileState, to: state);
+			}
+
 			let newline = Data("\n".utf8);
 			let (state, reason) = await reader.read() { line in
 				let model = try await self.jsonDecode(line) { m in
@@ -48,7 +50,7 @@ actor BusinessProcessor {
 				try await kafkaProducer(model, avroData);
 				try await writer.write(data: data);
 			}
-			try await self.stateManager.update(key: \.businessesFileState, to: state);
+
 			try reason.resolve();
 		}
 	}

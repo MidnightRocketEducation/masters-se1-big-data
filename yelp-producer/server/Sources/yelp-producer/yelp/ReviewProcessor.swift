@@ -40,10 +40,9 @@ actor ReviewProcessor {
 				throw Error.reachedCutoffDate;
 			}
 
-			let data = try ReviewModel.jsonEncoder.encode(model) + newline;
-			try await kafkaProducer(model, data);
+			let avroData = try await self.avroEncode(model);
+			try await kafkaProducer(model, avroData);
 		}
-		try await self.stateManager.update(key: \.businessesFileState, to: state);
 
 		do {
 			try reason.resolve();
@@ -61,6 +60,10 @@ actor ReviewProcessor {
 			return nil;
 		}
 		return model;
+	}
+
+	func avroEncode(_ value: ReviewModel) throws -> Data {
+		return try self.avro.encode(value);
 	}
 
 	enum Error: Swift.Error {
