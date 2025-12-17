@@ -21,29 +21,61 @@ actor MainProcessingService: Service {
 
 	func run() async throws {
 		
-		let processor = try BusinessProcessor(
+		let businessProcessorComponent = try await BusinessServiceComponent(
 			stateManager: stateManager,
-			sourceFile: self.sourceDirectory + YelpFilenames.businesses,
-			cacheFileURL: self.stateDirectory + StateFileNames.processedBusinesses,
-			categoryFilterURL: self.categoryFile
+			stateDirectory: stateDirectory,
+			sourceDirectory: sourceDirectory,
+			categoryFile: categoryFile,
+			kafkaService: kafkaService,
+			logger: logger
 		);
-		let batchProcessor = await AsyncLimitedBatchProcessor(batchSize: 50);
 
 		try await withGracefulShutdownHandler {
+			try await businessProcessorComponent.run(kafkaService: kafkaService);
 
-			try await processor.loadCacheFile();
-			try await processor.processFile() { model, data in
-				try await batchProcessor.add {
-					try? await self.kafkaService.postTo(topic: .BusinessEvents, message: data);
-				}
-			}
-			await batchProcessor.cancel();
-			print("Businesses \(await processor.dictionary.count)")
 		} onGracefulShutdown: {
 			Task {
-				await processor.cancel();
-				await batchProcessor.cancel();
+				await businessProcessorComponent.cancel();
 			}
 		}
+	}
+}
+
+
+struct BusinessServiceComponent {
+	let processor: BusinessProcessor;
+	let batchProcessor: AsyncLimitedBatchProcessor;
+
+	init (
+		stateManager: ProducerStateManager,
+		stateDirectory: URL,
+		sourceDirectory: URL,
+		categoryFile: URL,
+		kafkaService: KafkaService,
+		logger: Logger
+	) async throws {
+		self.processor = try BusinessProcessor(
+			stateManager: stateManager,
+			sourceFile: sourceDirectory + YelpFilenames.businesses,
+			cacheFileURL: stateDirectory + StateFileNames.processedBusinesses,
+			categoryFilterURL: categoryFile
+		);
+		self.batchProcessor = await AsyncLimitedBatchProcessor(batchSize: 50);
+	}
+
+	func run(kafkaService: KafkaService) async throws {
+		try await processor.loadCacheFile();
+		try await processor.processFile() { model, data in
+			try await batchProcessor.add {
+				try? await kafkaService.postTo(topic: .BusinessEvents, message: data);
+			}
+		}
+		await batchProcessor.cancel();
+		print("Businesses \(await processor.dictionary.count)")
+	}
+
+	func cancel() async {
+		await self.processor.cancel();
+		await self.batchProcessor.cancel();
 	}
 }
