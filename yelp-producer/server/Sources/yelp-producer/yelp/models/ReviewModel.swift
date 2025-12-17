@@ -2,15 +2,39 @@ import Foundation;
 import CodingKeysGenerator;
 import Avro;
 
-@CodingKeys
 @AvroSchema
 struct ReviewModel: Codable {
-	@CodingKey(custom: "review_id")
 	let id: String;
 	let businessId: String;
 	let stars: Double;
 	@LogicalType(.timestampMillis)
 	let date: Date;
+
+	init(from decoder: any Decoder) throws {
+		let container = try decoder.container(keyedBy: CodingKeys.self);
+		self.stars = try container.decode(Double.self, forKey: .stars);
+		self.date = try container.decode(Date.self, forKey: .date);
+		if let id = try container.decodeIfPresent(String.self, forKey: .id) {
+			self.id = id;
+			self.businessId = try container.decode(String.self, forKey: .businessId);
+		} else {
+			let legacyContainer = try decoder.container(keyedBy: LegacyKeys.self);
+			self.id = try legacyContainer.decode(String.self, forKey: .id);
+			self.businessId = try legacyContainer.decode(String.self, forKey: .businessId);
+		}
+	}
+
+	enum CodingKeys: String, CodingKey {
+		case id;
+		case businessId;
+		case stars;
+		case date;
+	}
+
+	enum LegacyKeys: String, CodingKey {
+		case id = "review_id";
+		case businessId = "business_id";
+	}
 }
 
 extension ReviewModel: Comparable {

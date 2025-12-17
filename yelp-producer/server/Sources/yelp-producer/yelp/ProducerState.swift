@@ -1,7 +1,8 @@
 import Foundation;
-struct ProducerState: Codable {
+public struct ProducerState: Codable {
 	var businessesFileState: CancelableFileReading.State;
-	var reviewsFileState: CancelableFileReading.State;
+	var reviewsFileStatePast: CancelableFileReading.State;
+	var reviewsFileStateFuture: CancelableFileReading.State;
 	var hasUploadedSchema: Bool;
 }
 
@@ -9,7 +10,8 @@ extension ProducerState {
 	static var empty: ProducerState {
 		.init(
 			businessesFileState: .new,
-			reviewsFileState: .new,
+			reviewsFileStatePast: .new,
+			reviewsFileStateFuture: .new,
 			hasUploadedSchema: false
 		);
 	}
@@ -31,7 +33,7 @@ extension ProducerState {
 }
 
 
-actor ProducerStateManager {
+public actor ProducerStateManager {
 	private var state: ProducerState;
 	private var url: URL;
 
@@ -40,18 +42,20 @@ actor ProducerStateManager {
 		self.url = url;
 	}
 
-	func update<Value>(key: WritableKeyPath<ProducerState, Value>, to newValue: Value) async throws {
+	public func update<Value>(key: WritableKeyPath<ProducerState, Value>, to newValue: Value) async throws {
 		self.state[keyPath: key] = newValue;
 		try self.writeToDisk();
 	}
 
-	func get<Value>(key: KeyPath<ProducerState, Value>) -> Value {
+	public func get<Value>(key: KeyPath<ProducerState, Value>) -> Value {
 		self.state[keyPath: key];
 	}
 
 	func writeToDisk() throws {
 		try state.write(to: url);
 	}
+
+	typealias IsolatedStateView<Value> = (get: @Sendable () async -> (Value), update: @Sendable (Value) async throws -> ())
 }
 
 

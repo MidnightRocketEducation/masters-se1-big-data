@@ -1,29 +1,32 @@
 import Foundation;
-import SwiftAvroCore;
+// import SwiftAvroCore;
+import Avro;
 
 actor ReviewProcessor {
-	let stateManager: ProducerStateManager;
+	typealias StateM = ProducerStateManager.IsolatedStateView<CancelableFileReading.State>
+	let stateManager: StateM;
 	let sourceFile: FileHandle;
 	let businesses: [String: BusinessModel];
-	let avro = Avro();
+	let avro = AvroEncoder(schema: ReviewModel.avroSchema);
 	var until: Date? = nil;
+	var cancelHandle: @Sendable () async -> Void = {}
 
 
-	init(stateManager: ProducerStateManager, sourceFile: URL, businesses: [String: BusinessModel]) throws {
+	init(stateManager: StateM, sourceFile: URL, businesses: [String: BusinessModel]) throws {
 		self.sourceFile = try FileHandle(forReadingFrom: sourceFile);
 		self.stateManager = stateManager;
 		self.businesses = businesses;
-		_ = self.avro.decodeSchema(schema: try ReviewModel.avroSchemaString);
 	}
 
 	func processFile(kafkaProducer: @Sendable (ReviewModel, Data) async throws -> Void) async throws {
-		if await self.stateManager.get(key: \.businessesFileState).completed {
+		if await self.stateManager.get().completed {
 			return;
 		}
 
-		let reader = CancelableFileReading(file: sourceFile, state: await self.stateManager.get(key: \.businessesFileState));
+		let reader = CancelableFileReading(file: sourceFile, state: await self.stateManager.get());
+		self.cancelHandle = reader.cancel;
 		await reader.setSaveStateCallback() { state in
-			try? await self.stateManager.update(key: \.businessesFileState, to: state);
+			try? await self.stateManager.update(state);
 		}
 
 		let (_, reason) = await reader.read { line in
@@ -51,6 +54,10 @@ actor ReviewProcessor {
 				break;
 			}
 		}
+	}
+
+	func cancel() async {
+		await self.cancelHandle();
 	}
 
 	func decode(_ line: String, filter: ((ReviewModel) -> Bool)? = nil) throws -> ReviewModel? {

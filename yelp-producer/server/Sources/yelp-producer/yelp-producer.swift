@@ -7,7 +7,7 @@
 import ArgumentParser;
 import Foundation;
 import ServiceLifecycle;
-import Logging;
+import os;
 import Kafka;
 
 @main
