@@ -16,11 +16,11 @@ actor BusinessProcessor {
 
 	var cancelHandle: (() async -> Void)? = nil;
 
-	init(stateManager: ProducerStateManager, sourceFile: URL, cacheFileURL: URL, categoryFilterURL: URL) throws {
-		self.sourceFile = try FileHandle(forReadingFrom: sourceFile);
-		self.stateManager = stateManager;
-		self.cacheFileURL = cacheFileURL;
-		self.categoryFilterURL = categoryFilterURL;
+	init(config: GlobalConfiguration) throws {
+		self.sourceFile = try FileHandle(forReadingFrom: config.options.sourceDirectory + YelpFilenames.businesses);
+		self.stateManager = config.stateManager;
+		self.cacheFileURL = config.options.stateDirectory + StateFileNames.processedBusinesses;
+		self.categoryFilterURL = config.options.categoryFile;
 	}
 
 	func processFile(kafkaProducer: @Sendable (BusinessModel, Data) async throws -> Void) async throws {

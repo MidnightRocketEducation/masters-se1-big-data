@@ -17,52 +17,30 @@ struct yelp_producer: AsyncParsableCommand {
 		abstract: "Simple temeprature sensor deamon",
 	);
 
-	@Option(transform: transformToFileURL)
-	var categoryFile: URL;
+	@OptionGroup
+	var options: Options;
 
-	@Option(transform: transformToFileURL)
-	var stateDirectory: URL;
 
-	@Option(transform: transformToFileURL)
-	var sourceDirectory: URL;
-
-	@Option(transform: transformToOrdinaryURL)
-	var schemaRegistry: URL;
-
-	@Option(
-		help: "Kafka host to push to. Optionally use host:port to specify the port. Port defaults to 9092.",
-		transform: { try transformHostOption($0, defaultPort: 9092) }
-	) var kafkaHost: HostSpec;
 
 	mutating func run() async throws {
-		let stateManager = try ProducerStateManager(file: self.stateDirectory + StateFileNames.main);
-		let globalLogger = Logger(label: "yelp-producer");
-		if !(await stateManager.get(key: \.hasUploadedSchema)) {
-			try AvroSchemaManager.write(to: stateDirectory, from: BusinessModel.self);
-			try AvroSchemaManager.write(to: stateDirectory, from: ReviewModel.self);
-			try await AvroSchemaManager.push(to: schemaRegistry, model: ReviewModel.self)
-			try await AvroSchemaManager.push(to: schemaRegistry, model: BusinessModel.self)
-			try await stateManager.update(key: \.hasUploadedSchema, to: true)
+		let config = try GlobalConfiguration(options: self.options);
+
+		if !(await config.stateManager.get(key: \.hasUploadedSchema)) {
+			try AvroSchemaManager.write(to: config.options.stateDirectory, from: BusinessModel.self);
+			try AvroSchemaManager.write(to: config.options.stateDirectory, from: ReviewModel.self);
+			try await AvroSchemaManager.push(to: config.options.schemaRegistry, model: ReviewModel.self)
+			try await AvroSchemaManager.push(to: config.options.schemaRegistry, model: BusinessModel.self)
+			try await config.stateManager.update(key: \.hasUploadedSchema, to: true)
 		}
 
 
-		var config: KafkaProducerConfiguration = .init(bootstrapBrokerAddresses: [self.kafkaHost.value])
-		config.topicConfiguration.messageTimeout = .timeout(.seconds(3));
-		let kafkaService = try KafkaService(config: config, logger: globalLogger);
 
-		let mainProcessor = MainProcessingService(
-			stateManager: stateManager,
-			stateDirectory: self.stateDirectory,
-			sourceDirectory: self.sourceDirectory,
-			categoryFile: self.categoryFile,
-			kafkaService: kafkaService,
-			logger: globalLogger
-		);
+		let mainProcessor = MainProcessingService(config: config);
 
 		let serviceGroup = ServiceGroup(
-			services: [kafkaService, mainProcessor],
+			services: [config.kafkaService, mainProcessor],
 			gracefulShutdownSignals: [.sighup, .sigterm, .sigint, .sigpipe],
-			logger: globalLogger
+			logger: config.logger
 		);
 
 
@@ -73,14 +51,9 @@ struct yelp_producer: AsyncParsableCommand {
 	}
 
 
-	mutating func validate() throws {
-		guard self.stateDirectory.isDirectory else {
-			throw ValidationError("--state-directory must be an existing directory");
-		}
+	func validate() throws {
 	}
 }
-
-
 
 
 

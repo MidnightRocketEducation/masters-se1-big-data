@@ -3,35 +3,18 @@ import ServiceLifecycle;
 import Logging;
 
 actor MainProcessingService: Service {
-	let stateManager: ProducerStateManager;
-	let stateDirectory: URL;
-	let sourceDirectory: URL;
-	let categoryFile: URL;
-	let kafkaService: KafkaService;
-	let logger: Logger;
+	let config: GlobalConfiguration;
 
-	init(stateManager: ProducerStateManager, stateDirectory: URL, sourceDirectory: URL, categoryFile: URL, kafkaService: KafkaService, logger: Logger) {
-		self.stateManager = stateManager;
-		self.stateDirectory = stateDirectory;
-		self.sourceDirectory = sourceDirectory;
-		self.categoryFile = categoryFile;
-		self.kafkaService = kafkaService;
-		self.logger = logger;
+	init(config: GlobalConfiguration) {
+		self.config = config;
 	}
 
 	func run() async throws {
 		
-		let businessProcessorComponent = try await BusinessServiceComponent(
-			stateManager: stateManager,
-			stateDirectory: stateDirectory,
-			sourceDirectory: sourceDirectory,
-			categoryFile: categoryFile,
-			kafkaService: kafkaService,
-			logger: logger
-		);
+		let businessProcessorComponent = try await BusinessServiceComponent(config: config);
 
 		try await withGracefulShutdownHandler {
-			try await businessProcessorComponent.run(kafkaService: kafkaService);
+			try await businessProcessorComponent.run(kafkaService: config.kafkaService);
 
 		} onGracefulShutdown: {
 			Task {
@@ -46,20 +29,8 @@ struct BusinessServiceComponent {
 	let processor: BusinessProcessor;
 	let batchProcessor: AsyncLimitedBatchProcessor;
 
-	init (
-		stateManager: ProducerStateManager,
-		stateDirectory: URL,
-		sourceDirectory: URL,
-		categoryFile: URL,
-		kafkaService: KafkaService,
-		logger: Logger
-	) async throws {
-		self.processor = try BusinessProcessor(
-			stateManager: stateManager,
-			sourceFile: sourceDirectory + YelpFilenames.businesses,
-			cacheFileURL: stateDirectory + StateFileNames.processedBusinesses,
-			categoryFilterURL: categoryFile
-		);
+	init (config: GlobalConfiguration) async throws {
+		self.processor = try BusinessProcessor(config: config);
 		self.batchProcessor = await AsyncLimitedBatchProcessor(batchSize: 50);
 	}
 
