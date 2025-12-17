@@ -4,6 +4,7 @@ import SwiftAvroCore;
 actor BusinessProcessor {
 	static let jsonDecoder: JSONDecoder = JSONDecoder();
 	static let jsonEncoder: JSONEncoder = JSONEncoder();
+	static let newline = Data("\n".utf8);
 
 	let avro = Avro();
 
@@ -40,15 +41,14 @@ actor BusinessProcessor {
 				try? await self.stateManager.update(key: \.businessesFileState, to: state);
 			}
 
-			let newline = Data("\n".utf8);
-			let (state, reason) = await reader.read() { line in
+			let (_, reason) = await reader.read() { line in
 				let model = try await self.jsonDecode(line) { m in
 					return categoryFilter.matches(categoryArray: m.categories)
 				}
 				guard let model else {
 					return;
 				}
-				let data = try Self.jsonEncoder.encode(model) + newline;
+				let data = try Self.jsonEncoder.encode(model) + Self.newline;
 				let avroData = try await self.avroEncode(model);
 				try await kafkaProducer(model, avroData);
 				try await writer.write(data: data);

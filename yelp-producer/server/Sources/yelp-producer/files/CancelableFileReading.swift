@@ -100,9 +100,14 @@ extension CancelableFileReading {
 		func resolve() throws -> Self {
 			switch self {
 			case .error(let error): throw error;
+			case .cancelled: throw Error.cancelled;
 			default: return self;
 			}
 		}
+	}
+
+	enum Error: Swift.Error {
+		case cancelled;
 	}
 }
 

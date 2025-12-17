@@ -26,8 +26,7 @@ actor ReviewProcessor {
 			try? await self.stateManager.update(key: \.businessesFileState, to: state);
 		}
 
-		let newline = Data("\n".utf8);
-		let (state, reason) = await reader.read { line in
+		let (_, reason) = await reader.read { line in
 			let model = try await self.decode(line) { m in
 				self.businesses[m.id] != nil;
 			}
