@@ -66,9 +66,16 @@ struct yelp_producer: AsyncParsableCommand {
 			cacheFileURL: self.stateDirectory + StateFileNames.processedBusinesses,
 			categoryFilterURL: self.categoryFile
 		);
+
+		let batchProcessor = await AsyncLimitedBatchProcessor(batchSize: 50);
+
 		try await processor.loadCacheFile();
 		try await processor.processFile() { model, data in
+			await batchProcessor.add {
+				try? await kafkaService.postTo(topic: .BusinessEvents, message: data)
+			}
 		}
+		await batchProcessor.finish();
 		print("Businesses \(await processor.dictionary.count)")
 
 		try await serviceTask;

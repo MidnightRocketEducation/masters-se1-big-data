@@ -64,7 +64,7 @@ enum KafkaTopic: String {
 
 	var value: RawValue {
 		#if KAFKA_DEBUG_TOPIC
-		"debug/" + rawValue
+		"debug-" + rawValue
 		#else
 		rawValue
 		#endif
