@@ -14,7 +14,7 @@ let package = Package(
 		.package(url: "https://github.com/swift-server/swift-service-lifecycle.git", from: "2.0.0"),
 		.package(url: "https://github.com/zijievv/CodingKeysGenerator", revision: "51da1cd6f613c4329f880ad872790f9b7af46427"),
 		.package(url: "https://github.com/MidnightRocket/avro-swift", revision: "b560487e5abb1af81b64a8ac7c3d7601f570adbc"),
-		.package(url: "https://github.com/lynixliu/SwiftAvroCore", from: "0.5.0"),
+		// .package(url: "https://github.com/lynixliu/SwiftAvroCore", from: "0.5.0"),
 	],
 	targets: [
 		// Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -27,7 +27,7 @@ let package = Package(
 				.product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
 				.product(name: "Kafka", package: "swift-kafka-client"),
 				.product(name: "Avro", package: "avro-swift"),
-				.product(name: "SwiftAvroCore", package: "SwiftAvroCore"),
+				// .product(name: "SwiftAvroCore", package: "SwiftAvroCore"),
 			],
 			swiftSettings: [
 				.define("KAFKA_DEBUG_TOPIC", .when(configuration: .debug))

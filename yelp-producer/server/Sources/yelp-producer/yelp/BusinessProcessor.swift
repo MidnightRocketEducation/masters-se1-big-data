@@ -1,12 +1,13 @@
 import Foundation;
-import SwiftAvroCore;
+import Avro;
 
 actor BusinessProcessor {
 	static let jsonDecoder: JSONDecoder = JSONDecoder();
 	static let jsonEncoder: JSONEncoder = JSONEncoder();
 	static let newline = Data("\n".utf8);
 
-	let avro = Avro();
+	let avroEncoder: AvroEncoder;
+	let avroDecoder: AvroDecoder;
 
 	let stateManager: ProducerStateManager;
 	let sourceFile: FileHandle;
@@ -22,13 +23,14 @@ actor BusinessProcessor {
 		self.stateManager = config.stateManager;
 		self.cacheFileURL = config.options.stateDirectory + StateFileNames.processedBusinesses;
 		self.categoryFilterURL = config.options.categoryFile;
+		self.avroEncoder = AvroEncoder(schema: BusinessModel.avroSchema);
+		self.avroDecoder = AvroDecoder(schema: BusinessModel.avroSchema);
 	}
 
 	func processFile(kafkaProducer: @Sendable (BusinessModel, Data) async throws -> Void) async throws {
 		if await self.stateManager.get(key: \.businessesFileState).completed {
 			return;
 		}
-		_ = avro.decodeSchema(schema: try BusinessModel.avroSchemaString)
 
 		let categoryFilter = try await CategoryFilter.load(from: try .init(forReadingFrom: self.categoryFilterURL));
 
@@ -75,11 +77,11 @@ actor BusinessProcessor {
 	}
 
 	func avroEncode(_ value: BusinessModel) throws -> Data {
-		return try self.avro.encode(value);
+		return try self.avroEncoder.encode(value);
 	}
 
 	func avroDecode(_ line: String) throws -> BusinessModel {
-		let model: BusinessModel = try self.avro.decode(from: Data(line.utf8));
+		let model: BusinessModel = try self.avroDecoder.decode(BusinessModel.self, from: Data(line.utf8));
 		self.dictionary[model.id] = model;
 		return model;
 	}
