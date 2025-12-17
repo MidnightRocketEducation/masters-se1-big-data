@@ -14,6 +14,8 @@ actor BusinessProcessor {
 
 	var dictionary: [String: BusinessModel] = [:];
 
+	var cancelHandle: (() async -> Void)? = nil;
+
 	init(stateManager: ProducerStateManager, sourceFile: URL, cacheFileURL: URL, categoryFilterURL: URL) throws {
 		self.sourceFile = try FileHandle(forReadingFrom: sourceFile);
 		self.stateManager = stateManager;
@@ -30,6 +32,7 @@ actor BusinessProcessor {
 		let categoryFilter = try await CategoryFilter.load(from: try .init(forReadingFrom: self.categoryFilterURL));
 
 		let reader = CancelableFileReading(file: sourceFile, state: await self.stateManager.get(key: \.businessesFileState));
+		self.cancelHandle = reader.cancel;
 
 		try await AtomicFileWriter.write(to: self.cacheFileURL, mode: .append) { writer in
 			await reader.setSaveStateCallback() { state in
@@ -52,6 +55,12 @@ actor BusinessProcessor {
 			}
 
 			try reason.resolve();
+		}
+	}
+
+	func cancel() async {
+		if let cancelHandle {
+			await cancelHandle();
 		}
 	}
 

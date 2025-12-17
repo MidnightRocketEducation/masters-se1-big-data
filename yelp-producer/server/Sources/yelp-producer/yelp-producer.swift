@@ -50,9 +50,17 @@ struct yelp_producer: AsyncParsableCommand {
 		config.topicConfiguration.messageTimeout = .timeout(.seconds(3));
 		let kafkaService = try KafkaService(config: config, logger: globalLogger);
 
+		let mainProcessor = MainProcessingService(
+			stateManager: stateManager,
+			stateDirectory: self.stateDirectory,
+			sourceDirectory: self.sourceDirectory,
+			categoryFile: self.categoryFile,
+			kafkaService: kafkaService,
+			logger: globalLogger
+		);
 
 		let serviceGroup = ServiceGroup(
-			services: [kafkaService],
+			services: [kafkaService, mainProcessor],
 			gracefulShutdownSignals: [.sighup, .sigterm, .sigint, .sigpipe],
 			logger: globalLogger
 		);
@@ -60,23 +68,6 @@ struct yelp_producer: AsyncParsableCommand {
 
 		async let serviceTask: Void = serviceGroup.run();
 
-		let processor = try BusinessProcessor(
-			stateManager: stateManager,
-			sourceFile: self.sourceDirectory + YelpFilenames.businesses,
-			cacheFileURL: self.stateDirectory + StateFileNames.processedBusinesses,
-			categoryFilterURL: self.categoryFile
-		);
-
-		let batchProcessor = await AsyncLimitedBatchProcessor(batchSize: 50);
-
-		try await processor.loadCacheFile();
-		try await processor.processFile() { model, data in
-			await batchProcessor.add {
-				try? await kafkaService.postTo(topic: .BusinessEvents, message: data)
-			}
-		}
-		await batchProcessor.finish();
-		print("Businesses \(await processor.dictionary.count)")
 
 		try await serviceTask;
 	}
