@@ -13,7 +13,7 @@ struct BusinessServiceComponent: ServiceComponent {
 		try await processor.loadCacheFile();
 		try await processor.processFile() { model, data in
 			try await batchProcessor.add {
-				try? await config.kafkaService.postTo(topic: .BusinessEvents, message: data);
+				try? await config.kafkaService.postTo(topic: .businessEvent, message: data);
 			}
 		}
 		await batchProcessor.cancel();

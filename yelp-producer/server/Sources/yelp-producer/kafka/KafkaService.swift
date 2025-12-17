@@ -59,8 +59,8 @@ extension KafkaService {
 }
 
 enum KafkaTopic: String {
-	case BusinessEvents = "business-events";
-	case ReviewsEvent = "reviews-event";
+	case businessEvent = "business-event";
+	case reviewsEvent = "reviews-event";
 
 	var value: RawValue {
 		#if KAFKA_DEBUG_TOPIC

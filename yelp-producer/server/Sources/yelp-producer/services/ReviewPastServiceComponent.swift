@@ -17,7 +17,7 @@ struct ReviewPastServiceComponent: ServiceComponent {
 	func run() async throws -> Void {
 		try await self.processor.processFile { model, data in
 			try await self.batchProcessor.add {
-				try? await self.config.kafkaService.postTo(topic: .ReviewsEvent, message: data);
+				try? await self.config.kafkaService.postTo(topic: .reviewsEvent, message: data);
 			}
 		}
 	}
