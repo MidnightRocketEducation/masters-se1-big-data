@@ -2,8 +2,8 @@ import Foundation;
 
 actor AsyncLimitedBatchProcessor {
 	let batchSize: Int;
-	private let signalAvailableProcessors: AsyncSignal<QueueStatus> = .init();
-	private var availableProcessors: [AsyncSignal<Command>] = [];
+	private var jobWaitingQueue: [CheckedContinuation<QueueStatus, Never>] = [];
+	private var availableProcessors: [CheckedContinuation<Command, Never>] = [];
 	private var taskGroup: Task<Void, Never>? = nil;
 	private var hasBeenCancelled: Bool = false;
 
@@ -18,9 +18,9 @@ actor AsyncLimitedBatchProcessor {
 		}
 		self.taskGroup = .init {
 			await withTaskGroup { taskGroup in
-				for i in 0..<self.batchSize {
+				for id in 0..<self.batchSize {
 					taskGroup.addTask {
-						await self.processJobs(id: i);
+						await self.processJobs(id: id);
 					}
 				}
 			}
@@ -30,40 +30,43 @@ actor AsyncLimitedBatchProcessor {
 	func add(_ job: @Sendable @escaping () async -> ()) async throws {
 		assert(!self.hasBeenCancelled, "Called add after finish");
 		while self.availableProcessors.isEmpty {
-			guard case .workerAvailable = await signalAvailableProcessors.nextSignal() else {
+			guard case .workerAvailable = await withCheckedContinuation({jobWaitingQueue.append($0)}) else {
 				throw Error.cancelled;
 			}
 		}
-		await self.availableProcessors.removeFirst().sendToFirst(.job(job));
+		self.availableProcessors.removeFirst().resume(returning: .job(job));
 	}
 
 	func cancel() async {
-		assert(!self.hasBeenCancelled, "Cancel has been called multiple times");
 		self.hasBeenCancelled = true;
 		while !self.availableProcessors.isEmpty {
-			await self.availableProcessors.removeFirst().sendToFirst(.quit);
+			self.availableProcessors.removeFirst().resume(returning: .quit);
 		}
-		await self.signalAvailableProcessors.sendToAll(.cancelled);
+		while !self.jobWaitingQueue.isEmpty {
+			self.jobWaitingQueue.removeFirst().resume(returning: .cancelled);
+		}
+		self.taskGroup?.cancel();
 		await taskGroup?.value;
 	}
 
 	private func processJobs(id: Int) async {
-		while case let .job(j) = await self.getNextCommand() {
+		while case let .job(j) = await self.getNextCommand(id: id) {
 			assert(!self.hasBeenCancelled, "Job tried to execute but processor was cancelled");
 			await j();
 		}
 	}
 
-	private func getNextCommand() async -> Command {
+	private func getNextCommand(id: Int) async -> Command {
 		guard !self.hasBeenCancelled else {
 			return .quit;
 		}
 
-		let sig = AsyncSignal<Command>();
-		availableProcessors.append(sig);
-		async let command = await sig.nextSignal();
-		await self.signalAvailableProcessors.sendToFirst(.workerAvailable);
-		return await command;
+		return await withCheckedContinuation { continuation in
+			self.availableProcessors.append(continuation);
+			if !self.jobWaitingQueue.isEmpty {
+				self.jobWaitingQueue.removeFirst().resume(returning: .workerAvailable);
+			}
+		}
 	}
 }
 

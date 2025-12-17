@@ -1,27 +1,34 @@
 actor AsyncSignal<Value: Sendable> {
 	private var queue: [CheckedContinuation<Value, Never>] = [];
+	private var signalQueue: [Value] = [];
 
 	func nextSignal() async -> Value {
-		return await withCheckedContinuation { continuation in
-			queue.append(continuation);
+		guard !self.signalQueue.isEmpty else {
+			return await withCheckedContinuation { continuation in
+				self.queue.append(continuation);
+			}
 		}
+		return self.signalQueue.removeFirst();
 	}
 
-	func sendToFirst(_ value: Value) {
-		guard !self.queue.isEmpty else { return }
+	@discardableResult
+	func sendToFirst(_ value: Value) -> Bool {
+		guard !self.queue.isEmpty else {
+			self.signalQueue.append(value);
+			return false;
+		}
 		self.queue.removeFirst().resume(returning: value);
+		return true;
 	}
 
 	func sendToAll(_ value: Value) {
-		while !self.queue.isEmpty {
-			self.queue.removeFirst().resume(returning: value);
-		}
+		while self.sendToFirst(value) {}
 	}
 }
 
 extension AsyncSignal where Value == Void {
-	func sendToFirst() {
-		self.sendToFirst(());
+	func sendToFirst() -> Bool {
+		return self.sendToFirst(());
 	}
 
 	func sendToAll() {
