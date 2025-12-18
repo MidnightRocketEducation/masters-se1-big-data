@@ -6,14 +6,14 @@ struct BusinessServiceComponent: ServiceComponent {
 	init(config: GlobalConfiguration) async throws {
 		self.config = config;
 		self.processor = try BusinessProcessor(config: config);
-		self.batchProcessor = await AsyncLimitedBatchProcessor(batchSize: 50);
+		self.batchProcessor = await AsyncLimitedBatchProcessor();
 	}
 
 	func run() async throws -> [String: BusinessModel] {
 		try await processor.loadCacheFile();
 		try await processor.processFile() { model, data in
 			try await batchProcessor.add {
-				try? await config.kafkaService.postTo(topic: .businessEvent, message: data);
+				try? await config.kafkaProducerService.postTo(topic: .businessEvent, message: data);
 			}
 		}
 		await batchProcessor.cancel();

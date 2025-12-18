@@ -3,7 +3,7 @@ import Foundation;
 import ServiceLifecycle;
 import Logging;
 
-actor KafkaService: Service {
+actor KafkaProducerService: Service {
 	let producer: KafkaProducer;
 	let events: KafkaProducerEvents;
 	var continuations: [KafkaProducerMessageID: CheckedContinuation<Void, any Swift.Error>] = [:];
@@ -52,7 +52,7 @@ actor KafkaService: Service {
 	}
 }
 
-extension KafkaService {
+extension KafkaProducerService {
 	enum Error: Swift.Error {
 		case kafkaServiceStopped;
 	}

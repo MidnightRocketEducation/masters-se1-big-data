@@ -4,7 +4,7 @@ import Kafka;
 struct GlobalConfiguration {
 	let options: Options;
 	let logger: Logger;
-	let kafkaService: KafkaService;
+	let kafkaProducerService: KafkaProducerService;
 	let stateManager: ProducerStateManager;
 	let clock: ClockContinuity;
 
@@ -16,6 +16,6 @@ struct GlobalConfiguration {
 
 		var config: KafkaProducerConfiguration = .init(bootstrapBrokerAddresses: [options.kafkaHost.value])
 		config.topicConfiguration.messageTimeout = .timeout(.seconds(3));
-		self.kafkaService = try KafkaService(config: config, logger: self.logger);
+		self.kafkaProducerService = try KafkaProducerService(config: config, logger: self.logger);
 	}
 }

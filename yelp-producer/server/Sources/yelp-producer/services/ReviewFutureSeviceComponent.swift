@@ -14,7 +14,7 @@ struct ReviewFutureServiceComponent: ServiceComponent {
 			sourceFile: config.options.sourceDirectory + YelpFilenames.reviewsFuture,
 			businesses: businesses
 		);
-		self.batchProcessor = await AsyncLimitedBatchProcessor(batchSize: 50);
+		self.batchProcessor = await AsyncLimitedBatchProcessor();
 	}
 
 	func run() async throws -> Void {
@@ -31,13 +31,15 @@ struct ReviewFutureServiceComponent: ServiceComponent {
 
 	func processFiles() async throws {
 		try await self.processor.processFile { model, data in
-			if await (model.date > self.config.clock.currentTime.date) {
+			var date = try await self.config.clock.getWithSafeContinuity();
+			if model.date > date {
 				self.config.logger.info("Waiting for clock to advance to at least: \(model.date.ISO8601Format())");
+				date = try await self.config.clock.waitUntilWithSafeContinuity { model.date <= $0 }
+				self.config.logger.info("Done waiting. Worldclock updated to: \(date.ISO8601Format())");
 			}
-			let date = try await self.config.clock.waitUntilWithSafeContinuity { model.date <= $0 }
 
 			try await self.batchProcessor.add {
-				try? await self.config.kafkaService.postTo(topic: .reviewsEvent, message: data);
+				try? await self.config.kafkaProducerService.postTo(topic: .reviewsEvent, message: data);
 			}
 
 			try await self.config.stateManager.update(key: \.clockState, to: date);

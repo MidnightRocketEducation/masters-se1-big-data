@@ -38,7 +38,7 @@ struct yelp_producer: AsyncParsableCommand {
 		let mainProcessor = MainProcessingService(config: config);
 
 		let serviceGroup = ServiceGroup(
-			services: [config.kafkaService, mainProcessor],
+			services: [config.kafkaProducerService, mainProcessor],
 			gracefulShutdownSignals: [.sighup, .sigterm, .sigint, .sigpipe],
 			logger: config.logger
 		);

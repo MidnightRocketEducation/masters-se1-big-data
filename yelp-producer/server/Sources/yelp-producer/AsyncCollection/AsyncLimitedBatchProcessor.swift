@@ -7,7 +7,7 @@ actor AsyncLimitedBatchProcessor {
 	private var taskGroup: Task<Void, Never>? = nil;
 	private var hasBeenCancelled: Bool = false;
 
-	init(batchSize: Int) async {
+	init(batchSize: Int = 50) async {
 		self.batchSize = batchSize;
 		self.startProcessor();
 	}
