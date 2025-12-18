@@ -22,7 +22,9 @@ actor AsyncSignal<Value: Sendable> {
 	}
 
 	func sendToAll(_ value: Value) {
-		while self.sendToFirst(value) {}
+		repeat {
+			self.sendToFirst(value)
+		} while !self.queue.isEmpty;
 	}
 }
 
