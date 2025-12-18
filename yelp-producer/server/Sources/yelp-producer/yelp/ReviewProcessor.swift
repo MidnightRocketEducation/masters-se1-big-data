@@ -31,7 +31,7 @@ actor ReviewProcessor {
 
 		let (_, reason) = await reader.read { line in
 			let model = try await self.decode(line) { m in
-				self.businesses[m.id] != nil;
+				return self.businesses[m.businessId] != nil;
 			}
 
 			guard let model else {
