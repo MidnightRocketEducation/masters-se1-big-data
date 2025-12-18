@@ -1,6 +1,7 @@
 import Foundation;
 
 actor ClockContinuity {
+	private let notifier: AsyncSignal<Result<Date, Error>> = .init();
 	private var previouslyReturnedTime: Date;
 	private var _currentTime: Date;
 	private var intactContinuity: Bool = true;
@@ -11,8 +12,6 @@ actor ClockContinuity {
 		return (self._currentTime, self.intactContinuity);
 	}
 
-	private let notifier: AsyncSignal<Date> = .init();
-
 	init(currentTime: Date) {
 		self._currentTime = currentTime;
 		self.previouslyReturnedTime = currentTime;
@@ -21,18 +20,18 @@ actor ClockContinuity {
 
 	func set(_ newTime: Date) async {
 		self._currentTime = newTime;
-		await self.notifier.sendToAll(newTime);
+		await self.notifier.sendToAll(.success(newTime));
 	}
 
-	func waitUntil(condition: (Date) -> Bool) async -> Date {
+	func waitUntil(condition: (Date) -> Bool) async throws -> Date {
 		while !condition(self.currentTime.date) {
-			_ = await self.waitUntilUpdated();
+			_ = try await self.waitUntilUpdated();
 		}
 		return self.currentTime.date;
 	}
 
-	func waitUntilUpdated() async -> Date {
-		return await self.notifier.nextSignal();
+	func waitUntilUpdated() async throws -> Date {
+		return try await self.notifier.nextSignal().get();
 	}
 
 	func clearContinuity() {
@@ -48,13 +47,23 @@ actor ClockContinuity {
 	}
 
 	func waitUntilUpdatedWithSafeContinuity() async throws -> Date {
-		_ = await self.waitUntilUpdated();
+		_ = try await self.waitUntilUpdated();
 		return try self.getWithSafeContinuity();
+	}
+
+	func waitUntilWithSafeContinuity(condition: (Date) -> Bool) async throws -> Date {
+		_ = try await self.waitUntil(condition: condition);
+		return try self.getWithSafeContinuity();
+	}
+
+	func cancelAll() async {
+		await self.notifier.sendToAll(.failure(Error.waitCancelled));
 	}
 }
 
 extension ClockContinuity {
 	enum Error: Swift.Error {
 		case invalidContinuity;
+		case waitCancelled;
 	}
 }
