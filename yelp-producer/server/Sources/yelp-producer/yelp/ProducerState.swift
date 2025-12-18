@@ -4,6 +4,7 @@ public struct ProducerState: Codable {
 	var reviewsFileStatePast: CancelableFileReading.State;
 	var reviewsFileStateFuture: CancelableFileReading.State;
 	var hasUploadedSchema: Bool;
+	var clockState: Date;
 }
 
 extension ProducerState {
@@ -12,7 +13,8 @@ extension ProducerState {
 			businessesFileState: .new,
 			reviewsFileStatePast: .new,
 			reviewsFileStateFuture: .new,
-			hasUploadedSchema: false
+			hasUploadedSchema: false,
+			clockState: .distantPast
 		);
 	}
 }

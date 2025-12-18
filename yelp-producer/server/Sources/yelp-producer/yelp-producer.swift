@@ -23,7 +23,7 @@ struct yelp_producer: AsyncParsableCommand {
 
 
 	mutating func run() async throws {
-		let config = try GlobalConfiguration(options: self.options);
+		let config = try await GlobalConfiguration(options: self.options);
 
 		if !(await config.stateManager.get(key: \.hasUploadedSchema)) {
 			try AvroSchemaManager.write(to: config.options.stateDirectory, from: BusinessModel.self);
