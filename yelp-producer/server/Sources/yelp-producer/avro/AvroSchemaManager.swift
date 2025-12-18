@@ -4,7 +4,7 @@ import CodingKeysGenerator;
 
 struct AvroSchemaManager {
 	static let jsonEncoder: JSONEncoder = {
-		var jsonEncoder = JSONEncoder();
+		let jsonEncoder = JSONEncoder();
 		jsonEncoder.outputFormatting = .sortedKeys;
 		return jsonEncoder;
 	}();

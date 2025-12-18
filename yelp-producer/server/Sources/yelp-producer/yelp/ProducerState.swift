@@ -20,17 +20,23 @@ extension ProducerState {
 }
 
 extension ProducerState {
+	private static let encoder: JSONEncoder = {
+		let encoder = JSONEncoder();
+		encoder.dateEncodingStrategy = .iso8601;
+		return encoder;
+	}();
+
 	static func readFrom(file url: URL) throws -> ProducerState {
 		guard FileManager.default.fileExists(atPath: url.path()) else {
 			return .empty;
 		}
 		let decoder = JSONDecoder();
+		decoder.dateDecodingStrategy = .iso8601;
 		return try decoder.decode(ProducerState.self, from: try Data(contentsOf: url));
 	}
 
 	func write(to url: URL) throws {
-		let encoder = JSONEncoder();
-		try encoder.encode(self).write(to: url, options: .atomic);
+		try Self.encoder.encode(self).write(to: url, options: .atomic);
 	}
 }
 

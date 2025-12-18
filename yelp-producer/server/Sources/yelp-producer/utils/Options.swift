@@ -19,6 +19,9 @@ struct Options: ParsableArguments {
 		transform: { try transformHostOption($0, defaultPort: 9092) }
 	) var kafkaHost: HostSpec;
 
+	@Flag(inversion: .prefixedNo)
+	var resetFutureReviewsOnBrokenContinuity: Bool = true;
+
 	func validate() throws {
 		guard self.stateDirectory.isDirectory else {
 			throw ValidationError("--state-directory must be an existing directory");

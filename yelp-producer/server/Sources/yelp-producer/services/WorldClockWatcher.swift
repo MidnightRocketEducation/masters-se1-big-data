@@ -52,7 +52,7 @@ extension WorldClockWatcher {
 
 extension WorldClockWatcher.Time {
 	private static let jsonDecoder: JSONDecoder = {
-		var decoder = JSONDecoder();
+		let decoder = JSONDecoder();
 		decoder.dateDecodingStrategy = .iso8601;
 		return decoder;
 	}();
