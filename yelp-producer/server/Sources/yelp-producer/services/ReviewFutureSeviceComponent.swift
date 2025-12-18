@@ -11,7 +11,7 @@ struct ReviewFutureServiceComponent: ServiceComponent {
 				get: {await config.stateManager.get(key: \.reviewsFileStateFuture)},
 				update: {try await config.stateManager.update(key: \.reviewsFileStateFuture, to: $0)}
 			),
-			sourceFile: config.options.sourceDirectory + YelpFilenames.reviewsPast,
+			sourceFile: config.options.sourceDirectory + YelpFilenames.reviewsFuture,
 			businesses: businesses
 		);
 		self.batchProcessor = await AsyncLimitedBatchProcessor(batchSize: 50);
@@ -32,7 +32,7 @@ struct ReviewFutureServiceComponent: ServiceComponent {
 	func processFiles() async throws {
 		try await self.processor.processFile { model, data in
 			if await (model.date > self.config.clock.currentTime.date) {
-				self.config.logger.info("Waiting for clock to advance");
+				self.config.logger.info("Waiting for clock to advance to at least: \(model.date.ISO8601Format())");
 			}
 			let date = try await self.config.clock.waitUntilWithSafeContinuity { model.date <= $0 }
 
