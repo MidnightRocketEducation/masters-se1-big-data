@@ -31,6 +31,14 @@ actor MainProcessingService: Service {
 			}
 		}
 
+		let reviewFutureServiceComponent = try await ReviewFutureServiceComponent(config: config, businesses: businessDict);
+		try await withGracefulShutdownHandler {
+			try await reviewFutureServiceComponent.run();
+		} onGracefulShutdown: {
+			Task {
+				await reviewFutureServiceComponent.cancel();
+			}
+		}
 	}
 }
 

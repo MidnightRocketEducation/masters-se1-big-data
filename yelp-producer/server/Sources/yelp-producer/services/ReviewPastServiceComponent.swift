@@ -7,7 +7,10 @@ struct ReviewPastServiceComponent: ServiceComponent {
 	init(config: GlobalConfiguration, businesses: [String: BusinessModel]) async throws {
 		self.config = config;
 		self.processor = try ReviewProcessor(
-			stateManager: (get: {await config.stateManager.get(key: \.reviewsFileStatePast)}, update: { try await config.stateManager.update(key: \.reviewsFileStatePast, to: $0)}),
+			stateManager: (
+				get: {await config.stateManager.get(key: \.reviewsFileStatePast)},
+				update: {try await config.stateManager.update(key: \.reviewsFileStatePast, to: $0)}
+			),
 			sourceFile: config.options.sourceDirectory + YelpFilenames.reviewsPast,
 			businesses: businesses
 		);
