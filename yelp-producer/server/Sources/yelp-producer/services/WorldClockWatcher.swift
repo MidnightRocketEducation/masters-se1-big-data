@@ -1,6 +1,7 @@
 import Foundation;
 import Kafka;
 import ServiceLifecycle;
+import CodingKeysGenerator;
 
 actor WorldClockWatcher: Service {
 	let config: GlobalConfiguration;
@@ -28,7 +29,7 @@ actor WorldClockWatcher: Service {
 
 	func processMessages() async throws {
 		for try await m in self.kafkaConsumer.messages.cancelOnGracefulShutdown().map(Self.parseMessage) {
-			print(m);
+			await config.clock.set(m.current);
 		}
 	}
 }
@@ -42,16 +43,21 @@ extension WorldClockWatcher {
 }
 
 extension WorldClockWatcher {
+	@CodingKeys
 	struct Time: Codable {
-		private static let jsonDecoder: JSONDecoder = {
-			var decoder = JSONDecoder();
-			decoder.dateDecodingStrategy = .iso8601;
-			return decoder;
-		}()
-		static func decode(fromJSON data: Data) throws -> Self {
-			try Self.jsonDecoder.decode(Self.self, from: data);
-		}
+		@CodingKey(custom: "currentTime")
+		let current: Date;
+	}
+}
 
-		let currentTime: Date;
+extension WorldClockWatcher.Time {
+	private static let jsonDecoder: JSONDecoder = {
+		var decoder = JSONDecoder();
+		decoder.dateDecodingStrategy = .iso8601;
+		return decoder;
+	}();
+
+	static func decode(fromJSON data: Data) throws -> Self {
+		try Self.jsonDecoder.decode(Self.self, from: data);
 	}
 }

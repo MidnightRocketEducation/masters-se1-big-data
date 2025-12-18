@@ -24,7 +24,7 @@ actor ClockContinuity {
 	}
 
 	func waitUntil(condition: (Date) -> Bool) async throws -> Date {
-		while !condition(self.currentTime.date) {
+		while !condition(self._currentTime) {
 			_ = try await self.waitUntilUpdated();
 		}
 		return self.currentTime.date;
@@ -36,12 +36,13 @@ actor ClockContinuity {
 
 	func clearContinuity() {
 		self.intactContinuity = true;
+		self.previouslyReturnedTime = .distantPast;
 	}
 
 	func getWithSafeContinuity() throws -> Date {
 		let (currentTime, intactContinuity) = self.currentTime;
 		guard intactContinuity else {
-			throw Error.invalidContinuity;
+			throw Error.brokenContinuity;
 		}
 		return currentTime;
 	}
@@ -52,7 +53,9 @@ actor ClockContinuity {
 	}
 
 	func waitUntilWithSafeContinuity(condition: (Date) -> Bool) async throws -> Date {
-		_ = try await self.waitUntil(condition: condition);
+		while !condition(try self.getWithSafeContinuity()) {
+			_ = try await self.waitUntilUpdated();
+		}
 		return try self.getWithSafeContinuity();
 	}
 
@@ -63,7 +66,7 @@ actor ClockContinuity {
 
 extension ClockContinuity {
 	enum Error: Swift.Error {
-		case invalidContinuity;
+		case brokenContinuity;
 		case waitCancelled;
 	}
 }
