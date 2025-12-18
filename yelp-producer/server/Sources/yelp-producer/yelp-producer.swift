@@ -36,18 +36,20 @@ struct yelp_producer: AsyncParsableCommand {
 
 
 		let mainProcessor = MainProcessingService(config: config);
+		let clockWatcher = try WorldClockWatcher(config: config);
 
 		let serviceGroup = ServiceGroup(
-			services: [config.kafkaProducerService, mainProcessor],
+			services: [
+				config.kafkaProducerService,
+				clockWatcher,
+				mainProcessor,
+			],
 			gracefulShutdownSignals: [.sighup, .sigterm, .sigint, .sigpipe],
 			logger: config.logger
 		);
 
 
-		async let serviceTask: Void = serviceGroup.run();
-
-
-		try await serviceTask;
+		try await serviceGroup.run();
 	}
 
 

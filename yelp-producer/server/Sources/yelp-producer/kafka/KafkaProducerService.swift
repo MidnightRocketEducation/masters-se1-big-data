@@ -61,6 +61,7 @@ extension KafkaProducerService {
 enum KafkaTopic: String {
 	case businessEvent = "business-event";
 	case reviewsEvent = "reviews-event";
+	case worldClock = "world-clock";
 
 	var value: RawValue {
 		#if KAFKA_DEBUG_TOPIC

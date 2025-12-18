@@ -13,28 +13,31 @@ actor MainProcessingService: Service {
 		
 		let businessProcessorComponent = try await BusinessServiceComponent(config: config);
 
-		let businessDict = try await withGracefulShutdownHandler {
+		let businessDict = try await withTaskCancellationOrGracefulShutdownHandler {
 			try await businessProcessorComponent.run();
-		} onGracefulShutdown: {
+		} onCancelOrGracefulShutdown: {
+			self.config.logger.info("Recieved interrupt")
 			Task {
 				await businessProcessorComponent.cancel();
 			}
 		}
 
 		let reviewPastServiceComponent = try await ReviewPastServiceComponent(config: config, businesses: businessDict);
-		try await withGracefulShutdownHandler {
+		try await withTaskCancellationOrGracefulShutdownHandler {
 			try await reviewPastServiceComponent.run();
 			config.logger.info("Done import reviews.past");
-		} onGracefulShutdown: {
+		} onCancelOrGracefulShutdown: {
+			self.config.logger.info("Recieved interrupt")
 			Task {
 				await reviewPastServiceComponent.cancel();
 			}
 		}
 
 		let reviewFutureServiceComponent = try await ReviewFutureServiceComponent(config: config, businesses: businessDict);
-		try await withGracefulShutdownHandler {
+		try await withTaskCancellationOrGracefulShutdownHandler {
 			try await reviewFutureServiceComponent.run();
-		} onGracefulShutdown: {
+		} onCancelOrGracefulShutdown: {
+			self.config.logger.info("Recieved interrupt")
 			Task {
 				await reviewFutureServiceComponent.cancel();
 			}
