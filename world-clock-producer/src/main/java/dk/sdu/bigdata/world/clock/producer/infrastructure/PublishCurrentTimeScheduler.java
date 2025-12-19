@@ -19,7 +19,8 @@ public class PublishCurrentTimeScheduler {
         this.currentTimeSpeed = currentTimeSpeed;
         this.currentTime = startTime;
 
-
+        // Start the publishing in a separate thread
+        new Thread(this::publishCurrentTime).start();
     }
 
 //    @Scheduled(fixedRateString = "#{@currentTimeSpeed.getOneHourEquals()}")
