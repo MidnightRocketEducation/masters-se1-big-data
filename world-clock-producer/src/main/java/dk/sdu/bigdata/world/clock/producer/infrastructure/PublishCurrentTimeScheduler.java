@@ -18,15 +18,26 @@ public class PublishCurrentTimeScheduler {
         this.useCase = useCase;
         this.currentTimeSpeed = currentTimeSpeed;
         this.currentTime = startTime;
+
+
     }
 
-    @Scheduled(fixedRateString = "#{@currentTimeSpeed.getOneHourEquals()}")
+//    @Scheduled(fixedRateString = "#{@currentTimeSpeed.getOneHourEquals()}")
     public void publishCurrentTime() {
-        // Publishes the current time
-        useCase.publishCurrentTime(currentTime);
+        while(true) {
+            try {
+                Thread.sleep(currentTimeSpeed.getOneHourEquals());
 
-        // Increments the current time based on the speed
-        currentTime = incrementCurrentTimeByOneHour(currentTime);
+                // Publishes the current time
+                useCase.publishCurrentTime(currentTime);
+
+                // Increments the current time based on the speed
+                currentTime = incrementCurrentTimeByOneHour(currentTime);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
     }
 
     public CurrentTime incrementCurrentTimeByOneHour(CurrentTime currentTime) {
