@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hdfs-sink-config
+data:
+  worker.properties: |
+    bootstrap.servers=kafka:9092
+    key.converter=io.confluent.connect.avro.AvroConverter
+    value.converter=io.confluent.connect.avro.AvroConverter
+    key.converter.schema.registry.url=http://kafka-schema-registry:8081
+    value.converter.schema.registry.url=http://kafka-schema-registry:8081
+    offset.storage.file.filename=/tmp/connect.offsets
+    offset.flush.interval.ms=10000
+    plugin.path=/usr/share/java,/usr/share/confluent-hub-components
+  hdfs-sink-connector.properties: |
+    name=hdfs-sink-connector
+    connector.class=io.confluent.connect.hdfs.HdfsSinkConnector
+    tasks.max=1
+    topics=weather,debug-business-event,debug-review-event
+    store.url=hdfs://namenode:9000
+    format.class=io.confluent.connect.hdfs.parquet.ParquetFormat
+    flush.size=100
+    rotate.interval.ms=60000
+    parquet.codec=snappy
+    partitioner.class=io.confluent.connect.storage.partitioner.DefaultPartitioner
+    hive.integration=true
+    hive.metastore.uris=thrift://hiveserver2-service:10000
+    hive.database=default
+  core-site.xml: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+    <configuration>
+      <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://namenode:9000</value>
+      </property>
+    </configuration>

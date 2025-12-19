@@ -8,6 +8,7 @@ This repository contains a complete Big Data application with MLflow model servi
 - **Hive Deployment** (`hive/`): Data warehouse for querying Parquet data from HDFS
 - **MLflow Application** (`mlflow/`): Serves ML models and handles training from Hive data
 - **Kafka Message Broker** (`kafka/`): Real-time messaging infrastructure
+- **HDFS Sink Connector** (`hdfs-sink/`): Sinks Kafka data to HDFS in Parquet format
 - **Spark Streaming** (`spark/`): Real-time ML inference using Java and Spark Structured Streaming
 
 ## Components
@@ -63,7 +64,13 @@ This repository contains a complete Big Data application with MLflow model servi
    kubectl apply -f k8s/
    ```
 
-7. **Deploy Spark Streaming**:
+7. **Deploy HDFS Sink Connector**:
+   ```bash
+   cd ../hdfs-sink
+   kubectl apply -f k8s/
+   ```
+
+8. **Deploy Spark Streaming**:
    ```bash
    cd ../spark
    # Build the Java application
@@ -77,11 +84,12 @@ This repository contains a complete Big Data application with MLflow model servi
 
 ## Data Flow
 
-1. **Data Storage**: Parquet files stored in HDFS
-2. **Batch Processing**: Hive queries Parquet data for ML training
-3. **Model Training**: MLflow trains models daily using Hive data
-4. **Model Serving**: MLflow API serves predictions via REST
-5. **Real-time Inference**: Spark Streaming consumes Kafka messages, loads latest MLflow model, publishes predictions back to Kafka using Avro serialization
+1. **Data Ingestion**: Data streamed to Kafka topics
+2. **Data Storage**: HDFS Sink Connector writes Parquet files to HDFS
+3. **Batch Processing**: Hive queries Parquet data for ML training
+4. **Model Training**: MLflow trains models daily using Hive data
+5. **Model Serving**: MLflow API serves predictions via REST
+6. **Real-time Inference**: Spark Streaming consumes Kafka messages, loads latest MLflow model, publishes predictions back to Kafka using Avro serialization
 
 ## Services
 
