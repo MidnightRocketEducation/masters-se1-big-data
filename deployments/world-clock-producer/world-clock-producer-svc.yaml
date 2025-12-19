@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: world-clock-producer-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: world-clock-producer
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
