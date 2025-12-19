@@ -16,7 +16,11 @@ data:
     name=hdfs-sink-connector
     connector.class=io.confluent.connect.hdfs.HdfsSinkConnector
     tasks.max=1
+<<<<<<< HEAD
     topics=weather,debug-business-event,debug-review-event
+=======
+    topics=weather-0,debug-business-event,debug-review-event
+>>>>>>> 6063a84746e7756c705b94df984b7fe514676a5a
     store.url=hdfs://namenode:9000
     format.class=io.confluent.connect.hdfs.parquet.ParquetFormat
     flush.size=100
