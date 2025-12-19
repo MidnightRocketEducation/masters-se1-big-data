@@ -21,4 +21,7 @@ kubectl wait --for=condition=available --timeout=300s deployment/mlflow  # Wait 
 kubectl apply -f spark-streaming/k8s/
 kubectl wait --for=condition=available --timeout=300s deployment/spark-streaming  # Wait for Spark Streaming
 
+kubectl apply -f hdfs-sink/k8s/
+kubectl wait --for=condition=available --timeout=300s deployment/hdfs-sink-connector # Wait for HDFS sink
+
 Write-Host "Deployment complete."
