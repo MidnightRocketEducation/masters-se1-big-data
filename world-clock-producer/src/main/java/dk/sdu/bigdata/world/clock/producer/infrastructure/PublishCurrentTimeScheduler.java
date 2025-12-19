@@ -26,12 +26,11 @@ public class PublishCurrentTimeScheduler {
         useCase.publishCurrentTime(currentTime);
 
         // Increments the current time based on the speed
-        currentTime = new CurrentTime(
-            incrementCurrentTime(currentTime.timestamp(), currentTimeSpeed.getOneHourEquals())
-        );
+        currentTime = incrementCurrentTimeByOneHour(currentTime);
     }
 
-    public Instant incrementCurrentTime(Instant currentTime, long millis) {
-        return currentTime.plusMillis(millis);
+    public CurrentTime incrementCurrentTimeByOneHour(CurrentTime currentTime) {
+        Instant newTime = currentTime.timestamp().plusMillis(3600000);
+        return new CurrentTime(newTime);
     }
 }
