@@ -1,12 +1,12 @@
 ## Deploying
 
-### Deploy World Clock Producer Deployment
+### Deploy World Clock Producer k8s Deployment
 
 ```zsh
 kubectl apply -f deployments/world-clock-producer/world-clock-producer-deployment.yaml
 ```
 
-### Deploy k8s Service
+### Deploy World Clock Producer k8s Service
 
 ```zsh
 kubectl apply -f deployments/world-clock-producer/world-clock-producer-svc.yaml
@@ -18,6 +18,6 @@ kubectl apply -f deployments/world-clock-producer/world-clock-producer-svc.yaml
 One hour within the application equals the specified number of real-life milliseconds.
 
 ```zsh
-curl -X POST "http://localhost:8080/api/v1/world-clock-producer/change-time-speed?one-hour-equals=12345"
+curl -X POST "http://world-clock-producer-svc:8080/api/v1/world-clock-producer/change-time-speed?one-hour-equals=1000"
 ```
 
