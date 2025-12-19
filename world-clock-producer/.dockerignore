@@ -1,0 +1,14 @@
+target
+.git/
+.gitignore
+Dockerfile*
+*.md
+*.log
+src/test
+mvnw
+mvnw.cmd
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
