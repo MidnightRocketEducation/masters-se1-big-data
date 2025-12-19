@@ -22,6 +22,7 @@ public class KafkaMessagePublisher implements MessagePublisher {
         try {
             String jsonPayload = objectMapper.writeValueAsString(request);
             kafkaTemplate.send(topic, jsonPayload);
+            System.out.println("Published message to topic " + topic + ": " + jsonPayload);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to serialize message", e);
         }
