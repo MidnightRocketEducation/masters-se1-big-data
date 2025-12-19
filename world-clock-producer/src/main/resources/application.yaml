@@ -8,7 +8,7 @@ kafka:
     world-clock: ${KAFKA_TOPIC_WORLD_CLOCK}
 application:
   one-hour-equals: ${ONE_HOUR_EQUALS:60000} # default is 60000 ms = 1 minute
-  start-date-time: ${START_DATE_TIME:2011-01-02T09:31:00Z}
+  start-date-time: ${START_DATE_TIME:2011-01-02T09:31:00Z} # time format must be ISO-8601
 management:
   endpoints:
     web:
