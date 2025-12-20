@@ -2,16 +2,17 @@
 #  Detect the host OS
 # ------------------------------------------------------------------
 OS := $(shell uname -s)
+CONFIGURATION := release
 
 # ------------------------------------------------------------------
 #  Build command – different flags for macOS vs Linux
 # ------------------------------------------------------------------
 ifeq ($(OS),Darwin)                 # macOS
-	SWIFT_BUILD_CMD := swift build -c release
+	SWIFT_BUILD_CMD := swift build -c $(CONFIGURATION)
 else ifeq ($(OS),Linux)             # Linux
 	ARCH := $(shell uname -m)
 	ifneq ($(filter $(ARCH), aarch64 x86_64),)
-	SWIFT_BUILD_CMD := swift build -c release # --swift-sdk $(ARCH)-swift-linux-musl
+	SWIFT_BUILD_CMD := swift build -c $(CONFIGURATION) # --swift-sdk $(ARCH)-swift-linux-musl
 else
 	SWIFT_BUILD_CMD := $(error Unsupported architecture: $(ARCH))
 endif
