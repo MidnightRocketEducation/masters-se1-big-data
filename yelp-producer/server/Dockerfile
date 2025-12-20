@@ -62,6 +62,7 @@ WORKDIR /app
 # Copy the compiled binary from the builder stage
 # Replace “MyApp” with the name of your binary
 COPY --from=builder /$APP_NAME /usr/local/bin/$APP_NAME
+COPY categories /usr/local/lib/yp-daemon/categoies
 
 ENV APP_NAME=$APP_NAME
 # Set the entrypoint to run the binary

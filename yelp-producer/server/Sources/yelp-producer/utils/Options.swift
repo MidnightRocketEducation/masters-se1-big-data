@@ -3,7 +3,7 @@ import Foundation;
 
 struct Options: ParsableArguments {
 	@Option(transform: transformToFileURL)
-	var categoryFile: URL;
+	var categoryFile: URL = URL(filePath: "/usr/local/lib/yp-daemon/categoies");
 
 	@Option(transform: transformToFileURL)
 	var stateDirectory: URL;

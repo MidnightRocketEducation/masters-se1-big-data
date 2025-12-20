@@ -14,13 +14,14 @@ on:
     branches:
       - main
 
+env:
+  SUBPROJECT_PATH: yelp-producer
 
 # The workflow uses the newest Ubuntu runner
 jobs:
   build-yelp-dataset-fetcher:
     runs-on: ubuntu-latest
     env:
-      SUBPROJECT_PATH: yelp-producer/content-fetcher
       CACHE_PATH: yelp-producer/content-fetcher/cache
 
       # The base name of the docker image. e.g. ghcr.io/<REPO_NAME>/<DOCKER_IMAGE_NAME>:<VERSION_TAG>
@@ -74,7 +75,7 @@ jobs:
       - name: Build & push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ${{ env.SUBPROJECT_PATH }}
+          context: ${{ env.SUBPROJECT_PATH }}/content-fetcher
           push: true
           tags: |
             ${{ steps.converted_tags.outputs.TAGS }}
@@ -88,7 +89,6 @@ jobs:
   build-yelp-dataset-server:
     runs-on: ubuntu-latest
     env:
-      SUBPROJECT_PATH: yelp-producer/server
       CACHE_PATH: yelp-producer/server/cache
 
       # The base name of the docker image. e.g. ghcr.io/<REPO_NAME>/<DOCKER_IMAGE_NAME>:<VERSION_TAG>
@@ -139,11 +139,17 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Generate categories file
+        env:
+          COUNT: 3
+        run: |
+          "${SUBPROJECT_PATH}/category-filtering/post-filter" "${SUBPROJECT_PATH}/server/categories"
+
       # 5️⃣ Build the Docker image and push it to ghcr.io
       - name: Build & push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ${{ env.SUBPROJECT_PATH }}
+          context: ${{ env.SUBPROJECT_PATH }}/server
           push: true
           build-args: |
             APP_NAME=${{ env.APP_NAME }}
