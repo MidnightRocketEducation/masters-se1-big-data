@@ -47,7 +47,7 @@ extension WorldClockWatcher {
 extension WorldClockWatcher {
 	@CodingKeys
 	struct Time: Codable {
-		@CodingKey(custom: "currentTime")
+		@CodingKey(custom: "timestamp")
 		let current: Date;
 	}
 }

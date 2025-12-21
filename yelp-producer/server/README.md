@@ -53,12 +53,12 @@ World clock is updated by pushing a timestamp to the following topic:
 With a json object of the following format
 ```json
 { 
-  "currentTime": "<iso8601 format>"
+  "timestamp": "<iso8601 format>"
 }
 ```
 Example:
 ```json
 { 
-  "currentTime": "1999-12-31T23:59:59Z"
+  "timestamp": "1999-12-31T23:59:59Z"
 }
 ```
