@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yelp-producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yelp-producer
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: yelp-producer
+    spec:
+      # -----------------------------
+      # Init container
+      # -----------------------------
+      initContainers:
+      - name: yelp-fetcher
+        image: "ghcr.io/midnightrocketeducation/masters-se1-big-data/yelp-producer/fetcher:latest"
+        volumeMounts:
+        - name: yelp-data
+          mountPath: /output
+        env:
+          - name: SOURCE_URL
+            value: "<insert-url>"
+      # -----------------------------
+      # Main container
+      # -----------------------------
+      containers:
+      - name: yelp-daemon
+        image: "ghcr.io/midnightrocketeducation/masters-se1-big-data/yelp-producer/server:latest"
+        args: 
+          - "--state-directory"
+          - "/mnt/state"
+          - "--source-directory"
+          - "/mnt/data"
+          - "--kafka-host"
+          - "kafka"
+          - "--schema-registry"
+          - "http://kafka-schema-registry:8081"
+          # - "--no-reset-future-reviews-on-broken-continuity"
+        volumeMounts:
+        - name: yelp-data
+          mountPath: /mnt/data
+          readOnly: true
+        - name: state
+          mountPath: /mnt/state
+      # -----------------------------
+      # Shared volume definition
+      # -----------------------------
+      volumes:
+      - name: yelp-data
+        persistentVolumeClaim:
+          claimName: yelp-dataset-source
+      - name: state
+        persistentVolumeClaim:
+          claimName: yelp-producer-state
