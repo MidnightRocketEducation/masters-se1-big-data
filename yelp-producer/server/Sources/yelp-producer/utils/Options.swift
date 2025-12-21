@@ -3,7 +3,7 @@ import Foundation;
 
 struct Options: ParsableArguments {
 	@Option(transform: transformToFileURL)
-	var categoryFile: URL = URL(filePath: "/usr/local/lib/yp-daemon/categoies");
+	var categoryFile: URL = URL(filePath: "/usr/local/lib/yp-daemon/categories");
 
 	@Option(transform: transformToFileURL)
 	var stateDirectory: URL;
@@ -25,6 +25,10 @@ struct Options: ParsableArguments {
 	func validate() throws {
 		guard self.stateDirectory.isDirectory else {
 			throw ValidationError("--state-directory must be an existing directory");
+		}
+
+		guard FileManager.default.isReadableFile(atPath: self.categoryFile.path()) else {
+			throw ValidationError("Cannot read file at \(self.categoryFile.path())");
 		}
 	}
 }

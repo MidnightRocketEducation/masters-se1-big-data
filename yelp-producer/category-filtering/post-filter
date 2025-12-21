@@ -9,4 +9,4 @@ verbosePrint() { { test -n "${VERBOSE_MODE+x}" && stderr "$@"; } || true; }
 commandv() { command -v "$1" || reportError "$?" "Executable '$1' not found"; }
 
 OUTPUT_FILE="${1:?"Specify output files as first argument"}"
-sort "$SCRIPT_DIR/"ai-filtered-output-* | uniq -c | awk -v "COUNT=${COUNT:-"3"}" '$1 >= COUNT {$1=""; sub(/^ /, ""); print}' | comm -12 - raw-categories | tee "$1"
+sort "$SCRIPT_DIR/"ai-filtered-output-* | uniq -c | awk -v "COUNT=${COUNT:-"3"}" '$1 >= COUNT {$1=""; sub(/^ /, ""); print}' | comm -12 - "$SCRIPT_DIR/raw-categories" | tee "$1"

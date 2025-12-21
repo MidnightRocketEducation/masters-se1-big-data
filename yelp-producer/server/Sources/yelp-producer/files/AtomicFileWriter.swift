@@ -8,7 +8,7 @@ public actor AtomicFileWriter {
 	private init(path: URL) throws {
 		self.targetPath = path;
 		self.tempFileURL = Self.getTempFileURL(for: path);
-		FileManager.default.createFile(atPath: tempFileURL.path(), contents: nil);
+		_ = FileManager.default.createFile(atPath: tempFileURL.path(), contents: nil);
 		self.fileHandle = try FileHandle(forWritingTo: tempFileURL);
 	}
 
@@ -16,9 +16,9 @@ public actor AtomicFileWriter {
 		self.targetPath = path;
 		self.tempFileURL = Self.getTempFileURL(for: path);
 		if FileManager.default.fileExists(atPath: path.path()) {
-			try FileManager.default.copyItem(at: path, to: tempFileURL);
+			_ = try FileManager.default.copyItem(at: path, to: tempFileURL);
 		} else {
-			FileManager.default.createFile(atPath: tempFileURL.path(), contents: nil);
+			_ = FileManager.default.createFile(atPath: tempFileURL.path(), contents: nil);
 		}
 		self.fileHandle = try FileHandle(forWritingTo: tempFileURL);
 		try self.fileHandle.seekToEnd();
