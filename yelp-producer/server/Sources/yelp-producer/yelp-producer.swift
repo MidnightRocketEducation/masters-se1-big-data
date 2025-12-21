@@ -25,16 +25,21 @@ struct yelp_producer: AsyncParsableCommand {
 	mutating func run() async throws {
 		let config = try await GlobalConfiguration(options: self.options);
 
-		#if DEBUG
-		config.logger.info("Compiled in Debug mode. Using debug configurations.")
-		#endif
+
+		for (p, c) in YelpFilenames.allCases.map({ (config.options.sourceDirectory + $0, $0)}) {
+			guard FileManager.default.fileExists(atPath: p.path()) else {
+				throw ValidationError("Source directory does not contain \(c)");
+			}
+		}
 
 		if !(await config.stateManager.get(key: \.hasUploadedSchema)) {
+			config.logger.info("Generates avro schema files")
 			try AvroSchemaManager.write(to: config.options.stateDirectory, from: BusinessModel.self);
 			try AvroSchemaManager.write(to: config.options.stateDirectory, from: ReviewModel.self);
-			try await AvroSchemaManager.push(to: config.options.schemaRegistry, model: ReviewModel.self)
-			try await AvroSchemaManager.push(to: config.options.schemaRegistry, model: BusinessModel.self)
-			try await config.stateManager.update(key: \.hasUploadedSchema, to: true)
+			config.logger.info("Pushing avro schema files to registry at: \(config.options.schemaRegistry.absoluteString)");
+			try await AvroSchemaManager.push(to: config.options.schemaRegistry, model: ReviewModel.self);
+			try await AvroSchemaManager.push(to: config.options.schemaRegistry, model: BusinessModel.self);
+			try await config.stateManager.update(key: \.hasUploadedSchema, to: true);
 		}
 
 
@@ -54,6 +59,7 @@ struct yelp_producer: AsyncParsableCommand {
 
 
 		try await serviceGroup.run();
+		config.logger.info("Exiting.");
 	}
 
 

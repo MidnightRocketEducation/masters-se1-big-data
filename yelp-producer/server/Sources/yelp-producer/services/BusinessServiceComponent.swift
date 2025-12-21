@@ -10,10 +10,17 @@ struct BusinessServiceComponent: ServiceComponent {
 	}
 
 	func run() async throws -> [String: BusinessModel] {
+		self.config.logger.info("Importing businesses...");
+		self.config.logger.info("Loading business cache...");
 		try await processor.loadCacheFile();
+		self.config.logger.info("Processing business data...");
 		try await processor.processFile() { model, data in
 			try await batchProcessor.add {
-				try? await config.kafkaProducerService.postTo(topic: .businessEvent, message: data);
+				do {
+					try await config.kafkaProducerService.postTo(topic: .businessEvent, message: data);
+				} catch {
+					config.logger.error("Failed to publish to kafka: \(error)");
+				}
 			}
 		}
 		await batchProcessor.cancel();

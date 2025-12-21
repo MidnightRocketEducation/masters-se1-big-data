@@ -23,8 +23,10 @@ actor WorldClockWatcher: Service {
 
 	func run() async throws {
 		async let task: Void = self.processMessages();
+		self.config.logger.info("Clockwatcher started.")
 		try await self.kafkaConsumer.run();
 		try await task;
+		self.config.logger.info("Clockwatcher existing.")
 	}
 
 	func processMessages() async throws {

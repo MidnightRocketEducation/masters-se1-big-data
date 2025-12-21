@@ -13,6 +13,7 @@ actor BusinessProcessor {
 	let sourceFile: FileHandle;
 	let cacheFileURL: URL;
 	let categoryFilterURL: URL;
+	let config: GlobalConfiguration;
 
 	var dictionary: [String: BusinessModel] = [:];
 
@@ -25,10 +26,12 @@ actor BusinessProcessor {
 		self.categoryFilterURL = config.options.categoryFile;
 		self.avroEncoder = AvroEncoder(schema: BusinessModel.avroSchema);
 		self.avroDecoder = AvroDecoder(schema: BusinessModel.avroSchema);
+		self.config = config;
 	}
 
 	func processFile(kafkaProducer: @Sendable (BusinessModel, Data) async throws -> Void) async throws {
 		if await self.stateManager.get(key: \.businessesFileState).completed {
+			self.config.logger.info("Businesses file already fully processed.");
 			return;
 		}
 
@@ -39,8 +42,12 @@ actor BusinessProcessor {
 
 		try await AtomicFileWriter.write(to: self.cacheFileURL, mode: .append) { writer in
 			await reader.setSaveStateCallback() { state in
-				try? await writer.flush();
-				try? await self.stateManager.update(key: \.businessesFileState, to: state);
+				do {
+					try await writer.flush();
+					try await self.stateManager.update(key: \.businessesFileState, to: state);
+				} catch {
+					self.config.logger.error("Failed to update business cache file: \(error)");
+				}
 			}
 
 			let (_, reason) = await reader.read() { line in

@@ -19,8 +19,9 @@ struct ReviewFutureServiceComponent: ServiceComponent {
 
 	func run() async throws -> Void {
 		do {
+			self.config.logger.info("Begin import \(YelpFilenames.reviewsFuture)");
 			try await self.processFiles();
-			self.config.logger.info("Done import reviews.future");
+			self.config.logger.info("Done import \(YelpFilenames.reviewsFuture)");
 		} catch let error as ClockContinuity.Error {
 			guard case .waitCancelled = error else {
 				throw error;
@@ -39,7 +40,11 @@ struct ReviewFutureServiceComponent: ServiceComponent {
 			}
 
 			try await self.batchProcessor.add {
-				try? await self.config.kafkaProducerService.postTo(topic: .reviewsEvent, message: data);
+				do {
+					try await self.config.kafkaProducerService.postTo(topic: .reviewsEvent, message: data);
+				} catch {
+					self.config.logger.error("Failed to publish to kafka: \(error)");
+				}
 			}
 
 			try await self.config.stateManager.update(key: \.clockState, to: date);

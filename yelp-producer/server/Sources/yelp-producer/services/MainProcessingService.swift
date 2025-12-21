@@ -10,7 +10,6 @@ actor MainProcessingService: Service {
 	}
 
 	func run() async throws {
-		
 		let businessProcessorComponent = try await BusinessServiceComponent(config: config);
 
 		let businessDict = try await withTaskCancellationOrGracefulShutdownHandler {
@@ -25,7 +24,6 @@ actor MainProcessingService: Service {
 		let reviewPastServiceComponent = try await ReviewPastServiceComponent(config: config, businesses: businessDict);
 		try await withTaskCancellationOrGracefulShutdownHandler {
 			try await reviewPastServiceComponent.run();
-			config.logger.info("Done import reviews.past");
 		} onCancelOrGracefulShutdown: {
 			self.config.logger.info("Recieved interrupt")
 			Task {

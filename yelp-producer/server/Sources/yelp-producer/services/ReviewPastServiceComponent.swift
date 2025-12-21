@@ -18,11 +18,17 @@ struct ReviewPastServiceComponent: ServiceComponent {
 	}
 
 	func run() async throws -> Void {
+		self.config.logger.info("Starting to process \(YelpFilenames.reviewsPast)")
 		try await self.processor.processFile { model, data in
 			try await self.batchProcessor.add {
-				try? await self.config.kafkaProducerService.postTo(topic: .reviewsEvent, message: data);
+				do {
+					try await self.config.kafkaProducerService.postTo(topic: .reviewsEvent, message: data);
+				} catch {
+					self.config.logger.error("Failed to publish to kafka: \(error)");
+				}
 			}
 		}
+		self.config.logger.info("Done import \(YelpFilenames.reviewsPast)");
 	}
 
 	func cancel() async {

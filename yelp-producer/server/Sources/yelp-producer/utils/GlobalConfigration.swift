@@ -10,9 +10,18 @@ struct GlobalConfiguration {
 	let kafkaHost: KafkaConfiguration.BrokerAddress;
 
 	init(options: Options) async throws {
-		self.options = options;
-		self.stateManager = try ProducerStateManager(file: options.stateDirectory + StateFileNames.main);
 		self.logger = Logger(label: "yelp-producer");
+		self.options = options;
+
+		#if DEBUG
+		self.logger.info("Compiled in Debug mode. Using debug configurations.")
+		#else
+		self.logger.info("Compiled in Release mode. Using production configurations.")
+		#endif
+
+		self.logger.info("Loading state");
+		self.stateManager = try ProducerStateManager(file: options.stateDirectory + StateFileNames.main);
+		self.logger.info("Done loading state");
 		self.clock = ClockContinuity(currentTime: await self.stateManager.get(key: \.clockState));
 
 		self.kafkaHost = options.kafkaHost.value;

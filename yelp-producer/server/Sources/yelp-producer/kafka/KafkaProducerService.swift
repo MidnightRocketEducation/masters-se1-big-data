@@ -6,19 +6,23 @@ import Logging;
 actor KafkaProducerService: Service {
 	let producer: KafkaProducer;
 	let events: KafkaProducerEvents;
+	let logger: Logger;
 	var continuations: [KafkaProducerMessageID: CheckedContinuation<Void, any Swift.Error>] = [:];
 
 	init(config: KafkaProducerConfiguration, logger: Logger) throws {
 		(self.producer, self.events) = try KafkaProducer.makeProducerWithEvents(configuration: config, logger: logger);
+		self.logger = logger;
 	}
 
 	func run() async throws {
 		try await withGracefulShutdownHandler {
+			self.logger.info("Kafka service starting");
 			async let handleEventsTask: Void = self.handleEvents();
 
 			try await self.producer.run();
 
 			await handleEventsTask;
+			self.logger.info("Kafka service exiting");
 		} onGracefulShutdown: {
 			self.producer.triggerGracefulShutdown();
 		}
