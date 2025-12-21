@@ -41,7 +41,7 @@ struct ReviewFutureServiceComponent: ServiceComponent {
 
 			try await self.batchProcessor.add {
 				do {
-					try await self.config.kafkaProducerService.postTo(topic: .reviewsEvent, message: data);
+					try await self.config.kafkaProducerService.postTo(topic: .reviewEvent, message: data);
 				} catch {
 					self.config.logger.error("Failed to publish to kafka: \(error)");
 				}

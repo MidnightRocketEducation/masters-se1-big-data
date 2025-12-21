@@ -64,7 +64,7 @@ extension KafkaProducerService {
 
 enum KafkaTopic: String {
 	case businessEvent = "business-event";
-	case reviewsEvent = "reviews-event";
+	case reviewEvent = "review-event";
 	case worldClock = "world-clock";
 
 	var value: RawValue {
