@@ -65,6 +65,5 @@ WORKDIR /app
 COPY --from=builder /$APP_NAME /usr/local/bin/$APP_NAME
 COPY categories /usr/local/lib/yp-daemon/categories
 
-ENV APP_NAME=$APP_NAME
 # Set the entrypoint to run the binary
-ENTRYPOINT exec "$APP_NAME"
+ENTRYPOINT ["yp-daemon"]
