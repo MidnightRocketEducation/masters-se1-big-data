@@ -35,6 +35,9 @@ public actor AtomicFileWriter {
 	public func flush() throws {
 		try self.fileHandle.synchronize();
 		let newTmpPath = Self.getTempFileURL(for: self.targetPath);
+		defer {
+			try? FileManager.default.removeItem(at: newTmpPath);
+		}
 		try FileManager.default.copyItem(at: self.tempFileURL, to: newTmpPath);
 		_ = try FileManager.default.replaceItemAt(self.targetPath, withItemAt: newTmpPath);
 	}
