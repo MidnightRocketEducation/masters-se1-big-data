@@ -52,7 +52,7 @@ actor BusinessProcessor {
 
 			let (_, reason) = await reader.read() { line in
 				let model = try await self.jsonDecode(line) { m in
-					return categoryFilter.matches(categoryArray: m.categories)
+					return categoryFilter.matches(categoryArray: m.categories, threshold: self.config.options.businessCategoriesFilterThreshold)
 				}
 				guard let model else {
 					return;

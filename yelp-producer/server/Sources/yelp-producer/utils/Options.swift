@@ -22,6 +22,9 @@ struct Options: ParsableArguments {
 	@Flag(inversion: .prefixedNo)
 	var resetFutureReviewsOnBrokenContinuity: Bool = true;
 
+	@Option(help: "The minimum number of categories from the categories file, which businesses should have.")
+	var businessCategoriesFilterThreshold: Int = 3;
+
 	func validate() throws {
 		guard self.stateDirectory.isDirectory else {
 			throw ValidationError("--state-directory must be an existing directory");
