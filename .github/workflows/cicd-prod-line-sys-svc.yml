@@ -45,6 +45,15 @@ jobs:
       - name: Transform repo owner to lowercase
         run: echo "OWNER_LOWER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
+     # Cache Maven dependencies to avoid downloading them every build:
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+    
       # Building and pushing application image
       - name: Build & Push Docker image
         uses: docker/build-push-action@v5
