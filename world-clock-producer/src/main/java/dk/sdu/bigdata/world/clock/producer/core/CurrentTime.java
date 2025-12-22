@@ -12,5 +12,5 @@ import java.time.Instant;
 @Setter
 public class CurrentTime {
     @Value("${application.start-date-time}")
-    Instant timestamp;
+    private Instant timestamp;
 }

@@ -37,6 +37,8 @@
 
         <spring-boot-starter-actuator.version>3.5.7</spring-boot-starter-actuator.version>
         <micrometer-registry-prometheus.version>1.16.0</micrometer-registry-prometheus.version>
+
+        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
     </properties>
 
     <dependencies>
@@ -85,7 +87,20 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${projectlombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
 </project>
