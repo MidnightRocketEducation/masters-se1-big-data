@@ -5,13 +5,20 @@ import dk.sdu.bigdata.world.clock.producer.application.PublishCurrentTimeUseCase
 import dk.sdu.bigdata.world.clock.producer.core.CurrentTime;
 import dk.sdu.bigdata.world.clock.producer.core.CurrentTimeSpeed;
 import lombok.Synchronized;
+import org.springframework.scheduling.Trigger;
+import org.springframework.scheduling.TriggerContext;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.Date;
 
 @Component
-public class PublishCurrentTimeScheduler {
+@EnableScheduling
+public class PublishCurrentTimeScheduler implements SchedulingConfigurer {
     private final PublishCurrentTimeUseCase publishCurrentTimeUseCase;
     private final ChangeCurrentTimeUseCase changeCurrentTimeUseCase;
     private final CurrentTimeSpeed currentTimeSpeed;
@@ -27,7 +34,23 @@ public class PublishCurrentTimeScheduler {
 //        new Thread(this::publishCurrentTime).start();
     }
 
-    @Scheduled(fixedRateString = "#{@currentTimeSpeed.getOneHourEquals()}")
+    @Override
+    public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+        taskRegistrar.addTriggerTask(
+                this::publishCurrentTime,
+                new Trigger() {
+                    @Override
+                    public Instant nextExecution(TriggerContext triggerContext) {
+                        long interval = currentTimeSpeed.getOneHourEquals();
+                        Instant last = triggerContext.lastActualExecution() != null
+                                ? triggerContext.lastActualExecution()
+                                : Instant.now();
+                        return last.plusMillis(interval);
+                    }
+                }
+        );
+    }
+
     public void publishCurrentTime() {
         // Publishes the current time
         publishCurrentTimeUseCase.publishCurrentTime(currentTime);
@@ -36,27 +59,11 @@ public class PublishCurrentTimeScheduler {
         incrementCurrentTimeByOneHour(currentTime);
     }
 
-    public void publishCurrentTime2() {
-        while (true) {
-            try {
-                Thread.sleep(currentTimeSpeed.getOneHourEquals());
-
-                // Publishes the current time
-                publishCurrentTimeUseCase.publishCurrentTime(currentTime);
-
-                // Increments the current time
-                incrementCurrentTimeByOneHour(currentTime);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            }
-        }
-    }
-
     @Synchronized
     public boolean incrementCurrentTimeByOneHour(CurrentTime currentTime) {
         Instant newTime = currentTime.getTimestamp().plusMillis(3600000);
         changeCurrentTimeUseCase.changeCurrentTime(newTime);
         return true;
     }
+
 }

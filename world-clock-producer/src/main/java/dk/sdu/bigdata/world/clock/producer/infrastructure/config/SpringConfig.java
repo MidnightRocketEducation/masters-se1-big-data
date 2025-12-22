@@ -12,7 +12,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import java.time.Instant;
 
 @Configuration
-@EnableScheduling
 public class SpringConfig {
 //    @Bean
 //    public PublishCurrentTimeScheduler publishCurrentTimeScheduler(PublishCurrentTimeUseCase useCase,
