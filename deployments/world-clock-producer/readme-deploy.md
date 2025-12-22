@@ -31,6 +31,6 @@ Change the current date and time used by the world-clock-producer. It will conti
 ```zsh
 curl -X POST \
   -H "Content-Type: application/json" \
-  -d "\"2011-01-02T09:31:00Z\"" \
-  http://localhost:8080/api/v1/world-clock-producer/change-current-time
+  -d "\"2009-01-02T09:31:00Z\"" \
+  http://world-clock-producer-svc:8080/api/v1/world-clock-producer/change-current-time
 ```
