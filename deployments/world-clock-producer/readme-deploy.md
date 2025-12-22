@@ -25,3 +25,12 @@ One hour within the application equals the specified number of real-life millise
 curl -X POST "http://world-clock-producer-svc:8080/api/v1/world-clock-producer/change-time-speed?one-hour-equals=<milliseconds>"
 ```
 
+### Change / reset date and time
+Change the current date and time used by the world-clock-producer. It will continue publishing time from this new date onwards.
+
+```zsh
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d "\"2011-01-02T09:31:00Z\"" \
+  http://localhost:8080/api/v1/world-clock-producer/change-current-time
+```
