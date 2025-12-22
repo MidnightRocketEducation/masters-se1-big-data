@@ -12,6 +12,12 @@ kubectl apply -f deployments/weather-producer/weather-producer-deployment.yaml
 kubectl apply -f deployments/weather-producer/weather-producer-svc.yaml
 ```
 
+### Deploy debug pod
+
+```zsh
+kubectl apply -f deployments/weather-producer/kafka-avro-debug-pod.yaml
+```
+
 ## Send payload to weather-producer
 
 ### How to curl

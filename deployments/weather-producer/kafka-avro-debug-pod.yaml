@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kafka-debug-shell
+spec:
+  containers:
+  - name: kafka-shell
+    image: confluentinc/cp-schema-registry:latest
+    command: ["sleep"]
+    args: ["infinity"]
+  restartPolicy: Never
