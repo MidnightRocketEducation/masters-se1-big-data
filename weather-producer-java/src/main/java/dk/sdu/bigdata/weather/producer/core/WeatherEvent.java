@@ -3,11 +3,9 @@
  *
  * DO NOT EDIT DIRECTLY
  */
-package com.loosemole.weatherevent;
+package dk.sdu.bigdata.weather.producer.core;
 
-import org.apache.avro.generic.GenericArray;
 import org.apache.avro.specific.SpecificData;
-import org.apache.avro.util.Utf8;
 import org.apache.avro.message.BinaryMessageEncoder;
 import org.apache.avro.message.BinaryMessageDecoder;
 import org.apache.avro.message.SchemaStore;
@@ -444,8 +442,8 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
    * Creates a new WeatherEvent RecordBuilder.
    * @return A new WeatherEvent RecordBuilder
    */
-  public static com.loosemole.weatherevent.WeatherEvent.Builder newBuilder() {
-    return new com.loosemole.weatherevent.WeatherEvent.Builder();
+  public static WeatherEvent.Builder newBuilder() {
+    return new WeatherEvent.Builder();
   }
 
   /**
@@ -453,11 +451,11 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
    * @param other The existing builder to copy.
    * @return A new WeatherEvent RecordBuilder
    */
-  public static com.loosemole.weatherevent.WeatherEvent.Builder newBuilder(com.loosemole.weatherevent.WeatherEvent.Builder other) {
+  public static WeatherEvent.Builder newBuilder(WeatherEvent.Builder other) {
     if (other == null) {
-      return new com.loosemole.weatherevent.WeatherEvent.Builder();
+      return new WeatherEvent.Builder();
     } else {
-      return new com.loosemole.weatherevent.WeatherEvent.Builder(other);
+      return new WeatherEvent.Builder(other);
     }
   }
 
@@ -466,11 +464,11 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
    * @param other The existing instance to copy.
    * @return A new WeatherEvent RecordBuilder
    */
-  public static com.loosemole.weatherevent.WeatherEvent.Builder newBuilder(com.loosemole.weatherevent.WeatherEvent other) {
+  public static WeatherEvent.Builder newBuilder(WeatherEvent other) {
     if (other == null) {
-      return new com.loosemole.weatherevent.WeatherEvent.Builder();
+      return new WeatherEvent.Builder();
     } else {
-      return new com.loosemole.weatherevent.WeatherEvent.Builder(other);
+      return new WeatherEvent.Builder(other);
     }
   }
 
@@ -506,7 +504,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
      * Creates a Builder by copying an existing Builder.
      * @param other The existing Builder to copy.
      */
-    private Builder(com.loosemole.weatherevent.WeatherEvent.Builder other) {
+    private Builder(WeatherEvent.Builder other) {
       super(other);
       if (isValidValue(fields()[0], other.Station)) {
         this.Station = data().deepCopy(fields()[0].schema(), other.Station);
@@ -574,7 +572,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
      * Creates a Builder by copying an existing WeatherEvent instance
      * @param other The existing instance to copy.
      */
-    private Builder(com.loosemole.weatherevent.WeatherEvent other) {
+    private Builder(WeatherEvent other) {
       super(SCHEMA$, MODEL$);
       if (isValidValue(fields()[0], other.Station)) {
         this.Station = data().deepCopy(fields()[0].schema(), other.Station);
@@ -652,7 +650,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'Station'.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder setStation(long value) {
+    public WeatherEvent.Builder setStation(long value) {
       validate(fields()[0], value);
       this.Station = value;
       fieldSetFlags()[0] = true;
@@ -672,7 +670,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'Station' field.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder clearStation() {
+    public WeatherEvent.Builder clearStation() {
       fieldSetFlags()[0] = false;
       return this;
     }
@@ -691,7 +689,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'Date'.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder setDate(java.lang.CharSequence value) {
+    public WeatherEvent.Builder setDate(java.lang.CharSequence value) {
       validate(fields()[1], value);
       this.Date = value;
       fieldSetFlags()[1] = true;
@@ -711,7 +709,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'Date' field.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder clearDate() {
+    public WeatherEvent.Builder clearDate() {
       Date = null;
       fieldSetFlags()[1] = false;
       return this;
@@ -731,7 +729,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'Latitude'.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder setLatitude(double value) {
+    public WeatherEvent.Builder setLatitude(double value) {
       validate(fields()[2], value);
       this.Latitude = value;
       fieldSetFlags()[2] = true;
@@ -751,7 +749,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'Latitude' field.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder clearLatitude() {
+    public WeatherEvent.Builder clearLatitude() {
       fieldSetFlags()[2] = false;
       return this;
     }
@@ -770,7 +768,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'Longitude'.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder setLongitude(double value) {
+    public WeatherEvent.Builder setLongitude(double value) {
       validate(fields()[3], value);
       this.Longitude = value;
       fieldSetFlags()[3] = true;
@@ -790,7 +788,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'Longitude' field.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder clearLongitude() {
+    public WeatherEvent.Builder clearLongitude() {
       fieldSetFlags()[3] = false;
       return this;
     }
@@ -809,7 +807,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'Elevation'.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder setElevation(double value) {
+    public WeatherEvent.Builder setElevation(double value) {
       validate(fields()[4], value);
       this.Elevation = value;
       fieldSetFlags()[4] = true;
@@ -829,7 +827,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'Elevation' field.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder clearElevation() {
+    public WeatherEvent.Builder clearElevation() {
       fieldSetFlags()[4] = false;
       return this;
     }
@@ -848,7 +846,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'Name'.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder setName(java.lang.CharSequence value) {
+    public WeatherEvent.Builder setName(java.lang.CharSequence value) {
       validate(fields()[5], value);
       this.Name = value;
       fieldSetFlags()[5] = true;
@@ -868,7 +866,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'Name' field.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder clearName() {
+    public WeatherEvent.Builder clearName() {
       Name = null;
       fieldSetFlags()[5] = false;
       return this;
@@ -888,7 +886,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'ReportType'.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder setReportType(java.lang.CharSequence value) {
+    public WeatherEvent.Builder setReportType(java.lang.CharSequence value) {
       validate(fields()[6], value);
       this.ReportType = value;
       fieldSetFlags()[6] = true;
@@ -908,7 +906,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'ReportType' field.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder clearReportType() {
+    public WeatherEvent.Builder clearReportType() {
       ReportType = null;
       fieldSetFlags()[6] = false;
       return this;
@@ -928,7 +926,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'Source'.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder setSource(java.lang.Object value) {
+    public WeatherEvent.Builder setSource(java.lang.Object value) {
       validate(fields()[7], value);
       this.Source = value;
       fieldSetFlags()[7] = true;
@@ -948,7 +946,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'Source' field.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder clearSource() {
+    public WeatherEvent.Builder clearSource() {
       Source = null;
       fieldSetFlags()[7] = false;
       return this;
@@ -968,7 +966,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'HourlyDryBulbTemperature'.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder setHourlyDryBulbTemperature(java.lang.Double value) {
+    public WeatherEvent.Builder setHourlyDryBulbTemperature(java.lang.Double value) {
       validate(fields()[8], value);
       this.HourlyDryBulbTemperature = value;
       fieldSetFlags()[8] = true;
@@ -988,7 +986,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'HourlyDryBulbTemperature' field.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder clearHourlyDryBulbTemperature() {
+    public WeatherEvent.Builder clearHourlyDryBulbTemperature() {
       HourlyDryBulbTemperature = null;
       fieldSetFlags()[8] = false;
       return this;
@@ -1008,7 +1006,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'HourlySeaLevelPressure'.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder setHourlySeaLevelPressure(java.lang.Double value) {
+    public WeatherEvent.Builder setHourlySeaLevelPressure(java.lang.Double value) {
       validate(fields()[9], value);
       this.HourlySeaLevelPressure = value;
       fieldSetFlags()[9] = true;
@@ -1028,7 +1026,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'HourlySeaLevelPressure' field.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder clearHourlySeaLevelPressure() {
+    public WeatherEvent.Builder clearHourlySeaLevelPressure() {
       HourlySeaLevelPressure = null;
       fieldSetFlags()[9] = false;
       return this;
@@ -1048,7 +1046,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'HourlyVisibility'.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder setHourlyVisibility(java.lang.Double value) {
+    public WeatherEvent.Builder setHourlyVisibility(java.lang.Double value) {
       validate(fields()[10], value);
       this.HourlyVisibility = value;
       fieldSetFlags()[10] = true;
@@ -1068,7 +1066,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'HourlyVisibility' field.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder clearHourlyVisibility() {
+    public WeatherEvent.Builder clearHourlyVisibility() {
       HourlyVisibility = null;
       fieldSetFlags()[10] = false;
       return this;
@@ -1088,7 +1086,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'HourlyWindDirection'.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder setHourlyWindDirection(java.lang.Double value) {
+    public WeatherEvent.Builder setHourlyWindDirection(java.lang.Double value) {
       validate(fields()[11], value);
       this.HourlyWindDirection = value;
       fieldSetFlags()[11] = true;
@@ -1108,7 +1106,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'HourlyWindDirection' field.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder clearHourlyWindDirection() {
+    public WeatherEvent.Builder clearHourlyWindDirection() {
       HourlyWindDirection = null;
       fieldSetFlags()[11] = false;
       return this;
@@ -1128,7 +1126,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'HourlyWindSpeed'.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder setHourlyWindSpeed(java.lang.Double value) {
+    public WeatherEvent.Builder setHourlyWindSpeed(java.lang.Double value) {
       validate(fields()[12], value);
       this.HourlyWindSpeed = value;
       fieldSetFlags()[12] = true;
@@ -1148,7 +1146,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'HourlyWindSpeed' field.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder clearHourlyWindSpeed() {
+    public WeatherEvent.Builder clearHourlyWindSpeed() {
       HourlyWindSpeed = null;
       fieldSetFlags()[12] = false;
       return this;
@@ -1168,7 +1166,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'HourlyPrecipitation'.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder setHourlyPrecipitation(java.lang.Object value) {
+    public WeatherEvent.Builder setHourlyPrecipitation(java.lang.Object value) {
       validate(fields()[13], value);
       this.HourlyPrecipitation = value;
       fieldSetFlags()[13] = true;
@@ -1188,7 +1186,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'HourlyPrecipitation' field.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder clearHourlyPrecipitation() {
+    public WeatherEvent.Builder clearHourlyPrecipitation() {
       HourlyPrecipitation = null;
       fieldSetFlags()[13] = false;
       return this;
@@ -1208,7 +1206,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'HourlyRelativeHumidity'.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder setHourlyRelativeHumidity(java.lang.Double value) {
+    public WeatherEvent.Builder setHourlyRelativeHumidity(java.lang.Double value) {
       validate(fields()[14], value);
       this.HourlyRelativeHumidity = value;
       fieldSetFlags()[14] = true;
@@ -1228,7 +1226,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'HourlyRelativeHumidity' field.
       * @return This builder.
       */
-    public com.loosemole.weatherevent.WeatherEvent.Builder clearHourlyRelativeHumidity() {
+    public WeatherEvent.Builder clearHourlyRelativeHumidity() {
       HourlyRelativeHumidity = null;
       fieldSetFlags()[14] = false;
       return this;
