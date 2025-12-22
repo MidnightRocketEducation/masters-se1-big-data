@@ -1,5 +1,6 @@
 package dk.sdu.bigdata.weather.producer.infrastructure.config;
 
+import dk.sdu.bigdata.weather.producer.core.WeatherEvent;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +23,7 @@ public class KafkaConnectionConfig {
     private String schemaRegistryUrl;
 
     @Bean
-    public ProducerFactory<String, String> producerFactory() {
+    public ProducerFactory<String, WeatherEvent> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -40,7 +41,7 @@ public class KafkaConnectionConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, String> kafkaTemplate() {
+    public KafkaTemplate<String, WeatherEvent> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 }

@@ -92,7 +92,6 @@ public class ProcessCsvFileUseCase {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     private String safeGet(String[] arr, int idx) {

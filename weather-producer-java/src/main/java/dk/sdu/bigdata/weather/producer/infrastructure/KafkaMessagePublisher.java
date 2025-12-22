@@ -1,30 +1,27 @@
 package dk.sdu.bigdata.weather.producer.infrastructure;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.sdu.bigdata.weather.producer.application.MessagePublisher;
+import dk.sdu.bigdata.weather.producer.core.WeatherEvent;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 public class KafkaMessagePublisher implements MessagePublisher {
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
+    private final KafkaTemplate<String, WeatherEvent> kafkaTemplate;
 
-    public KafkaMessagePublisher(KafkaTemplate<String, String> kafkaTemplate,
-                                 ObjectMapper objectMapper) {
+    public KafkaMessagePublisher(KafkaTemplate<String, WeatherEvent> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
-        this.objectMapper = objectMapper;
     }
 
     @Override
     public void publish(String topic, String key, Object request) {
-        try {
-            String jsonPayload = objectMapper.writeValueAsString(request);
-            kafkaTemplate.send(topic, key, jsonPayload);
-            System.out.println("Published message to topic " + topic + ": " + jsonPayload);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to serialize message", e);
+        if (request instanceof WeatherEvent) {
+            kafkaTemplate.send(topic, key, (WeatherEvent) request);
+            if (System.currentTimeMillis() % 1000 == 0) { // Log every ~1000 messages
+                System.out.println("Published message to topic " + topic + " with key " + key);
+            }
+        } else {
+            throw new IllegalArgumentException("Expected WeatherEvent but got: " + request.getClass());
         }
     }
 }
