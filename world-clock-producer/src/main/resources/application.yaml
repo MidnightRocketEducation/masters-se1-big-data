@@ -1,0 +1,39 @@
+spring.application:
+  name: ${SPRING_APPLICATION_NAME:world-clock-producer}
+kafka:
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  replication-factor: ${KAFKA_REPLICATION_FACTOR:1}
+  partitions: ${KAFKA_PARTITIONS:3}
+  topic:
+    world-clock: ${KAFKA_TOPIC_WORLD_CLOCK}
+application:
+  one-hour-equals: ${ONE_HOUR_EQUALS:60000} # default is 60000 ms = 1 minute
+  start-date-time: ${START_DATE_TIME:2011-01-02T09:31:00Z} # time format must be ISO-8601
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,metrics,health
+  endpoint:
+    prometheus:
+      enabled: true
+    metrics:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: world-clock-producer
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99
+    enable:
+      jvm: true
+      http: true
+      process: true
+      system: true
+      logback: true
+      kafka: true
