@@ -5,17 +5,19 @@
  */
 package dk.sdu.bigdata.weather.producer.core;
 
+import org.apache.avro.generic.GenericArray;
 import org.apache.avro.specific.SpecificData;
+import org.apache.avro.util.Utf8;
 import org.apache.avro.message.BinaryMessageEncoder;
 import org.apache.avro.message.BinaryMessageDecoder;
 import org.apache.avro.message.SchemaStore;
 
 @org.apache.avro.specific.AvroGenerated
 public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = -6128934697742621496L;
+  private static final long serialVersionUID = 2613646730561735874L;
 
 
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"WeatherEvent\",\"namespace\":\"com.loosemole.weatherevent\",\"fields\":[{\"name\":\"Station\",\"type\":\"long\"},{\"name\":\"Date\",\"type\":\"string\"},{\"name\":\"Latitude\",\"type\":\"double\"},{\"name\":\"Longitude\",\"type\":\"double\"},{\"name\":\"Elevation\",\"type\":\"double\"},{\"name\":\"Name\",\"type\":\"string\"},{\"name\":\"ReportType\",\"type\":\"string\"},{\"name\":\"Source\",\"type\":[\"null\",\"int\",\"string\"]},{\"name\":\"HourlyDryBulbTemperature\",\"type\":[\"null\",\"double\"]},{\"name\":\"HourlySeaLevelPressure\",\"type\":[\"null\",\"double\"]},{\"name\":\"HourlyVisibility\",\"type\":[\"null\",\"double\"]},{\"name\":\"HourlyWindDirection\",\"type\":[\"null\",\"double\"]},{\"name\":\"HourlyWindSpeed\",\"type\":[\"null\",\"double\"]},{\"name\":\"HourlyPrecipitation\",\"type\":[\"null\",\"string\",\"double\"]},{\"name\":\"HourlyRelativeHumidity\",\"type\":[\"null\",\"double\"]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"WeatherEvent\",\"namespace\":\"dk.sdu.bigdata.weather.producer.core\",\"fields\":[{\"name\":\"Station\",\"type\":\"long\"},{\"name\":\"Date\",\"type\":\"string\"},{\"name\":\"Latitude\",\"type\":\"double\"},{\"name\":\"Longitude\",\"type\":\"double\"},{\"name\":\"Elevation\",\"type\":\"double\"},{\"name\":\"Name\",\"type\":\"string\"},{\"name\":\"ReportType\",\"type\":\"string\"},{\"name\":\"Source\",\"type\":[\"null\",\"int\",\"string\"]},{\"name\":\"HourlyDryBulbTemperature\",\"type\":[\"null\",\"double\"]},{\"name\":\"HourlySeaLevelPressure\",\"type\":[\"null\",\"double\"]},{\"name\":\"HourlyVisibility\",\"type\":[\"null\",\"double\"]},{\"name\":\"HourlyWindDirection\",\"type\":[\"null\",\"double\"]},{\"name\":\"HourlyWindSpeed\",\"type\":[\"null\",\"double\"]},{\"name\":\"HourlyPrecipitation\",\"type\":[\"null\",\"string\",\"double\"]},{\"name\":\"HourlyRelativeHumidity\",\"type\":[\"null\",\"double\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static final SpecificData MODEL$ = new SpecificData();
@@ -442,8 +444,8 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
    * Creates a new WeatherEvent RecordBuilder.
    * @return A new WeatherEvent RecordBuilder
    */
-  public static WeatherEvent.Builder newBuilder() {
-    return new WeatherEvent.Builder();
+  public static dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder newBuilder() {
+    return new dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder();
   }
 
   /**
@@ -451,11 +453,11 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
    * @param other The existing builder to copy.
    * @return A new WeatherEvent RecordBuilder
    */
-  public static WeatherEvent.Builder newBuilder(WeatherEvent.Builder other) {
+  public static dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder newBuilder(dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder other) {
     if (other == null) {
-      return new WeatherEvent.Builder();
+      return new dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder();
     } else {
-      return new WeatherEvent.Builder(other);
+      return new dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder(other);
     }
   }
 
@@ -464,11 +466,11 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
    * @param other The existing instance to copy.
    * @return A new WeatherEvent RecordBuilder
    */
-  public static WeatherEvent.Builder newBuilder(WeatherEvent other) {
+  public static dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder newBuilder(dk.sdu.bigdata.weather.producer.core.WeatherEvent other) {
     if (other == null) {
-      return new WeatherEvent.Builder();
+      return new dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder();
     } else {
-      return new WeatherEvent.Builder(other);
+      return new dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder(other);
     }
   }
 
@@ -504,7 +506,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
      * Creates a Builder by copying an existing Builder.
      * @param other The existing Builder to copy.
      */
-    private Builder(WeatherEvent.Builder other) {
+    private Builder(dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder other) {
       super(other);
       if (isValidValue(fields()[0], other.Station)) {
         this.Station = data().deepCopy(fields()[0].schema(), other.Station);
@@ -572,7 +574,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
      * Creates a Builder by copying an existing WeatherEvent instance
      * @param other The existing instance to copy.
      */
-    private Builder(WeatherEvent other) {
+    private Builder(dk.sdu.bigdata.weather.producer.core.WeatherEvent other) {
       super(SCHEMA$, MODEL$);
       if (isValidValue(fields()[0], other.Station)) {
         this.Station = data().deepCopy(fields()[0].schema(), other.Station);
@@ -650,7 +652,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'Station'.
       * @return This builder.
       */
-    public WeatherEvent.Builder setStation(long value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setStation(long value) {
       validate(fields()[0], value);
       this.Station = value;
       fieldSetFlags()[0] = true;
@@ -670,7 +672,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'Station' field.
       * @return This builder.
       */
-    public WeatherEvent.Builder clearStation() {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder clearStation() {
       fieldSetFlags()[0] = false;
       return this;
     }
@@ -689,7 +691,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'Date'.
       * @return This builder.
       */
-    public WeatherEvent.Builder setDate(java.lang.CharSequence value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setDate(java.lang.CharSequence value) {
       validate(fields()[1], value);
       this.Date = value;
       fieldSetFlags()[1] = true;
@@ -709,7 +711,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'Date' field.
       * @return This builder.
       */
-    public WeatherEvent.Builder clearDate() {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder clearDate() {
       Date = null;
       fieldSetFlags()[1] = false;
       return this;
@@ -729,7 +731,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'Latitude'.
       * @return This builder.
       */
-    public WeatherEvent.Builder setLatitude(double value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setLatitude(double value) {
       validate(fields()[2], value);
       this.Latitude = value;
       fieldSetFlags()[2] = true;
@@ -749,7 +751,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'Latitude' field.
       * @return This builder.
       */
-    public WeatherEvent.Builder clearLatitude() {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder clearLatitude() {
       fieldSetFlags()[2] = false;
       return this;
     }
@@ -768,7 +770,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'Longitude'.
       * @return This builder.
       */
-    public WeatherEvent.Builder setLongitude(double value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setLongitude(double value) {
       validate(fields()[3], value);
       this.Longitude = value;
       fieldSetFlags()[3] = true;
@@ -788,7 +790,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'Longitude' field.
       * @return This builder.
       */
-    public WeatherEvent.Builder clearLongitude() {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder clearLongitude() {
       fieldSetFlags()[3] = false;
       return this;
     }
@@ -807,7 +809,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'Elevation'.
       * @return This builder.
       */
-    public WeatherEvent.Builder setElevation(double value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setElevation(double value) {
       validate(fields()[4], value);
       this.Elevation = value;
       fieldSetFlags()[4] = true;
@@ -827,7 +829,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'Elevation' field.
       * @return This builder.
       */
-    public WeatherEvent.Builder clearElevation() {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder clearElevation() {
       fieldSetFlags()[4] = false;
       return this;
     }
@@ -846,7 +848,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'Name'.
       * @return This builder.
       */
-    public WeatherEvent.Builder setName(java.lang.CharSequence value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setName(java.lang.CharSequence value) {
       validate(fields()[5], value);
       this.Name = value;
       fieldSetFlags()[5] = true;
@@ -866,7 +868,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'Name' field.
       * @return This builder.
       */
-    public WeatherEvent.Builder clearName() {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder clearName() {
       Name = null;
       fieldSetFlags()[5] = false;
       return this;
@@ -886,7 +888,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'ReportType'.
       * @return This builder.
       */
-    public WeatherEvent.Builder setReportType(java.lang.CharSequence value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setReportType(java.lang.CharSequence value) {
       validate(fields()[6], value);
       this.ReportType = value;
       fieldSetFlags()[6] = true;
@@ -906,7 +908,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'ReportType' field.
       * @return This builder.
       */
-    public WeatherEvent.Builder clearReportType() {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder clearReportType() {
       ReportType = null;
       fieldSetFlags()[6] = false;
       return this;
@@ -926,7 +928,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'Source'.
       * @return This builder.
       */
-    public WeatherEvent.Builder setSource(java.lang.Object value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setSource(java.lang.Object value) {
       validate(fields()[7], value);
       this.Source = value;
       fieldSetFlags()[7] = true;
@@ -946,7 +948,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'Source' field.
       * @return This builder.
       */
-    public WeatherEvent.Builder clearSource() {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder clearSource() {
       Source = null;
       fieldSetFlags()[7] = false;
       return this;
@@ -966,7 +968,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'HourlyDryBulbTemperature'.
       * @return This builder.
       */
-    public WeatherEvent.Builder setHourlyDryBulbTemperature(java.lang.Double value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setHourlyDryBulbTemperature(java.lang.Double value) {
       validate(fields()[8], value);
       this.HourlyDryBulbTemperature = value;
       fieldSetFlags()[8] = true;
@@ -986,7 +988,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'HourlyDryBulbTemperature' field.
       * @return This builder.
       */
-    public WeatherEvent.Builder clearHourlyDryBulbTemperature() {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder clearHourlyDryBulbTemperature() {
       HourlyDryBulbTemperature = null;
       fieldSetFlags()[8] = false;
       return this;
@@ -1006,7 +1008,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'HourlySeaLevelPressure'.
       * @return This builder.
       */
-    public WeatherEvent.Builder setHourlySeaLevelPressure(java.lang.Double value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setHourlySeaLevelPressure(java.lang.Double value) {
       validate(fields()[9], value);
       this.HourlySeaLevelPressure = value;
       fieldSetFlags()[9] = true;
@@ -1026,7 +1028,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'HourlySeaLevelPressure' field.
       * @return This builder.
       */
-    public WeatherEvent.Builder clearHourlySeaLevelPressure() {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder clearHourlySeaLevelPressure() {
       HourlySeaLevelPressure = null;
       fieldSetFlags()[9] = false;
       return this;
@@ -1046,7 +1048,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'HourlyVisibility'.
       * @return This builder.
       */
-    public WeatherEvent.Builder setHourlyVisibility(java.lang.Double value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setHourlyVisibility(java.lang.Double value) {
       validate(fields()[10], value);
       this.HourlyVisibility = value;
       fieldSetFlags()[10] = true;
@@ -1066,7 +1068,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'HourlyVisibility' field.
       * @return This builder.
       */
-    public WeatherEvent.Builder clearHourlyVisibility() {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder clearHourlyVisibility() {
       HourlyVisibility = null;
       fieldSetFlags()[10] = false;
       return this;
@@ -1086,7 +1088,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'HourlyWindDirection'.
       * @return This builder.
       */
-    public WeatherEvent.Builder setHourlyWindDirection(java.lang.Double value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setHourlyWindDirection(java.lang.Double value) {
       validate(fields()[11], value);
       this.HourlyWindDirection = value;
       fieldSetFlags()[11] = true;
@@ -1106,7 +1108,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'HourlyWindDirection' field.
       * @return This builder.
       */
-    public WeatherEvent.Builder clearHourlyWindDirection() {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder clearHourlyWindDirection() {
       HourlyWindDirection = null;
       fieldSetFlags()[11] = false;
       return this;
@@ -1126,7 +1128,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'HourlyWindSpeed'.
       * @return This builder.
       */
-    public WeatherEvent.Builder setHourlyWindSpeed(java.lang.Double value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setHourlyWindSpeed(java.lang.Double value) {
       validate(fields()[12], value);
       this.HourlyWindSpeed = value;
       fieldSetFlags()[12] = true;
@@ -1146,7 +1148,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'HourlyWindSpeed' field.
       * @return This builder.
       */
-    public WeatherEvent.Builder clearHourlyWindSpeed() {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder clearHourlyWindSpeed() {
       HourlyWindSpeed = null;
       fieldSetFlags()[12] = false;
       return this;
@@ -1166,7 +1168,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'HourlyPrecipitation'.
       * @return This builder.
       */
-    public WeatherEvent.Builder setHourlyPrecipitation(java.lang.Object value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setHourlyPrecipitation(java.lang.Object value) {
       validate(fields()[13], value);
       this.HourlyPrecipitation = value;
       fieldSetFlags()[13] = true;
@@ -1186,7 +1188,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'HourlyPrecipitation' field.
       * @return This builder.
       */
-    public WeatherEvent.Builder clearHourlyPrecipitation() {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder clearHourlyPrecipitation() {
       HourlyPrecipitation = null;
       fieldSetFlags()[13] = false;
       return this;
@@ -1206,7 +1208,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'HourlyRelativeHumidity'.
       * @return This builder.
       */
-    public WeatherEvent.Builder setHourlyRelativeHumidity(java.lang.Double value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setHourlyRelativeHumidity(java.lang.Double value) {
       validate(fields()[14], value);
       this.HourlyRelativeHumidity = value;
       fieldSetFlags()[14] = true;
@@ -1226,7 +1228,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'HourlyRelativeHumidity' field.
       * @return This builder.
       */
-    public WeatherEvent.Builder clearHourlyRelativeHumidity() {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder clearHourlyRelativeHumidity() {
       HourlyRelativeHumidity = null;
       fieldSetFlags()[14] = false;
       return this;
