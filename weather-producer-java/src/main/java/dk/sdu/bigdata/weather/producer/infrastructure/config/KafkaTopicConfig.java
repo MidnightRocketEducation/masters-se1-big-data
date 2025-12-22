@@ -34,10 +34,6 @@ public class KafkaTopicConfig {
 
     @Bean
     public NewTopic weather() {
-        return new NewTopic(weatherTopic, partitions, replicationFactor)
-                .configs(Map.of(
-                        "cleanup.policy", "compact",
-                        "retention.bytes", "700"
-                ));
+        return new NewTopic(weatherTopic, partitions, replicationFactor);
     }
 }
