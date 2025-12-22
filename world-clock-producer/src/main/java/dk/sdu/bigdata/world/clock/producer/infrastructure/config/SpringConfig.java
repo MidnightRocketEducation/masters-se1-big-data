@@ -12,10 +12,10 @@ import java.time.Instant;
 
 @Configuration
 public class SpringConfig {
-    @Bean
-    public PublishCurrentTimeScheduler publishCurrentTimeScheduler(PublishCurrentTimeUseCase useCase,
-                                                                   CurrentTimeSpeed currentTimeSpeed,
-                                                                   @Value("${application.start-date-time}") String startDateTime) {
-        return new PublishCurrentTimeScheduler(useCase, currentTimeSpeed, new CurrentTime(Instant.parse(startDateTime)));
-    }
+//    @Bean
+//    public PublishCurrentTimeScheduler publishCurrentTimeScheduler(PublishCurrentTimeUseCase useCase,
+//                                                                   CurrentTimeSpeed currentTimeSpeed,
+//                                                                   @Value("${application.start-date-time}") String startDateTime) {
+//        return new PublishCurrentTimeScheduler(useCase, currentTimeSpeed, new CurrentTime(Instant.parse(startDateTime)));
+//    }
 }
