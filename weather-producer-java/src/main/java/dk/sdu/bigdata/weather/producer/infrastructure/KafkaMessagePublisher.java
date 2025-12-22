@@ -17,9 +17,9 @@ public class KafkaMessagePublisher implements MessagePublisher {
     public void publish(String topic, String key, Object request) {
         if (request instanceof WeatherEvent) {
             kafkaTemplate.send(topic, key, (WeatherEvent) request);
-            if (System.currentTimeMillis() % 1000 == 0) { // Log every ~1000 messages
-                System.out.println("Published message to topic " + topic + " with key " + key);
-            }
+//            if (System.currentTimeMillis() % 1000 == 0) { // Log every ~1000 messages
+//                System.out.println("Published message to topic " + topic + " with key " + key);
+//            }
         } else {
             throw new IllegalArgumentException("Expected WeatherEvent but got: " + request.getClass());
         }

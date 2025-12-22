@@ -59,9 +59,9 @@ public class ProcessCsvFileUseCase {
                     messagePublisher.publish(topic, Long.toString(weatherObservation.getStation()), weatherObservation);
                     processed++;
 
-                    if (processed % 1000 == 0) {
-                        logger.info("Processed {} records from {}", processed, csvPath.getFileName());
-                    }
+//                    if (processed % 1000 == 0) {
+//                        logger.info("Processed {} records from {}", processed, csvPath.getFileName());
+//                    }
 
                 } catch (Exception e) {
                     errors++;
