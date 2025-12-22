@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileReader;
 import java.nio.file.Path;
+import java.util.function.Consumer;
 
 @Service
 public class ProcessCsvFileUseCase {
