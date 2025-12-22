@@ -57,8 +57,8 @@ jobs:
       - name: Build & Push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: weather-producer
-          file: weather-producer/Dockerfile
+          context: weather-producer-java
+          file: weather-producer-java/Dockerfile
           push: true
           tags: |
             ghcr.io/${{ env.OWNER_LOWER }}/${{ env.IMAGE_NAME }}:latest
