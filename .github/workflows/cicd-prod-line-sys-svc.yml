@@ -6,13 +6,13 @@ on:
   push:
     branches:
       - main
-      - feat/world-clock-producer
+      - feat/world-clock
     paths:
       - "world-clock-producer/**"
   pull_request:
     branches:
       - main
-      - feat/world-clock-producer
+      - feat/world-clock
     paths:
       - "world-clock-producer/**"
 
