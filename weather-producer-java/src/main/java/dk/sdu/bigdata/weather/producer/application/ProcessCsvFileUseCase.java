@@ -2,6 +2,8 @@ package dk.sdu.bigdata.weather.producer.application;
 
 import com.opencsv.CSVReader;
 import dk.sdu.bigdata.weather.producer.core.WeatherEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.FileReader;
@@ -10,20 +12,22 @@ import java.nio.file.Path;
 @Service
 public class ProcessCsvFileUseCase {
     private final MessagePublisher messagePublisher;
+    private static final Logger logger = LoggerFactory.getLogger(ProcessCsvFileUseCase.class);
 
     public ProcessCsvFileUseCase(MessagePublisher messagePublisher) {
         this.messagePublisher = messagePublisher;
     }
 
     public void processCsvFile(Path csvPath, String topic) {
+        int processed = 0;
+        int errors = 0;
+
         try (CSVReader reader = new CSVReader(new FileReader(csvPath.toFile()))) {
             String[] nextLine;
             // Skip header
             reader.readNext();
-            int lineCount = 0;
+
             while ((nextLine = reader.readNext()) != null) {
-                lineCount++;
-                // Create a WeatherEvent object (Avro-generated class)
                 if (nextLine.length == 0) {
                     continue; // Skip malformed lines
                 }
@@ -31,159 +35,135 @@ public class ProcessCsvFileUseCase {
                 try {
                     WeatherEvent.Builder b = WeatherEvent.newBuilder();
 
-                    // helper accessor and conditional setters
-                    setLongIfPresent(nextLine, 0, b::setStation);
-                    setStringIfPresent(nextLine, 1, b::setDate);
-                    setDoubleIfPresent(nextLine, 2, b::setLatitude);
-                    setDoubleIfPresent(nextLine, 3, b::setLongitude);
-                    setDoubleIfPresent(nextLine, 4, b::setElevation);
-                    setStringIfPresent(nextLine, 5, b::setName);
-                    setStringIfPresent(nextLine, 6, b::setReportType);
+                    // Set required fields
+                    setLongRequired(nextLine, 0, "Station", b::setStation);
+                    setStringRequired(nextLine, 1, "Date", b::setDate);
+                    setDoubleRequired(nextLine, 2, "Latitude", b::setLatitude);
+                    setDoubleRequired(nextLine, 3, "Longitude", b::setLongitude);
+                    setDoubleRequired(nextLine, 4, "Elevation", b::setElevation);
+                    setStringRequired(nextLine, 5, "Name", b::setName);
+                    setStringRequired(nextLine, 6, "ReportType", b::setReportType);
 
-                    // FIX: Handle Source field (union: null, int, string) - MUST set even if null
-                    handleSourceField(nextLine, 7, b);
-
-                    // FIX: Handle HourlyDryBulbTemperature (union: null, double)
-                    handleDoubleUnionField(nextLine, 10, b::setHourlyDryBulbTemperature);
-
-                    // FIX: Handle HourlyPrecipitation (union: null, string, double)
-                    handlePrecipitationField(nextLine, 11, b);
-
-                    // FIX: Handle HourlyRelativeHumidity (union: null, double)
-                    handleDoubleUnionField(nextLine, 15, b::setHourlyRelativeHumidity);
-
-                    // FIX: Handle HourlySeaLevelPressure (union: null, double)
-                    handleDoubleUnionField(nextLine, 17, b::setHourlySeaLevelPressure);
-
-                    // FIX: Handle HourlyVisibility (union: null, double)
-                    handleDoubleUnionField(nextLine, 19, b::setHourlyVisibility);
-
-                    // FIX: Handle HourlyWindDirection (union: null, double)
-                    handleDoubleUnionField(nextLine, 21, b::setHourlyWindDirection);
-
-                    // FIX: Handle HourlyWindSpeed (union: null, double)
-                    handleDoubleUnionField(nextLine, 23, b::setHourlyWindSpeed);
+                    // Set optional fields with null handling
+                    setSourceField(nextLine, 7, b);
+                    setOptionalDouble(nextLine, 10, b::setHourlyDryBulbTemperature);
+                    setHourlyPrecipitation(nextLine, 11, b);
+                    setOptionalDouble(nextLine, 15, b::setHourlyRelativeHumidity);
+                    setOptionalDouble(nextLine, 17, b::setHourlySeaLevelPressure);
+                    setOptionalDouble(nextLine, 19, b::setHourlyVisibility);
+                    setOptionalDouble(nextLine, 21, b::setHourlyWindDirection);
+                    setOptionalDouble(nextLine, 23, b::setHourlyWindSpeed);
 
                     WeatherEvent weatherObservation = b.build();
                     messagePublisher.publish(topic, Long.toString(weatherObservation.getStation()), weatherObservation);
+                    processed++;
+
+                    if (processed % 1000 == 0) {
+                        logger.info("Processed {} records from {}", processed, csvPath.getFileName());
+                    }
 
                 } catch (Exception e) {
-                    System.err.println("Error processing line " + lineCount + " in file " + csvPath + ": " + e.getMessage());
-                    // Continue with next line
+                    errors++;
+                    if (errors <= 10) { // Log first 10 errors
+                        logger.warn("Failed to process line {}: {}", processed + errors, e.getMessage());
+                        logger.debug("Error details:", e);
+                    }
+                    continue;
                 }
             }
-            System.out.println("Completed processing " + csvPath + ". Total records: " + lineCount);
+
+            logger.info("Completed processing {}: {} records processed, {} errors",
+                    csvPath.getFileName(), processed, errors);
+
         } catch (Exception e) {
-            System.err.println("Error reading file " + csvPath + ": " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Error processing CSV file: {}", csvPath, e);
         }
     }
 
+    // Helper methods
     private String safeGet(String[] arr, int idx) {
         return (idx >= 0 && idx < arr.length) ? arr[idx] : "";
     }
 
-    private boolean notEmpty(String s) {
-        return s != null && !s.isBlank();
+    private boolean isNotEmpty(String s) {
+        return s != null && !s.trim().isEmpty();
     }
 
-    private void setStringIfPresent(String[] arr, int idx, java.util.function.Consumer<String> setter) {
+    private void setLongRequired(String[] arr, int idx, String fieldName, Consumer<Long> setter) {
         String v = safeGet(arr, idx);
-        if (notEmpty(v)) {
-            setter.accept(v.trim());
-        } else {
-            // For required string fields, set empty string if not present
-            setter.accept("");
-        }
-    }
-
-    private void setLongIfPresent(String[] arr, int idx, java.util.function.Consumer<Long> setter) {
-        String v = safeGet(arr, idx);
-        if (!notEmpty(v)) {
-            setter.accept(0L); // Default value for required field
-            return;
+        if (!isNotEmpty(v)) {
+            throw new IllegalArgumentException(fieldName + " is required but empty at index " + idx);
         }
         try {
             setter.accept(Long.parseLong(v.trim()));
         } catch (NumberFormatException e) {
-            System.err.printf("Invalid long at index %d: '%s', using default 0%n", idx, v);
-            setter.accept(0L);
+            throw new IllegalArgumentException(fieldName + " must be a valid long, got: '" + v + "'");
         }
     }
 
-    private void setIntIfPresent(String[] arr, int idx, java.util.function.Consumer<Integer> setter) {
+    private void setStringRequired(String[] arr, int idx, String fieldName, Consumer<String> setter) {
         String v = safeGet(arr, idx);
-        if (!notEmpty(v)) return;
-        try {
-            setter.accept(Integer.parseInt(v.trim()));
-        } catch (NumberFormatException e) {
-            System.err.printf("Invalid int at index %d: '%s'%n", idx, v);
+        if (!isNotEmpty(v)) {
+            throw new IllegalArgumentException(fieldName + " is required but empty at index " + idx);
         }
+        setter.accept(v.trim());
     }
 
-    private void setDoubleIfPresent(String[] arr, int idx, java.util.function.Consumer<Double> setter) {
+    private void setDoubleRequired(String[] arr, int idx, String fieldName, Consumer<Double> setter) {
         String v = safeGet(arr, idx);
-        if (!notEmpty(v)) {
-            setter.accept(0.0); // Default value for required field
-            return;
+        if (!isNotEmpty(v)) {
+            throw new IllegalArgumentException(fieldName + " is required but empty at index " + idx);
         }
         try {
             setter.accept(Double.parseDouble(v.trim()));
         } catch (NumberFormatException e) {
-            System.err.printf("Invalid double at index %d: '%s', using default 0.0%n", idx, v);
-            setter.accept(0.0);
+            throw new IllegalArgumentException(fieldName + " must be a valid double, got: '" + v + "'");
         }
     }
 
-    // FIX: Handle Source field (union: null, int, string)
-    private void handleSourceField(String[] arr, int idx, WeatherEvent.Builder builder) {
-        String v = safeGet(arr, idx);
-        if (notEmpty(v)) {
-            try {
-                // Try to parse as integer first
-                builder.setSource(Integer.parseInt(v.trim()));
-            } catch (NumberFormatException e) {
-                // If not an int, set as string
-                builder.setSource(v.trim());
-            }
-        } else {
-            // MUST set to null explicitly for union fields
-            builder.setSource(null);
+    private void setSourceField(String[] arr, int idx, WeatherEvent.Builder b) {
+        String v = safeGet(arr, idx).trim();
+        if (!isNotEmpty(v)) {
+            b.setSource(null);
+            return;
+        }
+
+        // Try to parse as integer first
+        try {
+            b.setSource(Integer.parseInt(v));
+        } catch (NumberFormatException e) {
+            // If not an integer, use as string
+            b.setSource(v);
         }
     }
 
-    // FIX: Handle precipitation field (union: null, string, double)
-    private void handlePrecipitationField(String[] arr, int idx, WeatherEvent.Builder builder) {
-        String v = safeGet(arr, idx);
-        if (notEmpty(v)) {
-            try {
-                // Try to parse as double first
-                builder.setHourlyPrecipitation(Double.parseDouble(v.trim()));
-            } catch (NumberFormatException e) {
-                // If not a double, set as string
-                builder.setHourlyPrecipitation(v.trim());
-            }
-        } else {
-            // MUST set to null explicitly for union fields
-            builder.setHourlyPrecipitation(null);
-        }
-    }
-
-    // FIX: Handle double union fields (union: null, double)
-    private void handleDoubleUnionField(String[] arr, int idx, java.util.function.Consumer<Object> setter) {
-        String v = safeGet(arr, idx);
-        if (notEmpty(v)) {
-            try {
-                // Set as Double
-                setter.accept(Double.parseDouble(v.trim()));
-            } catch (NumberFormatException e) {
-                System.err.printf("Invalid double at index %d: '%s', setting to null%n", idx, v);
-                // Set to null if invalid
-                setter.accept(null);
-            }
-        } else {
-            // Set to null explicitly
+    private void setOptionalDouble(String[] arr, int idx, Consumer<Double> setter) {
+        String v = safeGet(arr, idx).trim();
+        if (!isNotEmpty(v)) {
             setter.accept(null);
+            return;
+        }
+        try {
+            setter.accept(Double.parseDouble(v));
+        } catch (NumberFormatException e) {
+            setter.accept(null);
+            logger.debug("Invalid double at index {}: '{}'", idx, v);
+        }
+    }
+
+    private void setHourlyPrecipitation(String[] arr, int idx, WeatherEvent.Builder b) {
+        String v = safeGet(arr, idx).trim();
+        if (!isNotEmpty(v)) {
+            b.setHourlyPrecipitation(null);
+            return;
+        }
+
+        // Try to parse as double first
+        try {
+            b.setHourlyPrecipitation(Double.parseDouble(v));
+        } catch (NumberFormatException e) {
+            // If not a double, use as string
+            b.setHourlyPrecipitation(v);
         }
     }
 }
