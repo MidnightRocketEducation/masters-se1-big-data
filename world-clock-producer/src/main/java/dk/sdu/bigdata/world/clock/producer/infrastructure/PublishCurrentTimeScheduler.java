@@ -51,11 +51,11 @@ public class PublishCurrentTimeScheduler implements SchedulingConfigurer {
         publishCurrentTimeUseCase.publishCurrentTime(currentTime);
 
         // Increments the current time
-        incrementCurrentTimeByOneHour(currentTime);
+        incrementCurrentTimeByOneHour();
     }
 
     @Synchronized
-    public boolean incrementCurrentTimeByOneHour(CurrentTime currentTime) {
+    public boolean incrementCurrentTimeByOneHour() {
         Instant newTime = currentTime.getTimestamp().plusMillis(3600000);
         changeCurrentTimeUseCase.changeCurrentTime(newTime);
         return true;
