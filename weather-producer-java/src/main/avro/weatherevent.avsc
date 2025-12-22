@@ -10,14 +10,14 @@
     { "name": "Elevation", "type": "double" },
     { "name": "Name", "type": "string" },
     { "name": "ReportType", "type": "string" },
-    { "name": "Source", "type": ["null", "int", "string"] },
 
-    { "name": "HourlyDryBulbTemperature", "type": ["null", "double"] },
-    { "name": "HourlySeaLevelPressure", "type": ["null", "double"] },
-    { "name": "HourlyVisibility", "type": ["null", "double"] },
-    { "name": "HourlyWindDirection", "type": ["null", "double"] },
-    { "name": "HourlyWindSpeed", "type": ["null", "double"] },
-    { "name": "HourlyPrecipitation", "type": ["null", "string", "double"] },
-    { "name": "HourlyRelativeHumidity", "type": ["null", "double"] }
+    { "name": "Source", "type": ["null", "int", "string"], "default": null },
+    { "name": "HourlyDryBulbTemperature", "type": ["null", "double"], "default": null },
+    { "name": "HourlySeaLevelPressure", "type": ["null", "double"], "default": null },
+    { "name": "HourlyVisibility", "type": ["null", "double"], "default": null },
+    { "name": "HourlyWindDirection", "type": ["null", "double"], "default": null },
+    { "name": "HourlyWindSpeed", "type": ["null", "double"], "default": null },
+    { "name": "HourlyPrecipitation", "type": ["null", "string", "double"], "default": null },
+    { "name": "HourlyRelativeHumidity", "type": ["null", "double"], "default": null }
   ]
 }
