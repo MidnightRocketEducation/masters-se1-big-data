@@ -14,7 +14,7 @@ kubectl apply -f deployments/world-clock-producer/world-clock-producer-svc.yaml
 
 ## Send payload to world-clock-producer
 
-### Hot to curl
+### How to curl
 You can curl from any pod shell within the same k8s namespace.
 - The pod must have curl installed.
 
