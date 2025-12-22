@@ -8,13 +8,11 @@ import lombok.Synchronized;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.TriggerContext;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.Date;
 
 @Component
 @EnableScheduling
@@ -29,9 +27,6 @@ public class PublishCurrentTimeScheduler implements SchedulingConfigurer {
         this.changeCurrentTimeUseCase = changeCurrentTimeUseCase;
         this.currentTimeSpeed = currentTimeSpeed;
         this.currentTime = startTime;
-
-        // Start the publishing in a separate thread
-//        new Thread(this::publishCurrentTime).start();
     }
 
     @Override
