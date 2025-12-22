@@ -19,7 +19,7 @@ public class WeatherProducerController {
 
     @PostMapping("/produce-from-path") //usally called with "/data"
     public ResponseEntity<Void> changeTimeSpeed(@RequestParam("path") String path) {
-        Path dataRoot = Path.of(path);
+        Path dataRoot = Path.of("/data");
         weatherDataImportUseCase.importWeatherData(dataRoot);
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
