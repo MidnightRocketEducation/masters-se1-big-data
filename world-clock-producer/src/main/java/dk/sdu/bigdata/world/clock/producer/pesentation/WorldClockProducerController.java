@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+
 @RestController
 @RequestMapping("/api/v1/world-clock-producer")
 public class WorldClockProducerController {
@@ -25,10 +27,9 @@ public class WorldClockProducerController {
     }
 
     @PostMapping("/change-current-time")
-    public ResponseEntity<Void> changeTimeSpeed(@RequestParam("one-hour-equals") CurrentTime newCurrentTime) {
-//        changeTimeSpeedUseCase.changeCurrentTimeSpeed(newTimeSpeedInMillis);
+    public ResponseEntity<Void> changeCurrentTime(@RequestBody Instant newCurrentTime) {
+        changeCurrentTimeUseCase.changeCurrentTime(newCurrentTime);
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
-
-
 }
+

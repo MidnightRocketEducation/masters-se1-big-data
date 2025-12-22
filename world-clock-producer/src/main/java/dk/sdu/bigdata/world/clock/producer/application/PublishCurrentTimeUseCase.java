@@ -16,6 +16,6 @@ public class PublishCurrentTimeUseCase {
     }
 
     public void publishCurrentTime(CurrentTime currentTime) {
-        publisher.publish(topic, currentTime);
+        publisher.publish(topic, "current-time", currentTime);
     }
 }

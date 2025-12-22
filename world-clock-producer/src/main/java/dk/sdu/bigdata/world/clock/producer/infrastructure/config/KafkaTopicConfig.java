@@ -34,6 +34,10 @@ public class KafkaTopicConfig {
 
     @Bean
     public NewTopic worldClock() {
-        return new NewTopic(worldCLockTopic, partitions, replicationFactor);
+        return new NewTopic(worldCLockTopic, partitions, replicationFactor)
+                .configs(Map.of(
+                        "cleanup.policy", "compact",
+                        "retention.bytes", "700"
+                ));
     }
 }
