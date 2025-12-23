@@ -41,6 +41,11 @@ public class YearStreamingManager {
         this.messagePublisher = messagePublisher;
         this.topic = topic;
         this.dataRoot = dataRoot;
+
+        logger.info("YearStreamingManager initialized with dataRoot: {} (exists: {}, isDirectory: {})",
+                dataRoot.toAbsolutePath(),
+                Files.exists(dataRoot),
+                Files.isDirectory(dataRoot));
     }
 
     public void start() {
@@ -64,38 +69,61 @@ public class YearStreamingManager {
         logger.info("Year streaming manager stopped");
     }
 
+    // Update YearStreamingManager.java - add debug logging
     private void checkAndActivateYears() {
         try {
             Optional<Instant> currentTime = timeProvider.getCurrentTime();
             if (currentTime.isEmpty()) {
+                logger.debug("No current time set yet");
                 return; // No time set yet
             }
 
             int currentYear = Year.from(currentTime.get()).getValue();
+            logger.info("Current simulated year: {}, current time: {}",
+                    currentYear, currentTime.get());
 
             // List all available years
             try (var dirs = Files.list(dataRoot)) {
+                logger.info("Checking directories in: {}", dataRoot.toAbsolutePath());
                 dirs.filter(Files::isDirectory)
-                        .filter(dir -> dir.getFileName().toString().startsWith("filtered_"))
                         .forEach(dir -> {
-                            try {
-                                String yearStr = dir.getFileName().toString().replace("filtered_", "");
-                                int year = Integer.parseInt(yearStr);
+                            String dirName = dir.getFileName().toString();
+                            logger.debug("Found directory: {}", dirName);
 
-                                if (year <= currentYear && initializedYears.add(year)) {
-                                    // This year should be active
-                                    activateYear(year, dir);
-                                } else if (year > currentYear) {
-                                    // Not yet, keep it deactivated
-                                    deactivateYear(year);
+                            if (dirName.startsWith("filtered_")) {
+                                try {
+                                    String yearStr = dirName.replace("filtered_", "").trim();
+                                    logger.debug("Extracted year string: '{}' from '{}'",
+                                            yearStr, dirName);
+
+                                    int year = Integer.parseInt(yearStr);
+                                    logger.debug("Parsed year: {} (currentYear: {})",
+                                            year, currentYear);
+
+                                    if (year <= currentYear) {
+                                        if (initializedYears.add(year)) {
+                                            logger.info("Activating year {} from directory: {}",
+                                                    year, dirName);
+                                            activateYear(year, dir);
+                                        } else {
+                                            logger.debug("Year {} already initialized", year);
+                                        }
+                                    } else {
+                                        logger.debug("Year {} is in the future (current: {}), not activating",
+                                                year, currentYear);
+                                        deactivateYear(year);
+                                    }
+                                } catch (NumberFormatException e) {
+                                    logger.warn("Failed to parse year from directory name '{}': {}",
+                                            dirName, e.getMessage());
                                 }
-                            } catch (NumberFormatException e) {
-                                logger.warn("Invalid directory name: {}", dir.getFileName());
                             }
                         });
             }
         } catch (IOException e) {
-            logger.error("Failed to list data directories", e);
+            logger.error("Failed to list data directories in {}", dataRoot, e);
+        } catch (Exception e) {
+            logger.error("Unexpected error in checkAndActivateYears", e);
         }
     }
 
