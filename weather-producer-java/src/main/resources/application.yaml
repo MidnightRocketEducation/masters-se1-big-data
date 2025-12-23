@@ -1,8 +1,13 @@
+# File: src/main/resources/application.yaml
 spring:
   main:
     allow-bean-definition-overriding: true
   application:
     name: ${SPRING_APPLICATION_NAME:weather-producer}
+  threads:
+    virtual:
+      enabled: true
+
 kafka:
   bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
   replication-factor: ${KAFKA_REPLICATION_FACTOR:1}
@@ -11,3 +16,9 @@ kafka:
   topic:
     weather: ${KAFKA_TOPIC_WEATHER:weather}
     world-clock: ${KAFKA_TOPIC_WORLD_CLOCK:world-clock}
+
+weather:
+  data:
+    root: ${WEATHER_DATA_ROOT:/data}
+    max-files-per-year: 3000
+    polling-interval-ms: 5000

@@ -28,7 +28,7 @@ public class KafkaTimeConsumer implements TimeProvider {
             JsonNode node = objectMapper.readTree(message);
             String timestamp = node.get("timestamp").asText();
             currentTime = Instant.parse(timestamp);
-            System.out.println("Received message: " + message);
+//            System.out.println("Received message: " + message);
         } catch (Exception e) {
             System.out.println("Failed to parse message: " + message);
         }
