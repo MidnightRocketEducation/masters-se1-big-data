@@ -18,6 +18,7 @@
 
         <spring-boot-web.version>3.5.7</spring-boot-web.version>
         <spring-kafka.version>4.0.0-RC1</spring-kafka.version>
+        <spring-expression.version>7.0.2</spring-expression.version>
         <projectlombok.version>1.18.42</projectlombok.version>
 
         <kafka-avro-serializer.version>8.1.1</kafka-avro-serializer.version>
@@ -62,6 +63,13 @@
             <artifactId>lombok</artifactId>
             <version>${projectlombok.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-expression</artifactId>
+            <version>${spring-expression.version}</version>
+        </dependency>
+
 
         <!-- Confluent Avro serializer -->
         <dependency>
