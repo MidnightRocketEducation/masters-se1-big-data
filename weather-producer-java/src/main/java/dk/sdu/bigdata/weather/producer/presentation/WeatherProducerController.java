@@ -1,6 +1,5 @@
 package dk.sdu.bigdata.weather.producer.presentation;
 
-import dk.sdu.bigdata.weather.producer.application.MessagePublisher;
 import dk.sdu.bigdata.weather.producer.application.TimeProvider;
 import dk.sdu.bigdata.weather.producer.application.WeatherDataImportUseCase;
 import org.springframework.http.HttpStatus;

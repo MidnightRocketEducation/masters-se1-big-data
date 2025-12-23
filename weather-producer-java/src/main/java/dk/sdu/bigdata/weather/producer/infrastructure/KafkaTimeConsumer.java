@@ -18,7 +18,11 @@ public class KafkaTimeConsumer implements TimeProvider {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
 
-    @KafkaListener(topics = "#{'${kafka.topic.world-clock}'}", groupId = "time-consumer-group")
+    @KafkaListener(
+            topics = "#{'${kafka.topic.world-clock}'}",
+            groupId = "time-consumer-group",
+            containerFactory = "kafkaListenerContainerFactory"
+    )
     public void listen(String message) {
         try {
             JsonNode node = objectMapper.readTree(message);
