@@ -123,7 +123,7 @@ public class YearStreamingManager {
         } catch (IOException e) {
             logger.error("Failed to list data directories in {}", dataRoot, e);
         } catch (Exception e) {
-            logger.error("Unexpected error in checkAndActivateYears", e);
+            logger.error("Unexpected error in checkAndActivateYears ", e);
         }
     }
 
