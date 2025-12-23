@@ -7,3 +7,4 @@ kafka:
   schema-registry-url: ${KAFKA_SCHEMA_REGISTRY_URL:http://kafka-schema-registry:8081}
   topic:
     weather: ${KAFKA_TOPIC_WEATHER:weather}
+    world-clock: ${KAFKA_TOPIC_WORLD_CLOCK:world-clock}
