@@ -1,5 +1,8 @@
-spring.application:
-  name: ${SPRING_APPLICATION_NAME:weather-producer}
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: ${SPRING_APPLICATION_NAME:weather-producer}
 kafka:
   bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
   replication-factor: ${KAFKA_REPLICATION_FACTOR:1}
