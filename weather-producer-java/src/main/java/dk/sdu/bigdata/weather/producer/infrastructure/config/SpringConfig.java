@@ -22,14 +22,17 @@ public class SpringConfig {
 //        return new PublishCurrentTimeScheduler(useCase, currentTimeSpeed, new CurrentTime(Instant.parse(startDateTime)));
 //    }
 
+    Path path = Path.of("/data");
+
     @Bean
     @Primary
     public YearStreamingManager yearStreamingManager(
             TimeProvider timeProvider,
             MessagePublisher messagePublisher,
-            @Value("${kafka.topic.weather}") String topic,
-            @Value("${weather.data.root}") Path dataRoot) {
+            @Value("${kafka.topic.weather}") String topic
+//            @Value("${weather.data.root}") Path dataRoot) {
+    ) {
 
-        return new YearStreamingManager(timeProvider, messagePublisher, topic, dataRoot);
+        return new YearStreamingManager(timeProvider, messagePublisher, topic, this.path);
     }
 }
