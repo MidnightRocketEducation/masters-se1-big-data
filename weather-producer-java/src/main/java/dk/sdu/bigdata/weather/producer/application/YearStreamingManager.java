@@ -10,6 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.Year;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -78,7 +80,9 @@ public class YearStreamingManager {
                 return; // No time set yet
             }
 
-            int currentYear = Year.from(currentTime.get()).getValue();
+            ZonedDateTime zonedDateTime = currentTime.get().atZone(ZoneOffset.UTC);
+            int currentYear = zonedDateTime.getYear();
+//            int currentYear = Year.from(currentTime.get()).getValue();
             logger.info("Current simulated year: {}, current time: {}",
                     currentYear, currentTime.get());
 
