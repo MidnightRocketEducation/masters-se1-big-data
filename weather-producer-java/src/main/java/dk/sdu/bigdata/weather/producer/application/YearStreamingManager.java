@@ -94,7 +94,7 @@ public class YearStreamingManager {
                             String dirName = dir.getFileName().toString();
                             logger.debug("Found directory: {}", dirName);
 
-                            if (dirName.startsWith("filtered_")) {
+                            if (dirName.matches("^filtered_\\d+$")) { // directory name both starts with filtered_ and ends with a number
                                 try {
                                     String yearStr = dirName.replace("filtered_", "").trim();
                                     logger.debug("Extracted year string: '{}' from '{}'",
