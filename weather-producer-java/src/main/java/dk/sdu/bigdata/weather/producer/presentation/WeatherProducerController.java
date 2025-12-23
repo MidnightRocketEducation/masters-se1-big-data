@@ -34,7 +34,7 @@ public class WeatherProducerController {
             Instant currentTime = timeProvider.getCurrentTime().get();
             return ResponseEntity.ok(currentTime.toString());
         } else {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            return ResponseEntity.ok("currently no time is set");
         }
     }
 }
