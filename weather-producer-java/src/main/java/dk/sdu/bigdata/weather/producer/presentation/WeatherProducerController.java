@@ -1,4 +1,3 @@
-// File: src/main/java/dk/sdu/bigdata/weather/producer/presentation/WeatherProducerController.java
 package dk.sdu.bigdata.weather.producer.presentation;
 
 import dk.sdu.bigdata.weather.producer.application.TimeProvider;

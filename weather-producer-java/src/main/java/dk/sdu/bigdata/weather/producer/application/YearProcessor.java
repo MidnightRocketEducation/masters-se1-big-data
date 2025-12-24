@@ -1,4 +1,3 @@
-// File: src/main/java/dk/sdu/bigdata/weather/producer/application/YearProcessor.java
 package dk.sdu.bigdata.weather.producer.application;
 
 import org.slf4j.Logger;
@@ -29,6 +28,9 @@ public class YearProcessor {
     private final AtomicLong totalErrors = new AtomicLong(0);
     private volatile boolean running = false;
 
+    // new
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
     public YearProcessor(int year, Path yearDirectory, TimeProvider timeProvider,
                          MessagePublisher messagePublisher, String topic) {
         this.year = year;
@@ -45,36 +47,53 @@ public class YearProcessor {
         if (running) {
             return;
         }
-
         running = true;
 
         try {
-            // List all CSV files in the directory
             List<Path> csvFiles = Files.list(yearDirectory)
                     .filter(path -> path.toString().endsWith(".csv"))
                     .toList();
 
             logger.info("Starting year {} with {} files", year, csvFiles.size());
 
-            // Create a reader for each file
+            // Create readers for all files
             for (Path csvFile : csvFiles) {
                 CsvStreamReader reader = new CsvStreamReader(
                         csvFile, timeProvider, messagePublisher, topic
                 );
                 readers.add(reader);
-
-                // Submit a virtual thread for each file
-                Future<?> task = virtualThreadExecutor.submit(() -> {
-                    processFile(reader);
-                });
-                tasks.add(task);
             }
+
+            // Single scheduler that processes all readers in round-robin
+            scheduler.scheduleAtFixedRate(this::processAllReaders, 0, 100, TimeUnit.MILLISECONDS);
 
         } catch (IOException e) {
             logger.error("Failed to start year {}: {}", year, e.getMessage());
             running = false;
         }
     }
+
+    private void processAllReaders() {
+        if (!running) return;
+
+        int processed = 0;
+        for (CsvStreamReader reader : readers) {
+            if (!running) break;
+
+            try {
+                if (reader.readAndPublishNext()) {
+                    processed++;
+                }
+            } catch (Exception e) {
+                logger.warn("Error processing file: {}", e.getMessage());
+            }
+        }
+
+        if (processed > 0) {
+            logger.debug("Processed {} records across all files in year {}", processed, year);
+        }
+    }
+
 
     private void processFile(CsvStreamReader reader) {
         String threadName = "Year-" + year + "-" + reader.getPublishedCount();
@@ -120,6 +139,7 @@ public class YearProcessor {
 
     public void stop() {
         running = false;
+        scheduler.shutdown();
 
         // Cancel all tasks
         tasks.forEach(task -> task.cancel(true));

@@ -16,9 +16,27 @@ kafka:
   topic:
     weather: ${KAFKA_TOPIC_WEATHER:weather}
     world-clock: ${KAFKA_TOPIC_WORLD_CLOCK:world-clock}
+  producer:
+    properties:
+      retries: 3
+      batch.size: 16384
+      linger.ms: 1
+      buffer.memory: 33554432
+      acks: all
+      enable.idempotence: true
+      delivery.timeout.ms: 120000
+      request.timeout.ms: 30000
 
 weather:
   data:
     root: ${WEATHER_DATA_ROOT:/data}
     max-files-per-year: 3000
     polling-interval-ms: 5000
+
+logging:
+  level:
+    dk.sdu.bigdata.weather.producer: DEBUG
+    org.apache.kafka: WARN
+    org.springframework.kafka: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

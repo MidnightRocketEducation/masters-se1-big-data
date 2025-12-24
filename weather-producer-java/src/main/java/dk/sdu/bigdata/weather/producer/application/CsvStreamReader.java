@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
@@ -67,6 +68,11 @@ public class CsvStreamReader implements AutoCloseable {
         }
     }
 
+    private Instant lastFutureRecordTime = null;
+    private long lastProcessTime = 0;
+    private static final long MIN_WAIT_MS = 50;
+    private static final long MAX_WAIT_MS = 5000;
+
     /**
      * Read and publish next available record that meets time criteria.
      * Returns true if a record was published, false if waiting for time or EOF.
@@ -78,10 +84,20 @@ public class CsvStreamReader implements AutoCloseable {
             }
 
             if (endOfFile) {
-                return false; // EOF reached
+                return false;
             }
 
-            // If we don't have a buffered record, read the next one
+            // Get current time first
+            Optional<Instant> currentTime = timeProvider.getCurrentTime();
+            if (currentTime.isEmpty()) {
+                // No time yet, wait longer
+                Thread.sleep(1000);
+                return false;
+            }
+
+            Instant now = currentTime.get();
+
+            // Read next record if buffer is empty
             if (nextRecordBuffer == null) {
                 try {
                     nextRecordBuffer = csvReader.readNext();
@@ -90,54 +106,71 @@ public class CsvStreamReader implements AutoCloseable {
                         return false;
                     }
                 } catch (CsvValidationException e) {
-                    logger.warn("CSV validation error in {} at line {}: {}",
-                            filePath, lineNumber.get(), e.getMessage());
+                    logger.warn("CSV validation error, skipping line: {}", e.getMessage());
                     lineNumber.incrementAndGet();
-                    return true; // Processed (skipped)
+                    return true;
                 }
             }
 
-            // Now we have a record in buffer
+            // Parse record time
             Optional<Instant> recordTime = parseRecordTime(nextRecordBuffer);
-
             if (recordTime.isEmpty()) {
-                // Skip malformed record
-                logger.debug("Skipping malformed record at line {} in {}",
-                        lineNumber.get(), filePath);
-                nextRecordBuffer = null; // Clear buffer
+                logger.debug("Skipping malformed record at line {}", lineNumber.get());
+                nextRecordBuffer = null;
                 lineNumber.incrementAndGet();
-                return true; // Processed (skipped)
+                return true;
             }
 
-            Optional<Instant> currentTime = timeProvider.getCurrentTime();
+            Instant recordInstant = recordTime.get();
 
-            if (currentTime.isEmpty()) {
-                // No time set yet, wait
-                return false;
-            }
-
-            if (!recordTime.get().isAfter(currentTime.get())) {
-                // Record time is <= current time, publish it
+            // Check if record time is in past
+            if (!recordInstant.isAfter(now)) {
+                // Publish the record
                 publishRecord(nextRecordBuffer);
-                nextRecordBuffer = null; // Clear buffer for next read
+                nextRecordBuffer = null;
                 lineNumber.incrementAndGet();
                 publishedCount.incrementAndGet();
+
+                // Reset future record tracking
+                lastFutureRecordTime = null;
                 return true;
             } else {
-                // Record is in the future, wait
+                // Record is in future
+                if (lastFutureRecordTime == null || !lastFutureRecordTime.equals(recordInstant)) {
+                    logger.debug("Record at {} is in future (current: {}), waiting",
+                            recordInstant, now);
+                    lastFutureRecordTime = recordInstant;
+                }
+
+                // Calculate adaptive wait time based on how far in future the record is
+                long millisToWait = calculateWaitTime(recordInstant, now);
+                Thread.sleep(millisToWait);
                 return false;
             }
 
-        } catch (IOException e) {
-            logger.warn("I/O error reading from {}: {}", filePath, e.getMessage());
-            endOfFile = true;
+        } catch (IOException | InterruptedException e) {
+            logger.warn("I/O error or interrupted: {}", e.getMessage());
             return false;
         } catch (Exception e) {
-            logger.warn("Unexpected error in {}: {}", filePath, e.getMessage());
-            // Skip this record and continue
+            logger.warn("Unexpected error: {}", e.getMessage());
             nextRecordBuffer = null;
             lineNumber.incrementAndGet();
             return true;
+        }
+    }
+
+    private long calculateWaitTime(Instant recordTime, Instant currentTime) {
+        long millisDiff = Duration.between(currentTime, recordTime).toMillis();
+
+        // If record is very far in future, wait longer
+        if (millisDiff > 3600000) { // > 1 hour
+            return 5000;
+        } else if (millisDiff > 60000) { // > 1 minute
+            return 1000;
+        } else if (millisDiff > 10000) { // > 10 seconds
+            return 500;
+        } else {
+            return 100; // Short wait for near-future records
         }
     }
 

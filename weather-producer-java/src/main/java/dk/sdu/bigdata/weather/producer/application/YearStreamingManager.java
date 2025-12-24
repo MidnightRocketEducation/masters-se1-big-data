@@ -1,4 +1,3 @@
-// File: src/main/java/dk/sdu/bigdata/weather/producer/application/YearStreamingManager.java
 package dk.sdu.bigdata.weather.producer.application;
 
 import org.slf4j.Logger;
@@ -106,8 +105,6 @@ public class YearStreamingManager {
 
                                     if (year <= currentYear) {
                                         if (initializedYears.add(year)) {
-                                            logger.info("Activating year {} from directory: {}",
-                                                    year, dirName);
                                             activateYear(year, dir);
                                         } else {
                                             logger.debug("Year {} already initialized", year);
