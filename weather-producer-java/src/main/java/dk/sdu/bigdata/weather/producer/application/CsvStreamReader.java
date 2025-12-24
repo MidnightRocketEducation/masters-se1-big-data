@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
@@ -180,10 +182,24 @@ public class CsvStreamReader implements AutoCloseable {
         }
         try {
             // The date is in the second column (index 1)
-            // Format: "2011-01-01T00:00:00"
-            return Optional.of(Instant.parse(record[1]));
+            // Format: "2011-01-01T00:00:00" (local date-time without timezone)
+            // We need to parse it as LocalDateTime and convert to Instant
+
+            // First, check if the value might have quotes or extra spaces
+            String timestampStr = record[1].trim();
+
+            // Remove surrounding quotes if present
+            if (timestampStr.startsWith("\"") && timestampStr.endsWith("\"")) {
+                timestampStr = timestampStr.substring(1, timestampStr.length() - 1);
+            }
+
+            // Parse as LocalDateTime and assume UTC
+            LocalDateTime localDateTime = LocalDateTime.parse(timestampStr);
+            return Optional.of(localDateTime.atOffset(ZoneOffset.UTC).toInstant());
+
         } catch (DateTimeParseException e) {
-            logger.debug("Failed to parse timestamp '{}': {}", record[1], e.getMessage());
+            logger.warn("Failed to parse timestamp '{}': {}", record[1], e.getMessage());
+            logger.debug("Parse error details:", e);
             return Optional.empty();
         }
     }
