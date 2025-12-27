@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+SCRIPT_DIR="$(realpath -- "$(dirname -- "$0")")"; readonly SCRIPT_DIR;
+print() { printf "%b%b" "${1-""}" "${2-"\\n"}"; }
+stderr() { print "$@" 1>&2; }
+reportError() { stderr "$2"; return "$1"; }
+verbosePrint() { { test -n "${VERBOSE_MODE+x}" && stderr "$@"; } || true; }
+
+commandv() { command -v "$1" || reportError "$?" "Executable '$1' not found"; }
+
+
+PROMPT="${PROMPT:-"The provided list contains categories from a Yelp dataset. Can you please filter the provided list, for all terms which can describe a restuarant, foodstand or similar? Please output the result as a newline seperated list."}"
+stderr "Using prompt:\n$PROMPT\n"
+
+for i in $(seq -f "%02g" 0 15); do
+	FILE="ai-filtered-output-$i"
+
+	if [ -s "$FILE" ]; then
+		stderr "Skipping file: $FILE"
+		continue
+	fi
+
+	stderr "Processing file: $FILE"
+	cat raw-categories | ollama run gpt-oss:latest --hidethinking "$PROMPT" | tr '[:upper:]' '[:lower:]' | tee /dev/tty | sort -u -o "$FILE"
+done
