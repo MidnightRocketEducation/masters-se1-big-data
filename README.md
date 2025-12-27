@@ -54,7 +54,7 @@ This repository contains a complete Big Data application with MLflow model servi
    docker build -t your-registry/mlflow-app:latest .
    docker push your-registry/mlflow-app:latest
 
-   # Update image in k8s/deployment.yaml and k8s/cronjob.yaml
+   # Update image in k8s/deployment.yaml and k8s/training-listener-deployment.yaml
    kubectl apply -f k8s/
    ```
 

@@ -4,11 +4,7 @@ This component provides a Kafka Connect sink connector that reads data from Kafk
 
 ## Configuration
 
-<<<<<<< HEAD
-- **Kafka Topics**: `weather`, `debug-business-event`, `debug-review-event`
-=======
-- **Kafka Topics**: `weather-0`, `debug-business-event`, `debug-review-event`
->>>>>>> 6063a84746e7756c705b94df984b7fe514676a5a
+- **Kafka Topics**: `weather2`, `business-event`, `review-event`
 - **Data Format**: Avro (with Schema Registry)
 - **Output Format**: Parquet with Snappy compression
 - **HDFS URL**: `hdfs://namenode:9000`

@@ -18,6 +18,7 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
         - |
+          confluent-hub install --no-prompt confluentinc/kafka-connect-hdfs:10.1.0
           connect-standalone /tmp/worker.properties /tmp/hdfs-sink-connector.properties
         volumeMounts:
         - name: config

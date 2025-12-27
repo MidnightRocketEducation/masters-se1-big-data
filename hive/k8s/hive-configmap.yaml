@@ -75,4 +75,12 @@ data:
         <name>hive.spark.client.connect.timeout</name>
         <value>10000ms</value>
       </property>
+      <property>
+        <name>hive.exec.parallel</name>
+        <value>true</value>
+      </property>
+      <property>
+        <name>hive.exec.parallel.thread.number</name>
+        <value>8</value>
+      </property>
     </configuration>

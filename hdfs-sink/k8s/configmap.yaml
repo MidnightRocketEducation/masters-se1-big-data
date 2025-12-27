@@ -5,27 +5,28 @@ metadata:
 data:
   worker.properties: |
     bootstrap.servers=kafka:9092
-    key.converter=io.confluent.connect.avro.AvroConverter
+    key.converter=org.apache.kafka.connect.converters.ByteArrayConverter
     value.converter=io.confluent.connect.avro.AvroConverter
-    key.converter.schema.registry.url=http://kafka-schema-registry:8081
     value.converter.schema.registry.url=http://kafka-schema-registry:8081
-    offset.storage.file.filename=/tmp/connect.offsets
+    offset.storage.topic=connect-offsets
     offset.flush.interval.ms=10000
     plugin.path=/usr/share/java,/usr/share/confluent-hub-components
+    auto.offset.reset=earliest
+    schema.compatibility=FULL
   hdfs-sink-connector.properties: |
     name=hdfs-sink-connector
     connector.class=io.confluent.connect.hdfs.HdfsSinkConnector
     tasks.max=1
-    topics=weather,debug-business-event,debug-review-event
+    topics=business-event,review-event,weather2
     store.url=hdfs://namenode:9000
     format.class=io.confluent.connect.hdfs.parquet.ParquetFormat
-    flush.size=100
-    rotate.interval.ms=60000
+    flush.size=1000
+    rotate.interval.ms=5000
     parquet.codec=snappy
     partitioner.class=io.confluent.connect.storage.partitioner.DefaultPartitioner
     hive.integration=true
     hive.metastore.uris=thrift://hiveserver2-service:10000
-    hive.database=default
+    schema.compatibility=FULL
   core-site.xml: |
     <?xml version="1.0" encoding="UTF-8"?>
     <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>

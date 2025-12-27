@@ -6,3 +6,4 @@ pyhive[hive]>=0.6.0
 sqlalchemy>=1.4.0
 kubernetes>=20.0.0
 apscheduler>=3.9.0
+kafka-python>=2.0.0
