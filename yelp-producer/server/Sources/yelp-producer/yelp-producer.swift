@@ -37,8 +37,8 @@ struct yelp_producer: AsyncParsableCommand {
 			try AvroSchemaManager.write(to: config.options.stateDirectory, from: BusinessModel.self);
 			try AvroSchemaManager.write(to: config.options.stateDirectory, from: ReviewModel.self);
 			config.logger.info("Pushing avro schema files to registry at: \(config.options.schemaRegistry.absoluteString)");
-			try await AvroSchemaManager.push(to: config.options.schemaRegistry, model: ReviewModel.self);
-			try await AvroSchemaManager.push(to: config.options.schemaRegistry, model: BusinessModel.self);
+			try await AvroSchemaManager.push(to: config.options.schemaRegistry, model: ReviewModel.self, subject: KafkaTopic.reviewEvent.rawValue + "-value");
+			try await AvroSchemaManager.push(to: config.options.schemaRegistry, model: BusinessModel.self, subject: KafkaTopic.businessEvent.rawValue + "-value");
 			try await config.stateManager.update(key: \.hasUploadedSchema, to: true);
 		}
 
