@@ -41,8 +41,8 @@ When compiled in **Production** mode messages are pushed to the following topics
 
 # Schema
 The following schemas are provided:
-- **ReviewModel-avsc**
-- **BusinessModel-avsc**
+- **business-event-value**
+- **review-event-value**
 
 The ReviewModel has a field `businessId` which is equal to the corrosponding `BusinessModel.id`;
 

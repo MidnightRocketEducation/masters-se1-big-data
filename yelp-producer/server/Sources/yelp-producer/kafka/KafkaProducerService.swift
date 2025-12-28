@@ -74,4 +74,9 @@ enum KafkaTopic: String {
 		rawValue
 		#endif
 	}
+
+	var schemaSubject: RawValue {
+		// https://www.codestudy.net/blog/kafka-register-schema-for-topic/#schema-naming-convention
+		"\(self.value)-value";
+	}
 }

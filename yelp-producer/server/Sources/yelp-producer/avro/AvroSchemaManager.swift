@@ -26,8 +26,8 @@ extension AvroSchemaManager {
 	 Returns a boolean indicating whether or not the schema was updated
 	 */
 	@discardableResult
-	static func push(to baseURL: URL, model: AvroProtocol.Type, subject: String? = nil) async throws -> Bool {
-		let subjectURL = baseURL.appending(components: "subjects", subject ?? "\(model)-avsc", "versions");
+	static func push(to baseURL: URL, model: AvroProtocol.Type, subject: KafkaTopic) async throws -> Bool {
+		let subjectURL = baseURL.appending(components: "subjects", subject.schemaSubject, "versions");
 
 		try await WebClient.post(
 			url: subjectURL,
