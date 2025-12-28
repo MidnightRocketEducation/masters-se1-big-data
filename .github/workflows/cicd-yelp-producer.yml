@@ -76,9 +76,12 @@ jobs:
 
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
   build-yelp-dataset-server:
     runs-on: ubuntu-latest
     env:
+      CACHE_PATH: yelp-producer/server/cache
+
       # The base name of the docker image. e.g. ghcr.io/<REPO_NAME>/<DOCKER_IMAGE_NAME>:<VERSION_TAG>
       DOCKER_IMAGE_NAME: yelp-producer/server
       APP_NAME: yp-daemon
@@ -124,6 +127,22 @@ jobs:
           COUNT: 3
         run: |
           "${SUBPROJECT_PATH}/category-filtering/post-filter" "${SUBPROJECT_PATH}/server/categories"
+
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CACHE_PATH }}
+          key: ${{ github.job }}-${{ runner.os }}
+          restore-keys: |
+            ${{ runner.os }}-${{ hashFiles(format('{0}/**/Package.resolved', env.SUBPROJECT_PATH)) }}
+
+      - name: Inject build-cache
+        uses: reproducible-containers/buildkit-cache-dance@v3.3.0
+        with:
+          builder: ${{ steps.setup-buildx.outputs.name }}
+          cache-dir: ${{ env.CACHE_PATH }}
+          dockerfile: ${{ env.SUBPROJECT_PATH }}/server/Dockerfile
+          skip-extraction: ${{ steps.cache.outputs.cache-hit }}
 
       # 5️⃣ Build the Docker image and push it to ghcr.io
       - name: Build & push Docker image
