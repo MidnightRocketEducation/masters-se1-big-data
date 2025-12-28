@@ -30,6 +30,7 @@ actor BusinessProcessor {
 	}
 
 	func processFile(kafkaProducer: @Sendable (BusinessModel, Data) async throws -> Void) async throws {
+		let confluentWireFormat: ConfluentWireFormat = .init(id: await stateManager.get(key: \.businessSchemaID) ?? .init(id: 0))
 		if await self.stateManager.get(key: \.businessesFileState).completed {
 			self.config.logger.info("Businesses file already fully processed.");
 			return;
@@ -59,7 +60,7 @@ actor BusinessProcessor {
 				}
 				let data = try Self.jsonEncoder.encode(model) + Self.newline;
 				let avroData = try await self.avroEncode(model);
-				try await kafkaProducer(model, avroData);
+				try await kafkaProducer(model, confluentWireFormat.wrap(data: avroData));
 				try await writer.write(data: data);
 			}
 

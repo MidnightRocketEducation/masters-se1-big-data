@@ -20,16 +20,15 @@ extension AvroSchemaManager {
 	/**
 	 Returns a boolean indicating whether or not the schema was updated
 	 */
-	@discardableResult
-	static func push(to baseURL: URL, model: AvroProtocol.Type, subject: KafkaTopic) async throws -> Bool {
+	static func push(to baseURL: URL, model: AvroProtocol.Type, subject: KafkaTopic) async throws -> RegistryId {
 		let subjectURL = baseURL.appending(components: "subjects", subject.schemaSubject, "versions");
 
-		try await WebClient.post(
+		let data = try await WebClient.post(
 			url: subjectURL,
 			body: try RegistrySchema(from: model).toJSON(),
 			contentType: .confluentSchema
 		);
-		return true;
+		return try jsonDecoder.decode(RegistryId.self, from: data);
 	}
 
 	static func get(from baseURL: URL, model: AvroProtocol.Type, subject: String? = nil) async throws -> AvroSchemaDefinition? {
@@ -73,5 +72,12 @@ extension AvroSchemaManager {
 
 	enum Error: Swift.Error {
 		case invalidEncoding;
+	}
+}
+
+
+extension AvroSchemaManager {
+	struct RegistryId: Codable {
+		let id: Int32;
 	}
 }

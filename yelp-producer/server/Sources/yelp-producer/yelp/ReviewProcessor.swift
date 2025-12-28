@@ -8,14 +8,16 @@ actor ReviewProcessor {
 	let sourceFile: FileHandle;
 	let businesses: [String: BusinessModel];
 	let avro = AvroEncoder(schema: ReviewModel.avroSchema);
+	let confluentWireFormat: ConfluentWireFormat;
 	var until: Date? = nil;
 	var cancelHandle: @Sendable () async -> Void = {}
 
 
-	init(stateManager: StateM, sourceFile: URL, businesses: [String: BusinessModel]) throws {
+	init(stateManager: StateM, sourceFile: URL, businesses: [String: BusinessModel], schemaID: AvroSchemaManager.RegistryId) throws {
 		self.sourceFile = try FileHandle(forReadingFrom: sourceFile);
 		self.stateManager = stateManager;
 		self.businesses = businesses;
+		self.confluentWireFormat = .init(id: schemaID);
 	}
 
 	func processFile(kafkaProducer: @Sendable (ReviewModel, Data) async throws -> Void) async throws {
@@ -43,7 +45,7 @@ actor ReviewProcessor {
 			}
 
 			let avroData = try await self.avroEncode(model);
-			try await kafkaProducer(model, avroData);
+			try await kafkaProducer(model, self.confluentWireFormat.wrap(data: avroData));
 		}
 
 		do {

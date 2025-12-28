@@ -12,7 +12,8 @@ struct ReviewFutureServiceComponent: ServiceComponent {
 				update: {try await config.stateManager.update(key: \.reviewsFileStateFuture, to: $0)}
 			),
 			sourceFile: config.options.sourceDirectory + YelpFilenames.reviewsFuture,
-			businesses: businesses
+			businesses: businesses,
+			schemaID: await config.stateManager.get(key: \.reviewSchemaID) ?? .init(id: 0)
 		);
 		self.batchProcessor = await AsyncLimitedBatchProcessor();
 	}

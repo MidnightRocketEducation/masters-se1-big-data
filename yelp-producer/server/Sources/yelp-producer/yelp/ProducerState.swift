@@ -3,7 +3,8 @@ public struct ProducerState: Codable {
 	var businessesFileState: CancelableFileReading.State;
 	var reviewsFileStatePast: CancelableFileReading.State;
 	var reviewsFileStateFuture: CancelableFileReading.State;
-	var hasUploadedSchema: Bool;
+	var businessSchemaID: AvroSchemaManager.RegistryId?;
+	var reviewSchemaID: AvroSchemaManager.RegistryId?;
 	var clockState: Date;
 }
 
@@ -13,7 +14,8 @@ extension ProducerState {
 			businessesFileState: .new,
 			reviewsFileStatePast: .new,
 			reviewsFileStateFuture: .new,
-			hasUploadedSchema: false,
+			businessSchemaID: nil,
+			reviewSchemaID: nil,
 			clockState: .distantPast
 		);
 	}

@@ -32,14 +32,20 @@ struct yelp_producer: AsyncParsableCommand {
 			}
 		}
 
-		if !(await config.stateManager.get(key: \.hasUploadedSchema)) {
-			config.logger.info("Generates avro schema files")
+		if await config.stateManager.get(key: \.businessSchemaID) == nil {
+			config.logger.info("Generates avro schema files for review");
 			try AvroSchemaManager.write(to: config.options.stateDirectory, from: BusinessModel.self);
+			config.logger.info("Pushing avro schema files to registry at: \(config.options.schemaRegistry.absoluteString)");
+			let businessSchemaID = try await AvroSchemaManager.push(to: config.options.schemaRegistry, model: BusinessModel.self, subject: .businessEvent);
+			try await config.stateManager.update(key: \.businessSchemaID, to: businessSchemaID);
+		}
+
+		if await config.stateManager.get(key: \.reviewSchemaID) == nil {
+			config.logger.info("Generates avro schema files for business");
 			try AvroSchemaManager.write(to: config.options.stateDirectory, from: ReviewModel.self);
 			config.logger.info("Pushing avro schema files to registry at: \(config.options.schemaRegistry.absoluteString)");
-			try await AvroSchemaManager.push(to: config.options.schemaRegistry, model: ReviewModel.self, subject: .reviewEvent);
-			try await AvroSchemaManager.push(to: config.options.schemaRegistry, model: BusinessModel.self, subject: .businessEvent);
-			try await config.stateManager.update(key: \.hasUploadedSchema, to: true);
+			let reviewSchemaID = try await AvroSchemaManager.push(to: config.options.schemaRegistry, model: ReviewModel.self, subject: .reviewEvent);
+			try await config.stateManager.update(key: \.reviewSchemaID, to: reviewSchemaID);
 		}
 
 
