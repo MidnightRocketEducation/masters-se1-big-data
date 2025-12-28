@@ -22,8 +22,6 @@ jobs:
   build-yelp-dataset-fetcher:
     runs-on: ubuntu-latest
     env:
-      CACHE_PATH: yelp-producer/content-fetcher/cache
-
       # The base name of the docker image. e.g. ghcr.io/<REPO_NAME>/<DOCKER_IMAGE_NAME>:<VERSION_TAG>
       DOCKER_IMAGE_NAME: yelp-producer/fetcher
 
@@ -39,14 +37,6 @@ jobs:
         with:
           sparse-checkout: |
             ${{ env.SUBPROJECT_PATH }}
-
-      - name: Cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.CACHE_PATH }}
-          key: ${{ github.job }}-${{ runner.os }}
-          restore-keys: |
-            ${{ runner.os }}-
 
       # 2️⃣ Log in to GitHub Container Registry (ghcr.io)
       #    GITHUB_TOKEN is automatically injected into the runner.
@@ -84,13 +74,11 @@ jobs:
             org.opencontainers.image.source=${{ github.repositoryUrl }}
             org.opencontainers.image.version=${{ github.sha }}
 
-          cache-from: type=local,src=${{ env.CACHE_PATH }}
-          cache-to: type=local,dest=${{ env.CACHE_PATH }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
   build-yelp-dataset-server:
     runs-on: ubuntu-latest
     env:
-      CACHE_PATH: yelp-producer/server/cache
-
       # The base name of the docker image. e.g. ghcr.io/<REPO_NAME>/<DOCKER_IMAGE_NAME>:<VERSION_TAG>
       DOCKER_IMAGE_NAME: yelp-producer/server
       APP_NAME: yp-daemon
@@ -107,14 +95,6 @@ jobs:
         with:
           sparse-checkout: |
             ${{ env.SUBPROJECT_PATH }}
-
-      - name: Cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.CACHE_PATH }}
-          key: ${{ github.job }}-${{ runner.os }}
-          restore-keys: |
-            ${{ runner.os }}-${{ hashFiles(format('{0}/**/Package.resolved', env.SUBPROJECT_PATH)) }}
 
       # 2️⃣ Log in to GitHub Container Registry (ghcr.io)
       #    GITHUB_TOKEN is automatically injected into the runner.
@@ -161,5 +141,5 @@ jobs:
             org.opencontainers.image.source=${{ github.repositoryUrl }}
             org.opencontainers.image.version=${{ github.sha }}
 
-          cache-from: type=local,src=${{ env.CACHE_PATH }}
-          cache-to: type=local,dest=${{ env.CACHE_PATH }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
