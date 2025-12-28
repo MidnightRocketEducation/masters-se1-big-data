@@ -24,6 +24,7 @@ public class KafkaConnectionConfig {
     @Value("${kafka.schema-registry-url}")
     private String schemaRegistryUrl;
 
+    // Producer Configuration
     @Bean
     public ProducerFactory<String, WeatherEvent> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();

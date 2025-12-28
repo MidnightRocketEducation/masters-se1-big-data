@@ -1,4 +1,3 @@
-// File: src/main/java/dk/sdu/bigdata/weather/producer/application/CsvStreamReader.java
 package dk.sdu.bigdata.weather.producer.application;
 
 import com.opencsv.CSVReader;
@@ -219,11 +218,6 @@ public class CsvStreamReader implements AutoCloseable {
     }
 
     private WeatherEvent buildWeatherEvent(String[] record) {
-        // Reuse existing parsing logic from ProcessCsvFileUseCase
-        // We need to adapt it to work with our use case
-
-        // For now, let's create a simple adapter that uses similar logic
-        // In production, you might want to extract this logic to a shared utility
         WeatherEvent.Builder builder = WeatherEvent.newBuilder();
 
         try {

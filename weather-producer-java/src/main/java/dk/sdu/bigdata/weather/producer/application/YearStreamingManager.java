@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.time.Year;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -70,7 +69,6 @@ public class YearStreamingManager {
         logger.info("Year streaming manager stopped");
     }
 
-    // Update YearStreamingManager.java - add debug logging
     private void checkAndActivateYears() {
         try {
             Optional<Instant> currentTime = timeProvider.getCurrentTime();

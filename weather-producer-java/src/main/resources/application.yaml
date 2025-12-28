@@ -35,8 +35,8 @@ weather:
 
 logging:
   level:
-    dk.sdu.bigdata.weather.producer: DEBUG
-    org.apache.kafka: WARN
+    dk.sdu.bigdata.weather.producer: INFO
+    org.apache.kafka: INFO
 #    org.springframework.kafka: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
