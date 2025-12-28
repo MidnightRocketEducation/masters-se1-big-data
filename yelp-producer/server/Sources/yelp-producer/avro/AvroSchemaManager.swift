@@ -3,15 +3,10 @@ import Foundation;
 import CodingKeysGenerator;
 
 struct AvroSchemaManager {
-	static let jsonEncoder: JSONEncoder = {
-		let jsonEncoder = JSONEncoder();
-		jsonEncoder.outputFormatting = .sortedKeys;
-		return jsonEncoder;
-	}();
 	static let jsonDecoder: JSONDecoder = JSONDecoder();
 
 	static func generate(from model: AvroProtocol.Type) throws -> Data {
-		return try jsonEncoder.encode(model.avroSchema);
+		return try Data(model.avroSchemaString.utf8);
 	}
 
 	static func write(to url: URL, from model: AvroProtocol.Type) throws {
@@ -53,13 +48,12 @@ extension AvroSchemaManager {
 	}
 
 	struct RegistrySchema: Codable {
+		static let jsonEncoder: JSONEncoder = JSONEncoder();
+
 		let schema: String;
 
 		init(schema: AvroSchemaDefinition) throws {
-			guard let schema = String(data: try jsonEncoder.encode(schema), encoding: .utf8) else {
-				throw Error.invalidEncoding;
-			}
-			self.schema = schema;
+			self.schema = try schema.toJSONString();
 		}
 
 		init(from model: AvroProtocol.Type) throws {
@@ -67,7 +61,7 @@ extension AvroSchemaManager {
 		}
 
 		func toJSON() throws -> Data {
-			try jsonEncoder.encode(self);
+			try Self.jsonEncoder.encode(self);
 		}
 	}
 
