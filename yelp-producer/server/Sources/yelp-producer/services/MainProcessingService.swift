@@ -42,6 +42,8 @@ actor MainProcessingService: Service {
 		while true {
 			do {
 				try await self.processFutureReview(businesses: businesses);
+				self.config.logger.info("Done processing future events. Waiting indefinitely, until reset of world clock.")
+				_ = try await self.config.clock.waitUntilWithSafeContinuity { _ in false }
 				return;
 			} catch let error as ClockContinuity.Error {
 				guard case .brokenContinuity = error else {
