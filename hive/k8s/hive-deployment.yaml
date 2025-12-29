@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: hiveserver2
-        image: apache/hive:4.1.0
+        image: apache/hive:4.0.1
         env:
         - name: SERVICE_NAME
           value: "hiveserver2"

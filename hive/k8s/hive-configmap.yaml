@@ -48,6 +48,10 @@ data:
         <value>false</value>
       </property>
       <property>
+        <name>hive.metastore.sasl.enabled</name>
+        <value>false</value>
+      </property>
+      <property>
         <name>hive.server2.metrics.enabled</name>
         <value>true</value>
       </property>
