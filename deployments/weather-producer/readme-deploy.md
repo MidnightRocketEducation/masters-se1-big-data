@@ -25,8 +25,22 @@ You can curl from any pod shell within the same k8s namespace.
 - The pod must have curl installed.
 
 ### Start publishing weather data from source
-If not setup otherwise data are here `/data`
-
 ```zsh
-curl -X POST "http://weather-producer-svc:8080/api/v1/weather-producer/produce-from-path?path=/data"
+curl -X POST http://weather-producer-svc:8080/api/v1/weather-producer/start-streaming
 ```
+
+### Stop publishing weather data from source
+```zsh
+curl -X POST http://weather-producer-svc:8080/api/v1/weather-producer/stop-streaming
+```
+
+### Get streaiming status
+```zsh
+curl -X GET http://weather-producer-svc:8080/api/v1/weather-producer/streaming-stats
+```
+
+### Get current time in weather-producer
+```zsh
+curl -X GET http://weather-producer-svc:8080/api/v1/weather-producer/current-time
+```
+
