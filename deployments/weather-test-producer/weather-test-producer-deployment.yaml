@@ -39,7 +39,7 @@ spec:
             - name: KAFKA_TOPIC_WEATHER
               value: "weather2-test"
             - name: KAFKA_TOPIC_WORLD_CLOCK
-              value: "world-clock"
+              value: "world-clock-test"
             - name: KAFKA_SCHEMA_REGISTRY_URL
               value: "http://kafka-schema-registry:8081"
       volumes:
