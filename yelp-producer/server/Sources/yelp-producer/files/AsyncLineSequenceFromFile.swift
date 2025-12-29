@@ -1,0 +1,58 @@
+import Foundation;
+
+struct AsyncLineSequenceFromFile: AsyncSequence {
+	fileprivate static let lineSeperator = "\n";
+	fileprivate static let BUFFER_SIZE: Int = 16_384;
+
+	typealias Element = String;
+
+	private let fileHandle: FileHandle;
+
+	init(from fileHandle: FileHandle) {
+		self.fileHandle = fileHandle;
+	}
+
+	struct AsyncIterator: AsyncIteratorProtocol {
+		private let fileHandle: FileHandle;
+		private var lines: [String.SubSequence] = [];
+
+		init(_ fileHandle: FileHandle) {
+			self.fileHandle = fileHandle
+		}
+
+		mutating func next() async throws -> Element? {
+			if self.lines.count <= 1 {
+				// try to read more if one line or less is left
+				try self.readMore();
+			}
+
+			if self.lines.isEmpty || (self.lines.count == 1 && self.lines.first!.isEmpty) {
+				// return nil if still empty
+				// Of if on trailing newline.
+				return nil;
+			}
+
+			return String(self.lines.removeFirst());
+		}
+
+		private mutating func readMore() throws {
+			guard let data = try self.fileHandle.read(upToCount: AsyncLineSequenceFromFile.BUFFER_SIZE) else {
+				// Return if no more data left
+				return;
+			}
+
+			let newString = String(decoding: data, as: UTF8.self);
+			/*
+			 Combine current lines into string.
+			 Then add the new string and again split by lines.
+			 This prevents broken lines across buffer berriers.
+			 */
+			let currentStr = self.lines.joined(separator: AsyncLineSequenceFromFile.lineSeperator);
+			self.lines = (currentStr + newString).split(separator: AsyncLineSequenceFromFile.lineSeperator, omittingEmptySubsequences: false);
+		}
+	}
+
+	func makeAsyncIterator() -> AsyncIterator {
+		return AsyncIterator(self.fileHandle);
+	}
+}
