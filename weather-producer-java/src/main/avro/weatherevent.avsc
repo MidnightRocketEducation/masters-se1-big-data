@@ -1,0 +1,22 @@
+{
+  "type": "record",
+  "name": "WeatherEvent",
+  "namespace": "dk.sdu.bigdata.weather.producer.core",
+  "fields": [
+    { "name": "Station", "type": "long" },
+    { "name": "Date", "type": "string" },
+    { "name": "Latitude", "type": "double" },
+    { "name": "Longitude", "type": "double" },
+    { "name": "Elevation", "type": "double" },
+    { "name": "Name", "type": "string" },
+    { "name": "ReportType", "type": "string" },
+    { "name": "Source", "type": ["null", "string", "int"], "default": null },
+    { "name": "HourlyDryBulbTemperature", "type": ["null", "double"], "default": null },
+    { "name": "HourlySeaLevelPressure", "type": ["null", "double"], "default": null },
+    { "name": "HourlyVisibility", "type": ["null", "double"], "default": null },
+    { "name": "HourlyWindDirection", "type": ["null", "double"], "default": null },
+    { "name": "HourlyWindSpeed", "type": ["null", "double"], "default": null },
+    { "name": "HourlyPrecipitation", "type": ["null", "string", "double"], "default": null },
+    { "name": "HourlyRelativeHumidity", "type": ["null", "double"], "default": null }
+  ]
+}

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: world-clock-test-producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: world-clock-test-producer
+  template:
+    metadata:
+      labels:
+        app: world-clock-test-producer
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      containers:
+        - name: world-clock-test-producer
+          image: ghcr.io/midnightrocketeducation/world-clock-producer:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka:9092"
+            - name: KAFKA_REPLICATION_FACTOR
+              value: "1"
+            - name: KAFKA_PARTITIONS
+              value: "3"
+            - name: KAFKA_TOPIC_WORLD_CLOCK
+              value: "world-clock-test"
+            - name: ONE_HOUR_EQUALS
+              value: "10000"
+            - name: START_DATE_TIME
+              value: "2008-01-02T09:31:00Z"

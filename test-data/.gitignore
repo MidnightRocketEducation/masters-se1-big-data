@@ -1,0 +1,8 @@
+# Ignore data files kept for development purposes.
+*.csv
+*.json
+
+# Ignore imported json viewer. Can be found at: https://github.com/AquaHorseM/JsonDataViewer.git
+/JsonDataViewer/
+
+

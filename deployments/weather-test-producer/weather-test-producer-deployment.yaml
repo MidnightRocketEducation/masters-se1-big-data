@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-test-producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: weather-test-producer
+  template:
+    metadata:
+      labels:
+        app: weather-test-producer
+    spec:
+      containers:
+        - name: weather-test-producer
+          image: ghcr.io/midnightrocketeducation/weather-producer:latest
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          workingDir: /data
+          resources:
+            requests:
+              cpu: "2"
+              memory: "512Mi"
+            limits:
+              cpu: "4"
+              memory: "8Gi"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka:9092"
+            - name: KAFKA_REPLICATION_FACTOR
+              value: "1"
+            - name: KAFKA_PARTITIONS
+              value: "3"
+            - name: KAFKA_TOPIC_WEATHER
+              value: "weather2-test"
+            - name: KAFKA_TOPIC_WORLD_CLOCK
+              value: "world-clock-test"
+            - name: KAFKA_SCHEMA_REGISTRY_URL
+              value: "http://kafka-schema-registry:8081"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: weather-data-pvc
