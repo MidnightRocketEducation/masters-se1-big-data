@@ -8,6 +8,10 @@ Yelp producer daemon deployment consists of the following components
 
 
 # Reseting the server
-Under most circumstances reseting the PV claim for server state
-and restarting the yelp-daemon container is enough. 
+Under most circumstances reseting the PV claim for server state,
+yelp producer and topics.
 This means that yelp data does not need to be downloaded again. 
+
+This can be done by using the `reset`
+```sh
+```

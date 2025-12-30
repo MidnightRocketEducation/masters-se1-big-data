@@ -1,0 +1,140 @@
+#!/bin/sh
+set -eu
+SCRIPT_DIR="$(realpath -- "$(dirname -- "$0")")"; readonly SCRIPT_DIR;
+print() { printf "%b%b" "${1-""}" "${2-"\\n"}"; }
+stderr() { print "$@" 1>&2; }
+reportError() { stderr "$2"; return "$1"; }
+verbosePrint() { { test -n "${VERBOSE_MODE+x}" && stderr "$@"; } || true; }
+
+commandv() { command -v "$1" || reportError "$?" "Executable '$1' not found"; }
+
+
+help() {
+	cat <<-EOF
+	$(basename "$0") [-h] [-n] [--full-reset]
+	   If no options are specified then a reboot of the yelp service is performed.
+
+	   Flags:
+	   --dryrun, -n   Do not perform any actions. Displays commands run.
+	   --full-reset   Completely reset state, and topics. However keeps downloaded raw yelp data.
+	EOF
+}
+
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+		-h | --help)
+			help # Define help function
+			exit 0
+			;;
+		-n | --dryrun) DRYRUN_MODE=1 ;;
+		--full-reset) FULL_RESET_MODE=1 ;;
+	esac
+	shift
+done
+
+kctl="$(commandv kubectl)"
+
+# https://www.ascii-code.com/
+# shellcheck disable=SC2155
+readonly ASCII_CODE_ETX="$(printf "\003")" # End of Text (SIGINT)
+# shellcheck disable=SC2155
+readonly ASCII_CODE_ESC="$(printf "\e")" # Escape
+# shellcheck disable=SC2155
+readonly ASCII_CODE_CR="$(printf "\r")" # Carriage Return
+# Return codes:
+# - 0 = yes
+# - 10 = no
+# - 11 = default
+# - 12 = other
+# - 130 = cancel
+promptYesNo() {
+	# https://stackoverflow.com/a/27875395
+	# https://unix.stackexchange.com/a/493788
+	_stty="/bin/stty"
+	_PROMPT_SUFFIX="${2:-"[y/N]?"}"
+
+	printf "%b %b " "$1" "$_PROMPT_SUFFIX" 1>&2
+
+	# stty changes how the terminal behaves
+	# It is VERY important to restore settings afterwards
+	if [ -t 0 ]; then
+		_OLD_STTY_CFG="$($_stty -g)"
+		"$_stty" raw -echo
+	fi
+	_ANSWER="$(head -c 1)"
+	if [ -n "${_OLD_STTY_CFG+x}" ]; then
+		"$_stty" "$_OLD_STTY_CFG" 2>/dev/null || "$_stty" "sane" # Restore stty settings
+	fi
+	# printf "%s" "$_ANSWER" | od -tx1 -tc # Debug
+
+	case "$_ANSWER" in
+		[yY] )
+			stderr "${PROMPT_PRINT_YES:-"Yes"}"
+			return "${PROMPT_EXIT_CODE_YES:-0}"
+			;;
+		[nN] )
+			stderr "${PROMPT_PRINT_NO:-"No"}"
+			return "${PROMPT_EXIT_CODE_NO:-10}"
+			;;
+		[cCqQ] | "$ASCII_CODE_ETX" | "$ASCII_CODE_ESC" )
+			# ^C meta character. To insert in Vim (insert mode) ^V ^C (addtionally add <ESC> with ^V <ESC>)
+			# Because of stty set to raw mode, 
+			# the ^C is read by head, instead of sending interrupt signal
+			stderr "${PROMPT_PRINT_CANCEL:-"Cancel"}"
+			return "${PROMPT_EXIT_CODE_CANCEL:-130}"
+			;;
+		"$ASCII_CODE_CR" )
+			# ^M meta character. To insert in Vim (insert mode) ^V <Enter> (or ^M)
+			# Because of stty set to raw mode, 
+			# the <Enter> is read by head, instead of sending interrupt signal
+			stderr "${PROMPT_PRINT_DEFAULT:-"Default"}"
+			return "${PROMPT_EXIT_CODE_DEFAULT:-11}"
+			;;
+		* )
+			stderr "${PROMPT_PRINT_OTHER:-"Other"}"
+			return "${PROMPT_EXIT_CODE_OTHER:-12}"
+			;;
+	esac
+}
+
+
+
+dryexec() {
+	if [ -n "${DRYRUN_MODE+x}" ]; then
+		printf "dryrun: %s\n" "$*" >&2
+	else
+		"$@"
+	fi
+}
+
+restart() {
+	stderr "Restarting yelp producer, but keep state and data."
+	dryexec kubectl delete -f yelp-producer-server.yml
+	dryexec sleep 2
+	dryexec kubectl apply -f yelp-producer-server.yml
+}
+
+fullreset() {
+	PROMPT_PRINT_DEFAULT="No"
+	PROMPT_PRINT_OTHER="No"
+	if promptYesNo "Do you want to reset yelp producer state, and related topics?"; then
+		stderr "Deleting yelp producer and state"
+		dryexec kubectl delete -f pv-server-state.yml -f yelp-producer-server.yml
+		dryexec sleep 2
+		stderr "Deleting topics"
+		dryexec kubectl exec -it kafka-client -- kafka-topics.sh --bootstrap-server kafka:9092 --delete --topic review-event || true
+		dryexec kubectl exec -it kafka-client -- kafka-topics.sh --bootstrap-server kafka:9092 --delete --topic business-event || true
+		stderr "starting yelp producer again"
+		dryexec kubectl apply -f pv-server-state.yml -f yelp-producer-server.yml
+	else
+		exit 1
+	fi
+}
+
+cd "$SCRIPT_DIR"
+
+if [ -n "${FULL_RESET_MODE+x}" ]; then
+	fullreset
+else
+	restart
+fi
