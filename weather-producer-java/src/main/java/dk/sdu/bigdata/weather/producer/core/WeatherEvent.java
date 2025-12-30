@@ -14,10 +14,10 @@ import org.apache.avro.message.SchemaStore;
 
 @org.apache.avro.specific.AvroGenerated
 public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = 2645416463419554761L;
+  private static final long serialVersionUID = 1042560991474063628L;
 
 
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"WeatherEvent\",\"namespace\":\"dk.sdu.bigdata.weather.producer.core\",\"fields\":[{\"name\":\"Station\",\"type\":\"long\"},{\"name\":\"Date\",\"type\":\"string\"},{\"name\":\"Latitude\",\"type\":\"double\"},{\"name\":\"Longitude\",\"type\":\"double\"},{\"name\":\"Elevation\",\"type\":\"double\"},{\"name\":\"Name\",\"type\":\"string\"},{\"name\":\"ReportType\",\"type\":\"string\"},{\"name\":\"Source\",\"type\":[\"null\",\"int\"],\"default\":null},{\"name\":\"HourlyDryBulbTemperature\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlySeaLevelPressure\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyVisibility\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyWindDirection\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyWindSpeed\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyPrecipitation\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyRelativeHumidity\",\"type\":[\"null\",\"double\"],\"default\":null}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"WeatherEvent\",\"namespace\":\"dk.sdu.bigdata.weather.producer.core\",\"fields\":[{\"name\":\"Station\",\"type\":\"long\"},{\"name\":\"RecordDate\",\"type\":\"string\"},{\"name\":\"Latitude\",\"type\":\"double\"},{\"name\":\"Longitude\",\"type\":\"double\"},{\"name\":\"Elevation\",\"type\":\"double\"},{\"name\":\"Name\",\"type\":\"string\"},{\"name\":\"ReportType\",\"type\":\"string\"},{\"name\":\"Source\",\"type\":[\"null\",\"int\"],\"default\":null},{\"name\":\"HourlyDryBulbTemperature\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlySeaLevelPressure\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyVisibility\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyWindDirection\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyWindSpeed\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyPrecipitation\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyRelativeHumidity\",\"type\":[\"null\",\"double\"],\"default\":null}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static final SpecificData MODEL$ = new SpecificData();
@@ -74,7 +74,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
   }
 
   private long Station;
-  private java.lang.CharSequence Date;
+  private java.lang.CharSequence RecordDate;
   private double Latitude;
   private double Longitude;
   private double Elevation;
@@ -99,7 +99,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
   /**
    * All-args constructor.
    * @param Station The new value for Station
-   * @param Date The new value for Date
+   * @param RecordDate The new value for RecordDate
    * @param Latitude The new value for Latitude
    * @param Longitude The new value for Longitude
    * @param Elevation The new value for Elevation
@@ -114,9 +114,9 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
    * @param HourlyPrecipitation The new value for HourlyPrecipitation
    * @param HourlyRelativeHumidity The new value for HourlyRelativeHumidity
    */
-  public WeatherEvent(java.lang.Long Station, java.lang.CharSequence Date, java.lang.Double Latitude, java.lang.Double Longitude, java.lang.Double Elevation, java.lang.CharSequence Name, java.lang.CharSequence ReportType, java.lang.Integer Source, java.lang.Double HourlyDryBulbTemperature, java.lang.Double HourlySeaLevelPressure, java.lang.Double HourlyVisibility, java.lang.Double HourlyWindDirection, java.lang.Double HourlyWindSpeed, java.lang.Double HourlyPrecipitation, java.lang.Double HourlyRelativeHumidity) {
+  public WeatherEvent(java.lang.Long Station, java.lang.CharSequence RecordDate, java.lang.Double Latitude, java.lang.Double Longitude, java.lang.Double Elevation, java.lang.CharSequence Name, java.lang.CharSequence ReportType, java.lang.Integer Source, java.lang.Double HourlyDryBulbTemperature, java.lang.Double HourlySeaLevelPressure, java.lang.Double HourlyVisibility, java.lang.Double HourlyWindDirection, java.lang.Double HourlyWindSpeed, java.lang.Double HourlyPrecipitation, java.lang.Double HourlyRelativeHumidity) {
     this.Station = Station;
-    this.Date = Date;
+    this.RecordDate = RecordDate;
     this.Latitude = Latitude;
     this.Longitude = Longitude;
     this.Elevation = Elevation;
@@ -143,7 +143,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
   public java.lang.Object get(int field$) {
     switch (field$) {
     case 0: return Station;
-    case 1: return Date;
+    case 1: return RecordDate;
     case 2: return Latitude;
     case 3: return Longitude;
     case 4: return Elevation;
@@ -167,7 +167,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
     case 0: Station = (java.lang.Long)value$; break;
-    case 1: Date = (java.lang.CharSequence)value$; break;
+    case 1: RecordDate = (java.lang.CharSequence)value$; break;
     case 2: Latitude = (java.lang.Double)value$; break;
     case 3: Longitude = (java.lang.Double)value$; break;
     case 4: Elevation = (java.lang.Double)value$; break;
@@ -203,20 +203,20 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
   }
 
   /**
-   * Gets the value of the 'Date' field.
-   * @return The value of the 'Date' field.
+   * Gets the value of the 'RecordDate' field.
+   * @return The value of the 'RecordDate' field.
    */
-  public java.lang.CharSequence getDate() {
-    return Date;
+  public java.lang.CharSequence getRecordDate() {
+    return RecordDate;
   }
 
 
   /**
-   * Sets the value of the 'Date' field.
+   * Sets the value of the 'RecordDate' field.
    * @param value the value to set.
    */
-  public void setDate(java.lang.CharSequence value) {
-    this.Date = value;
+  public void setRecordDate(java.lang.CharSequence value) {
+    this.RecordDate = value;
   }
 
   /**
@@ -482,7 +482,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
     implements org.apache.avro.data.RecordBuilder<WeatherEvent> {
 
     private long Station;
-    private java.lang.CharSequence Date;
+    private java.lang.CharSequence RecordDate;
     private double Latitude;
     private double Longitude;
     private double Elevation;
@@ -512,8 +512,8 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
         this.Station = data().deepCopy(fields()[0].schema(), other.Station);
         fieldSetFlags()[0] = other.fieldSetFlags()[0];
       }
-      if (isValidValue(fields()[1], other.Date)) {
-        this.Date = data().deepCopy(fields()[1].schema(), other.Date);
+      if (isValidValue(fields()[1], other.RecordDate)) {
+        this.RecordDate = data().deepCopy(fields()[1].schema(), other.RecordDate);
         fieldSetFlags()[1] = other.fieldSetFlags()[1];
       }
       if (isValidValue(fields()[2], other.Latitude)) {
@@ -580,8 +580,8 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
         this.Station = data().deepCopy(fields()[0].schema(), other.Station);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.Date)) {
-        this.Date = data().deepCopy(fields()[1].schema(), other.Date);
+      if (isValidValue(fields()[1], other.RecordDate)) {
+        this.RecordDate = data().deepCopy(fields()[1].schema(), other.RecordDate);
         fieldSetFlags()[1] = true;
       }
       if (isValidValue(fields()[2], other.Latitude)) {
@@ -678,41 +678,41 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
     }
 
     /**
-      * Gets the value of the 'Date' field.
+      * Gets the value of the 'RecordDate' field.
       * @return The value.
       */
-    public java.lang.CharSequence getDate() {
-      return Date;
+    public java.lang.CharSequence getRecordDate() {
+      return RecordDate;
     }
 
 
     /**
-      * Sets the value of the 'Date' field.
-      * @param value The value of 'Date'.
+      * Sets the value of the 'RecordDate' field.
+      * @param value The value of 'RecordDate'.
       * @return This builder.
       */
-    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setDate(java.lang.CharSequence value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setRecordDate(java.lang.CharSequence value) {
       validate(fields()[1], value);
-      this.Date = value;
+      this.RecordDate = value;
       fieldSetFlags()[1] = true;
       return this;
     }
 
     /**
-      * Checks whether the 'Date' field has been set.
-      * @return True if the 'Date' field has been set, false otherwise.
+      * Checks whether the 'RecordDate' field has been set.
+      * @return True if the 'RecordDate' field has been set, false otherwise.
       */
-    public boolean hasDate() {
+    public boolean hasRecordDate() {
       return fieldSetFlags()[1];
     }
 
 
     /**
-      * Clears the value of the 'Date' field.
+      * Clears the value of the 'RecordDate' field.
       * @return This builder.
       */
-    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder clearDate() {
-      Date = null;
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder clearRecordDate() {
+      RecordDate = null;
       fieldSetFlags()[1] = false;
       return this;
     }
@@ -1240,7 +1240,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       try {
         WeatherEvent record = new WeatherEvent();
         record.Station = fieldSetFlags()[0] ? this.Station : (java.lang.Long) defaultValue(fields()[0]);
-        record.Date = fieldSetFlags()[1] ? this.Date : (java.lang.CharSequence) defaultValue(fields()[1]);
+        record.RecordDate = fieldSetFlags()[1] ? this.RecordDate : (java.lang.CharSequence) defaultValue(fields()[1]);
         record.Latitude = fieldSetFlags()[2] ? this.Latitude : (java.lang.Double) defaultValue(fields()[2]);
         record.Longitude = fieldSetFlags()[3] ? this.Longitude : (java.lang.Double) defaultValue(fields()[3]);
         record.Elevation = fieldSetFlags()[4] ? this.Elevation : (java.lang.Double) defaultValue(fields()[4]);
@@ -1288,7 +1288,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
   {
     out.writeLong(this.Station);
 
-    out.writeString(this.Date);
+    out.writeString(this.RecordDate);
 
     out.writeDouble(this.Latitude);
 
@@ -1373,7 +1373,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
     if (fieldOrder == null) {
       this.Station = in.readLong();
 
-      this.Date = in.readString(this.Date instanceof Utf8 ? (Utf8)this.Date : null);
+      this.RecordDate = in.readString(this.RecordDate instanceof Utf8 ? (Utf8)this.RecordDate : null);
 
       this.Latitude = in.readDouble();
 
@@ -1449,7 +1449,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
           break;
 
         case 1:
-          this.Date = in.readString(this.Date instanceof Utf8 ? (Utf8)this.Date : null);
+          this.RecordDate = in.readString(this.RecordDate instanceof Utf8 ? (Utf8)this.RecordDate : null);
           break;
 
         case 2:

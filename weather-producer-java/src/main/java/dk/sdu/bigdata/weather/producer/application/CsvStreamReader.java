@@ -226,7 +226,7 @@ public class CsvStreamReader implements AutoCloseable {
                 builder.setStation(Long.parseLong(record[0].trim()));
             }
             if (record.length > 1 && !record[1].trim().isEmpty()) {
-                builder.setDate(record[1].trim());
+                builder.setRecordDate(record[1].trim());
             }
             if (record.length > 2 && !record[2].trim().isEmpty()) {
                 builder.setLatitude(Double.parseDouble(record[2].trim()));

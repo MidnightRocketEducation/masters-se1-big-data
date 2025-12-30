@@ -4,7 +4,7 @@
   "namespace": "dk.sdu.bigdata.weather.producer.core",
   "fields": [
     { "name": "Station", "type": "long" },
-    { "name": "Date", "type": "string" },
+    { "name": "RecordDate", "type": "string" },
     { "name": "Latitude", "type": "double" },
     { "name": "Longitude", "type": "double" },
     { "name": "Elevation", "type": "double" },
