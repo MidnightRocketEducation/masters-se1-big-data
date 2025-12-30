@@ -13,14 +13,15 @@ struct ReviewModel: Codable {
 	init(from decoder: any Decoder) throws {
 		let container = try decoder.container(keyedBy: CodingKeys.self);
 		self.stars = try container.decode(Double.self, forKey: .stars);
-		self.date = try container.decode(Date.self, forKey: .date);
 		if let id = try container.decodeIfPresent(String.self, forKey: .id) {
 			self.id = id;
 			self.businessId = try container.decode(String.self, forKey: .businessId);
+			self.date = try container.decode(Date.self, forKey: .date);
 		} else {
 			let legacyContainer = try decoder.container(keyedBy: LegacyKeys.self);
 			self.id = try legacyContainer.decode(String.self, forKey: .id);
 			self.businessId = try legacyContainer.decode(String.self, forKey: .businessId);
+			self.date = try legacyContainer.decode(Date.self, forKey: .date);
 		}
 	}
 
@@ -28,12 +29,13 @@ struct ReviewModel: Codable {
 		case id;
 		case businessId;
 		case stars;
-		case date;
+		case date = "recordDate";
 	}
 
 	enum LegacyKeys: String, CodingKey {
 		case id = "review_id";
 		case businessId = "business_id";
+		case date;
 	}
 }
 

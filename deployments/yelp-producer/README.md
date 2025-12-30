@@ -14,4 +14,5 @@ This means that yelp data does not need to be downloaded again.
 
 This can be done by using the `reset`
 ```sh
+./reset --full-reset
 ```

@@ -13,7 +13,7 @@ let package = Package(
 		.package(url: "https://github.com/swift-server/swift-kafka-client", branch: "main"),
 		.package(url: "https://github.com/swift-server/swift-service-lifecycle.git", from: "2.0.0"),
 		.package(url: "https://github.com/zijievv/CodingKeysGenerator", revision: "51da1cd6f613c4329f880ad872790f9b7af46427"),
-		.package(url: "https://github.com/MidnightRocket/avro-swift", revision: "b560487e5abb1af81b64a8ac7c3d7601f570adbc"),
+		.package(url: "https://github.com/MidnightRocket/avro-swift", revision: "c6f150fe05b7eff059893952fc2b30b9a29e9dff"),
 		// .package(url: "https://github.com/lynixliu/SwiftAvroCore", from: "0.5.0"),
 	],
 	targets: [
