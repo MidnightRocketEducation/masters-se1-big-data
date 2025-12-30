@@ -21,3 +21,16 @@ spec:
         env:
         - name: SPARK_WORKER_WEBUI_PORT
           value: "8081"
+        - name: SPARK_WORKER_OPTS
+          value: "-Dspark.shuffle.service.enabled=true"
+        volumeMounts:
+        - name: hdfs-config
+          mountPath: /opt/spark/conf/core-site.xml
+          subPath: core-site.xml
+        - name: hdfs-config
+          mountPath: /opt/spark/conf/hdfs-site.xml
+          subPath: hdfs-site.xml
+      volumes:
+      - name: hdfs-config
+        configMap:
+          name: hdfs-config

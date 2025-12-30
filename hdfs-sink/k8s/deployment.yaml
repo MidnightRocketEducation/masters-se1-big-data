@@ -38,7 +38,7 @@ spec:
         - name: CONNECT_CONFIG_STORAGE_TOPIC
           value: "connect-configs"
         - name: CONNECT_OFFSET_STORAGE_TOPIC
-          value: "connect-offsets"
+          value: "connect-offsets-reset"
         - name: CONNECT_STATUS_STORAGE_TOPIC
           value: "connect-status"
         ports:

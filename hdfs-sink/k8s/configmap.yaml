@@ -26,9 +26,12 @@ data:
     partitioner.class=io.confluent.connect.storage.partitioner.DefaultPartitioner
     hive.integration=true
     hive.metastore.uris=thrift://hiveserver2-service:10000    
-    hive.metastore.sasl.enabled=false    
+    hive.metastore.sasl.enabled=false
+    hive.metastore.kerberos.principal=
+    hive.metastore.kerberos.keytab=
     confluent.topic.bootstrap.servers=kafka:9092
     schema.compatibility=FULL
+    errors.tolerance=all
   core-site.xml: |
     <?xml version="1.0" encoding="UTF-8"?>
     <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>

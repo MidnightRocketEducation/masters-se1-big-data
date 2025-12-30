@@ -12,14 +12,47 @@ spec:
       labels:
         app: hiveserver2
     spec:
+      initContainers:
+      - name: install-spark
+        image: apache/spark:3.5.0
+        command: ['sh', '-c', 'cp -r /opt/spark/ /tmp/spark/']
+        volumeMounts:
+        - name: spark-volume
+          mountPath: /tmp/spark
+      - name: init-hdfs-warehouse
+        image: apache/hadoop:3  # Use a Hadoop-compatible image
+        command: ['/bin/sh', '-c', 'hdfs dfs -mkdir -p /user/hive/warehouse && hdfs dfs -chmod -R 777 /user/hive/warehouse']
+        env:
+        - name: HADOOP_CONF_DIR
+          value: /etc/hadoop/conf
+        volumeMounts:
+        - name: hdfs-config
+          mountPath: /etc/hadoop/conf/core-site.xml
+          subPath: core-site.xml
+        - name: hdfs-config
+          mountPath: /etc/hadoop/conf/hdfs-site.xml
+          subPath: hdfs-site.xml
       containers:
       - name: hiveserver2
-        image: apache/hive:4.0.1
+        image: apache/hive:4.2.0
         env:
         - name: SERVICE_NAME
           value: "hiveserver2"
         - name: IS_RESUME
           value: "true"
+        - name: SPARK_HOME
+          value: "/opt/spark"
+        - name: PATH
+          value: "/opt/hive/bin:/opt/spark/bin:/opt/spark/sbin:/bin:/usr/bin:$PATH"
+        - name: JAVA_OPTS
+          value: "-Xms2G -Xmx200G"
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2"
+          limits:
+            memory: "200Gi"
+            cpu: "6"
         ports:
         - containerPort: 10000
         - containerPort: 10002
@@ -27,10 +60,16 @@ spec:
         - name: config-volume
           mountPath: /opt/hive/conf/hive-site.xml
           subPath: hive-site.xml
-        - name: warehouse-volume
-          mountPath: /opt/hive/data/warehouse
         - name: metastore-volume
           mountPath: /opt/hive/metastore
+        - name: spark-volume
+          mountPath: /opt/spark
+        - name: hdfs-config
+          mountPath: /opt/spark/conf/core-site.xml
+          subPath: core-site.xml
+        - name: hdfs-config
+          mountPath: /opt/spark/conf/hdfs-site.xml
+          subPath: hdfs-site.xml
       volumes:
       - name: config-volume
         configMap:
@@ -38,9 +77,11 @@ spec:
           items:
           - key: hive-site.xml
             path: hive-site.xml
-      - name: warehouse-volume
-        persistentVolumeClaim:
-          claimName: hive-warehouse-pvc
       - name: metastore-volume
         persistentVolumeClaim:
           claimName: hive-metastore-pvc
+      - name: spark-volume
+        emptyDir: {}
+      - name: hdfs-config
+        configMap:
+          name: hdfs-config
