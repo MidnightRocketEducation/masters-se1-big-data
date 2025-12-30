@@ -246,11 +246,15 @@ public class CsvStreamReader implements AutoCloseable {
 
             // Optional fields
             if (record.length > 7 && !record[7].trim().isEmpty()) {
-                String source = record[7].trim();
+//                String source = record[7].trim();
+
                 try {
-                    builder.setSource(Integer.parseInt(source));
+                    builder.setSource(Integer.parseInt(record[7].trim()));
+//                    builder.setSource(Integer.parseInt(source));
                 } catch (NumberFormatException e) {
-                    builder.setSource(source);
+//                    builder.setSource(source);
+                    logger.info("Invalid source value at line {}: '{}'", lineNumber.get(), record[7].trim());
+
                 }
             }
 
@@ -264,14 +268,14 @@ public class CsvStreamReader implements AutoCloseable {
             }
 
             // HourlyPrecipitation (index 11)
-            if (record.length > 11 && !record[11].trim().isEmpty()) {
-                String precip = record[11].trim();
-                try {
-                    builder.setHourlyPrecipitation(Double.parseDouble(precip));
-                } catch (NumberFormatException e) {
-                    builder.setHourlyPrecipitation(precip);
-                }
-            }
+//            if (record.length > 11 && !record[11].trim().isEmpty()) {
+//                String precip = record[11].trim();
+//                try {
+//                    builder.setHourlyPrecipitation(Double.parseDouble(precip));
+//                } catch (NumberFormatException e) {
+//                    builder.setHourlyPrecipitation(precip);
+//                }
+//            }
 
             // HourlyRelativeHumidity (index 15)
             if (record.length > 15 && !record[15].trim().isEmpty()) {
