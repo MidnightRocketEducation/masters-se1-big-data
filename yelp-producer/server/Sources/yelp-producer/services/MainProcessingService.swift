@@ -31,10 +31,17 @@ actor MainProcessingService: Service {
 			}
 		}
 
-		if self.config.options.resetFutureReviewsOnBrokenContinuity {
-			try await self.processFutureReviewWithRestartOnBrokenContinuity(businesses: businessDict);
-		} else {
-			try await self.processFutureReview(businesses: businessDict);
+		do {
+			if self.config.options.resetFutureReviewsOnBrokenContinuity {
+				try await self.processFutureReviewWithRestartOnBrokenContinuity(businesses: businessDict);
+			} else {
+				try await self.processFutureReview(businesses: businessDict);
+			}
+		} catch let error as ClockContinuity.Error {
+			guard case .waitCancelled = error else {
+				throw error;
+			}
+			self.config.logger.info("Clock wait cancelled. Exiting.");
 		}
 	}
 

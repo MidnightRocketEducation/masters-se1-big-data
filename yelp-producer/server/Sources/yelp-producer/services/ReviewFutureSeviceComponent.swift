@@ -19,16 +19,9 @@ struct ReviewFutureServiceComponent: ServiceComponent {
 	}
 
 	func run() async throws -> Void {
-		do {
 			self.config.logger.info("Begin import \(YelpFilenames.reviewsFuture)");
 			try await self.processFiles();
 			self.config.logger.info("Done import \(YelpFilenames.reviewsFuture)");
-		} catch let error as ClockContinuity.Error {
-			guard case .waitCancelled = error else {
-				throw error;
-			}
-			self.config.logger.info("Clock wait cancelled. Exiting.")
-		}
 	}
 
 	func processFiles() async throws {
