@@ -14,10 +14,10 @@ import org.apache.avro.message.SchemaStore;
 
 @org.apache.avro.specific.AvroGenerated
 public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = 6948264584523279278L;
+  private static final long serialVersionUID = 2645416463419554761L;
 
 
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"WeatherEvent\",\"namespace\":\"dk.sdu.bigdata.weather.producer.core\",\"fields\":[{\"name\":\"Station\",\"type\":\"long\"},{\"name\":\"Date\",\"type\":\"string\"},{\"name\":\"Latitude\",\"type\":\"double\"},{\"name\":\"Longitude\",\"type\":\"double\"},{\"name\":\"Elevation\",\"type\":\"double\"},{\"name\":\"Name\",\"type\":\"string\"},{\"name\":\"ReportType\",\"type\":\"string\"},{\"name\":\"Source\",\"type\":[\"null\",\"string\",\"int\"],\"default\":null},{\"name\":\"HourlyDryBulbTemperature\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlySeaLevelPressure\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyVisibility\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyWindDirection\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyWindSpeed\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyPrecipitation\",\"type\":[\"null\",\"string\",\"double\"],\"default\":null},{\"name\":\"HourlyRelativeHumidity\",\"type\":[\"null\",\"double\"],\"default\":null}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"WeatherEvent\",\"namespace\":\"dk.sdu.bigdata.weather.producer.core\",\"fields\":[{\"name\":\"Station\",\"type\":\"long\"},{\"name\":\"Date\",\"type\":\"string\"},{\"name\":\"Latitude\",\"type\":\"double\"},{\"name\":\"Longitude\",\"type\":\"double\"},{\"name\":\"Elevation\",\"type\":\"double\"},{\"name\":\"Name\",\"type\":\"string\"},{\"name\":\"ReportType\",\"type\":\"string\"},{\"name\":\"Source\",\"type\":[\"null\",\"int\"],\"default\":null},{\"name\":\"HourlyDryBulbTemperature\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlySeaLevelPressure\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyVisibility\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyWindDirection\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyWindSpeed\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyPrecipitation\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyRelativeHumidity\",\"type\":[\"null\",\"double\"],\"default\":null}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static final SpecificData MODEL$ = new SpecificData();
@@ -80,13 +80,13 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
   private double Elevation;
   private java.lang.CharSequence Name;
   private java.lang.CharSequence ReportType;
-  private java.lang.Object Source;
+  private java.lang.Integer Source;
   private java.lang.Double HourlyDryBulbTemperature;
   private java.lang.Double HourlySeaLevelPressure;
   private java.lang.Double HourlyVisibility;
   private java.lang.Double HourlyWindDirection;
   private java.lang.Double HourlyWindSpeed;
-  private java.lang.Object HourlyPrecipitation;
+  private java.lang.Double HourlyPrecipitation;
   private java.lang.Double HourlyRelativeHumidity;
 
   /**
@@ -114,7 +114,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
    * @param HourlyPrecipitation The new value for HourlyPrecipitation
    * @param HourlyRelativeHumidity The new value for HourlyRelativeHumidity
    */
-  public WeatherEvent(java.lang.Long Station, java.lang.CharSequence Date, java.lang.Double Latitude, java.lang.Double Longitude, java.lang.Double Elevation, java.lang.CharSequence Name, java.lang.CharSequence ReportType, java.lang.Object Source, java.lang.Double HourlyDryBulbTemperature, java.lang.Double HourlySeaLevelPressure, java.lang.Double HourlyVisibility, java.lang.Double HourlyWindDirection, java.lang.Double HourlyWindSpeed, java.lang.Object HourlyPrecipitation, java.lang.Double HourlyRelativeHumidity) {
+  public WeatherEvent(java.lang.Long Station, java.lang.CharSequence Date, java.lang.Double Latitude, java.lang.Double Longitude, java.lang.Double Elevation, java.lang.CharSequence Name, java.lang.CharSequence ReportType, java.lang.Integer Source, java.lang.Double HourlyDryBulbTemperature, java.lang.Double HourlySeaLevelPressure, java.lang.Double HourlyVisibility, java.lang.Double HourlyWindDirection, java.lang.Double HourlyWindSpeed, java.lang.Double HourlyPrecipitation, java.lang.Double HourlyRelativeHumidity) {
     this.Station = Station;
     this.Date = Date;
     this.Latitude = Latitude;
@@ -173,13 +173,13 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
     case 4: Elevation = (java.lang.Double)value$; break;
     case 5: Name = (java.lang.CharSequence)value$; break;
     case 6: ReportType = (java.lang.CharSequence)value$; break;
-    case 7: Source = value$; break;
+    case 7: Source = (java.lang.Integer)value$; break;
     case 8: HourlyDryBulbTemperature = (java.lang.Double)value$; break;
     case 9: HourlySeaLevelPressure = (java.lang.Double)value$; break;
     case 10: HourlyVisibility = (java.lang.Double)value$; break;
     case 11: HourlyWindDirection = (java.lang.Double)value$; break;
     case 12: HourlyWindSpeed = (java.lang.Double)value$; break;
-    case 13: HourlyPrecipitation = value$; break;
+    case 13: HourlyPrecipitation = (java.lang.Double)value$; break;
     case 14: HourlyRelativeHumidity = (java.lang.Double)value$; break;
     default: throw new IndexOutOfBoundsException("Invalid index: " + field$);
     }
@@ -308,7 +308,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
    * Gets the value of the 'Source' field.
    * @return The value of the 'Source' field.
    */
-  public java.lang.Object getSource() {
+  public java.lang.Integer getSource() {
     return Source;
   }
 
@@ -317,7 +317,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'Source' field.
    * @param value the value to set.
    */
-  public void setSource(java.lang.Object value) {
+  public void setSource(java.lang.Integer value) {
     this.Source = value;
   }
 
@@ -410,7 +410,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
    * Gets the value of the 'HourlyPrecipitation' field.
    * @return The value of the 'HourlyPrecipitation' field.
    */
-  public java.lang.Object getHourlyPrecipitation() {
+  public java.lang.Double getHourlyPrecipitation() {
     return HourlyPrecipitation;
   }
 
@@ -419,7 +419,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'HourlyPrecipitation' field.
    * @param value the value to set.
    */
-  public void setHourlyPrecipitation(java.lang.Object value) {
+  public void setHourlyPrecipitation(java.lang.Double value) {
     this.HourlyPrecipitation = value;
   }
 
@@ -488,13 +488,13 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
     private double Elevation;
     private java.lang.CharSequence Name;
     private java.lang.CharSequence ReportType;
-    private java.lang.Object Source;
+    private java.lang.Integer Source;
     private java.lang.Double HourlyDryBulbTemperature;
     private java.lang.Double HourlySeaLevelPressure;
     private java.lang.Double HourlyVisibility;
     private java.lang.Double HourlyWindDirection;
     private java.lang.Double HourlyWindSpeed;
-    private java.lang.Object HourlyPrecipitation;
+    private java.lang.Double HourlyPrecipitation;
     private java.lang.Double HourlyRelativeHumidity;
 
     /** Creates a new Builder */
@@ -918,7 +918,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Gets the value of the 'Source' field.
       * @return The value.
       */
-    public java.lang.Object getSource() {
+    public java.lang.Integer getSource() {
       return Source;
     }
 
@@ -928,7 +928,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'Source'.
       * @return This builder.
       */
-    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setSource(java.lang.Object value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setSource(java.lang.Integer value) {
       validate(fields()[7], value);
       this.Source = value;
       fieldSetFlags()[7] = true;
@@ -1158,7 +1158,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * Gets the value of the 'HourlyPrecipitation' field.
       * @return The value.
       */
-    public java.lang.Object getHourlyPrecipitation() {
+    public java.lang.Double getHourlyPrecipitation() {
       return HourlyPrecipitation;
     }
 
@@ -1168,7 +1168,7 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'HourlyPrecipitation'.
       * @return This builder.
       */
-    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setHourlyPrecipitation(java.lang.Object value) {
+    public dk.sdu.bigdata.weather.producer.core.WeatherEvent.Builder setHourlyPrecipitation(java.lang.Double value) {
       validate(fields()[13], value);
       this.HourlyPrecipitation = value;
       fieldSetFlags()[13] = true;
@@ -1246,13 +1246,13 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
         record.Elevation = fieldSetFlags()[4] ? this.Elevation : (java.lang.Double) defaultValue(fields()[4]);
         record.Name = fieldSetFlags()[5] ? this.Name : (java.lang.CharSequence) defaultValue(fields()[5]);
         record.ReportType = fieldSetFlags()[6] ? this.ReportType : (java.lang.CharSequence) defaultValue(fields()[6]);
-        record.Source = fieldSetFlags()[7] ? this.Source :  defaultValue(fields()[7]);
+        record.Source = fieldSetFlags()[7] ? this.Source : (java.lang.Integer) defaultValue(fields()[7]);
         record.HourlyDryBulbTemperature = fieldSetFlags()[8] ? this.HourlyDryBulbTemperature : (java.lang.Double) defaultValue(fields()[8]);
         record.HourlySeaLevelPressure = fieldSetFlags()[9] ? this.HourlySeaLevelPressure : (java.lang.Double) defaultValue(fields()[9]);
         record.HourlyVisibility = fieldSetFlags()[10] ? this.HourlyVisibility : (java.lang.Double) defaultValue(fields()[10]);
         record.HourlyWindDirection = fieldSetFlags()[11] ? this.HourlyWindDirection : (java.lang.Double) defaultValue(fields()[11]);
         record.HourlyWindSpeed = fieldSetFlags()[12] ? this.HourlyWindSpeed : (java.lang.Double) defaultValue(fields()[12]);
-        record.HourlyPrecipitation = fieldSetFlags()[13] ? this.HourlyPrecipitation :  defaultValue(fields()[13]);
+        record.HourlyPrecipitation = fieldSetFlags()[13] ? this.HourlyPrecipitation : (java.lang.Double) defaultValue(fields()[13]);
         record.HourlyRelativeHumidity = fieldSetFlags()[14] ? this.HourlyRelativeHumidity : (java.lang.Double) defaultValue(fields()[14]);
         return record;
       } catch (org.apache.avro.AvroMissingFieldException e) {
@@ -1281,6 +1281,275 @@ public class WeatherEvent extends org.apache.avro.specific.SpecificRecordBase im
     READER$.read(this, SpecificData.getDecoder(in));
   }
 
+  @Override protected boolean hasCustomCoders() { return true; }
+
+  @Override public void customEncode(org.apache.avro.io.Encoder out)
+    throws java.io.IOException
+  {
+    out.writeLong(this.Station);
+
+    out.writeString(this.Date);
+
+    out.writeDouble(this.Latitude);
+
+    out.writeDouble(this.Longitude);
+
+    out.writeDouble(this.Elevation);
+
+    out.writeString(this.Name);
+
+    out.writeString(this.ReportType);
+
+    if (this.Source == null) {
+      out.writeIndex(0);
+      out.writeNull();
+    } else {
+      out.writeIndex(1);
+      out.writeInt(this.Source);
+    }
+
+    if (this.HourlyDryBulbTemperature == null) {
+      out.writeIndex(0);
+      out.writeNull();
+    } else {
+      out.writeIndex(1);
+      out.writeDouble(this.HourlyDryBulbTemperature);
+    }
+
+    if (this.HourlySeaLevelPressure == null) {
+      out.writeIndex(0);
+      out.writeNull();
+    } else {
+      out.writeIndex(1);
+      out.writeDouble(this.HourlySeaLevelPressure);
+    }
+
+    if (this.HourlyVisibility == null) {
+      out.writeIndex(0);
+      out.writeNull();
+    } else {
+      out.writeIndex(1);
+      out.writeDouble(this.HourlyVisibility);
+    }
+
+    if (this.HourlyWindDirection == null) {
+      out.writeIndex(0);
+      out.writeNull();
+    } else {
+      out.writeIndex(1);
+      out.writeDouble(this.HourlyWindDirection);
+    }
+
+    if (this.HourlyWindSpeed == null) {
+      out.writeIndex(0);
+      out.writeNull();
+    } else {
+      out.writeIndex(1);
+      out.writeDouble(this.HourlyWindSpeed);
+    }
+
+    if (this.HourlyPrecipitation == null) {
+      out.writeIndex(0);
+      out.writeNull();
+    } else {
+      out.writeIndex(1);
+      out.writeDouble(this.HourlyPrecipitation);
+    }
+
+    if (this.HourlyRelativeHumidity == null) {
+      out.writeIndex(0);
+      out.writeNull();
+    } else {
+      out.writeIndex(1);
+      out.writeDouble(this.HourlyRelativeHumidity);
+    }
+
+  }
+
+  @Override public void customDecode(org.apache.avro.io.ResolvingDecoder in)
+    throws java.io.IOException
+  {
+    org.apache.avro.Schema.Field[] fieldOrder = in.readFieldOrderIfDiff();
+    if (fieldOrder == null) {
+      this.Station = in.readLong();
+
+      this.Date = in.readString(this.Date instanceof Utf8 ? (Utf8)this.Date : null);
+
+      this.Latitude = in.readDouble();
+
+      this.Longitude = in.readDouble();
+
+      this.Elevation = in.readDouble();
+
+      this.Name = in.readString(this.Name instanceof Utf8 ? (Utf8)this.Name : null);
+
+      this.ReportType = in.readString(this.ReportType instanceof Utf8 ? (Utf8)this.ReportType : null);
+
+      if (in.readIndex() != 1) {
+        in.readNull();
+        this.Source = null;
+      } else {
+        this.Source = in.readInt();
+      }
+
+      if (in.readIndex() != 1) {
+        in.readNull();
+        this.HourlyDryBulbTemperature = null;
+      } else {
+        this.HourlyDryBulbTemperature = in.readDouble();
+      }
+
+      if (in.readIndex() != 1) {
+        in.readNull();
+        this.HourlySeaLevelPressure = null;
+      } else {
+        this.HourlySeaLevelPressure = in.readDouble();
+      }
+
+      if (in.readIndex() != 1) {
+        in.readNull();
+        this.HourlyVisibility = null;
+      } else {
+        this.HourlyVisibility = in.readDouble();
+      }
+
+      if (in.readIndex() != 1) {
+        in.readNull();
+        this.HourlyWindDirection = null;
+      } else {
+        this.HourlyWindDirection = in.readDouble();
+      }
+
+      if (in.readIndex() != 1) {
+        in.readNull();
+        this.HourlyWindSpeed = null;
+      } else {
+        this.HourlyWindSpeed = in.readDouble();
+      }
+
+      if (in.readIndex() != 1) {
+        in.readNull();
+        this.HourlyPrecipitation = null;
+      } else {
+        this.HourlyPrecipitation = in.readDouble();
+      }
+
+      if (in.readIndex() != 1) {
+        in.readNull();
+        this.HourlyRelativeHumidity = null;
+      } else {
+        this.HourlyRelativeHumidity = in.readDouble();
+      }
+
+    } else {
+      for (int i = 0; i < 15; i++) {
+        switch (fieldOrder[i].pos()) {
+        case 0:
+          this.Station = in.readLong();
+          break;
+
+        case 1:
+          this.Date = in.readString(this.Date instanceof Utf8 ? (Utf8)this.Date : null);
+          break;
+
+        case 2:
+          this.Latitude = in.readDouble();
+          break;
+
+        case 3:
+          this.Longitude = in.readDouble();
+          break;
+
+        case 4:
+          this.Elevation = in.readDouble();
+          break;
+
+        case 5:
+          this.Name = in.readString(this.Name instanceof Utf8 ? (Utf8)this.Name : null);
+          break;
+
+        case 6:
+          this.ReportType = in.readString(this.ReportType instanceof Utf8 ? (Utf8)this.ReportType : null);
+          break;
+
+        case 7:
+          if (in.readIndex() != 1) {
+            in.readNull();
+            this.Source = null;
+          } else {
+            this.Source = in.readInt();
+          }
+          break;
+
+        case 8:
+          if (in.readIndex() != 1) {
+            in.readNull();
+            this.HourlyDryBulbTemperature = null;
+          } else {
+            this.HourlyDryBulbTemperature = in.readDouble();
+          }
+          break;
+
+        case 9:
+          if (in.readIndex() != 1) {
+            in.readNull();
+            this.HourlySeaLevelPressure = null;
+          } else {
+            this.HourlySeaLevelPressure = in.readDouble();
+          }
+          break;
+
+        case 10:
+          if (in.readIndex() != 1) {
+            in.readNull();
+            this.HourlyVisibility = null;
+          } else {
+            this.HourlyVisibility = in.readDouble();
+          }
+          break;
+
+        case 11:
+          if (in.readIndex() != 1) {
+            in.readNull();
+            this.HourlyWindDirection = null;
+          } else {
+            this.HourlyWindDirection = in.readDouble();
+          }
+          break;
+
+        case 12:
+          if (in.readIndex() != 1) {
+            in.readNull();
+            this.HourlyWindSpeed = null;
+          } else {
+            this.HourlyWindSpeed = in.readDouble();
+          }
+          break;
+
+        case 13:
+          if (in.readIndex() != 1) {
+            in.readNull();
+            this.HourlyPrecipitation = null;
+          } else {
+            this.HourlyPrecipitation = in.readDouble();
+          }
+          break;
+
+        case 14:
+          if (in.readIndex() != 1) {
+            in.readNull();
+            this.HourlyRelativeHumidity = null;
+          } else {
+            this.HourlyRelativeHumidity = in.readDouble();
+          }
+          break;
+
+        default:
+          throw new java.io.IOException("Corrupt ResolvingDecoder.");
+        }
+      }
+    }
+  }
 }
 
 
