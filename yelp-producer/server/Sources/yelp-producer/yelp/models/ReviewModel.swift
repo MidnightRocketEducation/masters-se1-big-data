@@ -9,8 +9,20 @@ struct ReviewModel: Codable {
 	let stars: Double;
 	@LogicalType(.timestampMillis)
 	let date: Date;
+}
 
-	init(from decoder: any Decoder) throws {
+
+extension ReviewModel: Comparable {
+	static func < (lhs: ReviewModel, rhs: ReviewModel) -> Bool {
+		if lhs.date == rhs.date {
+			return lhs.id < rhs.id;
+		}
+		return lhs.date < rhs.date;
+	}
+}
+
+extension ReviewModel {
+	init(from decoder: some Decoder) throws {
 		let container = try decoder.container(keyedBy: CodingKeys.self);
 		self.stars = try container.decode(Double.self, forKey: .stars);
 		if let id = try container.decodeIfPresent(String.self, forKey: .id) {
@@ -37,18 +49,7 @@ struct ReviewModel: Codable {
 		case businessId = "business_id";
 		case date;
 	}
-}
 
-extension ReviewModel: Comparable {
-	static func < (lhs: ReviewModel, rhs: ReviewModel) -> Bool {
-		if lhs.date == rhs.date {
-			return lhs.id < rhs.id;
-		}
-		return lhs.date < rhs.date;
-	}
-}
-
-extension ReviewModel {
 	static let dateFormatter: DateFormatter = {
 		let formatter = DateFormatter();
 		formatter.dateFormat = "yyyy-MM-dd HH:mm:ss";

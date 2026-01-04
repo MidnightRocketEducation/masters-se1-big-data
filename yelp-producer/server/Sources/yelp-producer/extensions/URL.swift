@@ -1,6 +1,6 @@
 import Foundation;
 extension URL {
-	static func + (lhs: URL, rhs: any RawRepresentable<String>) -> URL {
+	static func + (lhs: URL, rhs: some RawRepresentable<String>) -> URL {
 		lhs.appending(path: rhs.rawValue);
 	}
 }

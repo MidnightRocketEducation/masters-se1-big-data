@@ -78,6 +78,6 @@ extension AvroSchemaManager {
 
 extension AvroSchemaManager {
 	struct RegistryId: Codable {
-		let id: Int32;
+		let id: UInt32;
 	}
 }

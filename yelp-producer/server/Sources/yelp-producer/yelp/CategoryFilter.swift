@@ -3,7 +3,7 @@ import Foundation;
 struct CategoryFilter {
 	private let set: Set<String>;
 
-	func matches(categoryArray: [any StringProtocol], threshold: Int = 3) -> Bool {
+	func matches(categoryArray: [some StringProtocol], threshold: Int = 3) -> Bool {
 		var count = 0;
 		for category in categoryArray {
 			if self.set.contains(String(category)) {

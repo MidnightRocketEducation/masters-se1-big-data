@@ -7,8 +7,13 @@ struct BusinessModel: Codable {
 	let location: Location;
 	let stars: Double;
 	let categories: [String];
+}
 
-	init(from decoder: any Decoder) throws {
+
+
+
+extension BusinessModel {
+	init(from decoder: some Decoder) throws {
 		let container = try decoder.container(keyedBy: CodingKeys.self)
 		self.name = try container.decode(String.self, forKey: .name)
 		self.stars = try container.decode(Double.self, forKey: .stars)
@@ -35,22 +40,6 @@ struct BusinessModel: Codable {
 		case id = "business_id";
 		case longitude, latitude, categories;
 	}
-}
-
-
-
-extension BusinessModel {
-	private static func decodeOptionalArray<Element: Decodable, K: CodingKey>(
-		_ container: KeyedDecodingContainer<K>,
-		forKey key: K
-	) throws -> [Element] {
-		if try container.decodeNil(forKey: key) {
-			return [];
-		} else {
-			return try container.decode([Element].self, forKey: key);
-		}
-	}
-
 	private static func decodeCategories(_ container: KeyedDecodingContainer<LegacyKeys>) throws -> [String] {
 		if try container.decodeNil(forKey: .categories) {
 			return [];
