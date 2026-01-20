@@ -33,4 +33,4 @@ spec:
             - name: ONE_HOUR_EQUALS
               value: "10000"
             - name: START_DATE_TIME
-              value: "2011-01-02T09:31:00Z"
+              value: "2009-01-01T00:00:00Z"
