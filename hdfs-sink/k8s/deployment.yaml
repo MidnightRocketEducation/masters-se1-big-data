@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hdfs-sink-connector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hdfs-sink-connector
+  template:
+    metadata:
+      labels:
+        app: hdfs-sink-connector
+    spec:
+      containers:
+      - name: kafka-connect
+        image: confluentinc/cp-kafka-connect:latest
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          confluent-hub install --no-prompt confluentinc/kafka-connect-hdfs3:latest
+          connect-standalone /tmp/worker.properties /tmp/hdfs-sink-connector.properties
+        volumeMounts:
+        - name: config
+          mountPath: /tmp/worker.properties
+          subPath: worker.properties
+        - name: config
+          mountPath: /tmp/hdfs-sink-connector.properties
+          subPath: hdfs-sink-connector.properties
+        - name: hadoop-config
+          mountPath: /etc/hadoop/conf/core-site.xml
+          subPath: core-site.xml
+        env:
+        - name: CONNECT_REST_PORT
+          value: "8083"
+        - name: CONNECT_GROUP_ID
+          value: "hdfs-sink-group"
+        - name: CONNECT_CONFIG_STORAGE_TOPIC
+          value: "connect-configs"
+        - name: CONNECT_OFFSET_STORAGE_TOPIC
+          value: "connect-offsets-reset"
+        - name: CONNECT_STATUS_STORAGE_TOPIC
+          value: "connect-status"
+        ports:
+        - containerPort: 8083
+      volumes:
+      - name: config
+        configMap:
+          name: hdfs-sink-config
+      - name: hadoop-config
+        configMap:
+          name: hdfs-sink-config

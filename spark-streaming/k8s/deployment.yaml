@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-streaming
+  labels:
+    app: spark-streaming
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-streaming
+  template:
+    metadata:
+      labels:
+        app: spark-streaming
+    spec:
+      serviceAccountName: default
+      restartPolicy: Always
+      containers:
+        - name: spark-streaming
+          image: oliverxll/sdu-masters-se1-big-data:spark-streaming-ml
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: spark-streaming-config
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: SPARK_DRIVER_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: SPARK_DRIVER_PORT
+              value: "7078"
+          ports:
+            - containerPort: 7078
+              name: driver
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "1"
+              memory: "2Gi"

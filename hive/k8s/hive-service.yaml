@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hiveserver2-service
+spec:
+  selector:
+    app: hiveserver2
+  ports:
+  - name: thrift
+    port: 10000
+    targetPort: 10000
+  - name: webui
+    port: 10002
+    targetPort: 10002
+  type: ClusterIP

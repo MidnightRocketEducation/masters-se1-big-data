@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-master
+  template:
+    metadata:
+      labels:
+        app: spark-master
+    spec:
+      containers:
+      - name: spark-master
+        image: apache/spark:3.5.0
+        command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master"]
+        ports:
+        - containerPort: 7077
+        - containerPort: 8080
+        env:
+        - name: SPARK_MASTER_HOST
+          value: "0.0.0.0"
+        - name: SPARK_MASTER_PORT
+          value: "7077"
+        - name: SPARK_MASTER_WEBUI_PORT
+          value: "8080"
+        - name: SPARK_MASTER_OPTS
+          value: "-Dspark.shuffle.service.enabled=true"
+        volumeMounts:
+        - name: hdfs-config
+          mountPath: /opt/spark/conf/core-site.xml
+          subPath: core-site.xml
+        - name: hdfs-config
+          mountPath: /opt/spark/conf/hdfs-site.xml
+          subPath: hdfs-site.xml
+      volumes:
+      - name: hdfs-config
+        configMap:
+          name: hdfs-config
