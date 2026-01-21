@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
       - name: training-listener
-        image: your-registry/mlflow-app:latest
+        image: oliverxll/sdu-masters-se1-big-data:mlflow-server
+        imagePullPolicy: Always
         command: ["python", "src/train_model.py"]
         envFrom:
         - configMapRef:
@@ -30,4 +31,4 @@ spec:
       volumes:
       - name: models-volume
         persistentVolumeClaim:
-          claimName: models-pvc
+          claimName: mlflow-models-pvc
