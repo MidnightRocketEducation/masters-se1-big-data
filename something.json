@@ -4,3 +4,20 @@
   "id": 11,
   "schema": "{\"type\":\"record\",\"name\":\"WeatherEvent\",\"namespace\":\"dk.sdu.bigdata.weather.producer.core\",\"fields\":[{\"name\":\"Station\",\"type\":\"long\"},{\"name\":\"Date\",\"type\":\"string\"},{\"name\":\"Latitude\",\"type\":\"double\"},{\"name\":\"Longitude\",\"type\":\"double\"},{\"name\":\"Elevation\",\"type\":\"double\"},{\"name\":\"Name\",\"type\":\"string\"},{\"name\":\"ReportType\",\"type\":\"string\"},{\"name\":\"Source\",\"type\":[\"null\",\"int\"],\"default\":null},{\"name\":\"HourlyDryBulbTemperature\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlySeaLevelPressure\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyVisibility\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyWindDirection\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyWindSpeed\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyPrecipitation\",\"type\":[\"null\",\"double\"],\"default\":null},{\"name\":\"HourlyRelativeHumidity\",\"type\":[\"null\",\"double\"],\"default\":null}]}"
 }
+
+
+kubectl cp ~/Desktop/payload.csv weather-producer-5f44b69bbb-2tw5z:/data/filtered_1986/payload.csv
+
+hdfs dfs -rm /topics/weather2/partition=0/file
+
+
+
+hdfs dfs -cat /topics/weather2/partition=0/filename.parquet
+
+hdfs dfs -get /topics/weather2/partition=0/filename.parquet .
+
+kubectl cp hdfs-cli:/opt/hadoop/file ./file.parquet
+
+python3 decode-parqet.py
+
+
